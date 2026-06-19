@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#F97316"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="والکسیر"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link rel="icon" href="icons/icon-192.png"/>
+<title>WHALIXIR | والکسیر</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --or:#f97316;--ord:#c2410c;--orl:#fff7ed;--orl2:#ffedd5;
+  --bg:#fafaf9;--card:#fff;--inp:#f5f5f4;--brd:#e7e5e4;
+  --t1:#1c1917;--t2:#78716c;--t3:#a8a29e;--t4:#d6d3d1;
+  --nav:#fff;--ok:#16a34a;--err:#dc2626;--warn:#d97706;
+  --r:14px;--rs:9px;--sh:0 1px 4px rgba(0,0,0,.07);
+  --top:56px;--bot:68px;
+}
+[data-theme=dark]{
+  --or:#ea580c;--orl:rgba(234,88,12,.12);--orl2:rgba(234,88,12,.2);
+  --bg:#0c0a09;--card:#1c1917;--inp:#292524;--brd:#44403c;
+  --t1:#fafaf9;--t2:#a8a29e;--t3:#57534e;--t4:#44403c;--nav:#1c1917;
+}
+html,body{width:100%;height:100%;font-family:'Vazirmatn',sans-serif;font-size:15px;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;overflow:hidden}
+button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
+input,select,textarea{font-family:inherit;font-size:inherit}
+.hidden{display:none!important}
+
+/* ══ PIN SCREEN ══ */
+#pinScreen{
+  position:fixed;inset:0;z-index:999;
+  background:linear-gradient(135deg,#1c1917 0%,#292524 50%,#1c1917 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+}
+.pin-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:36px}
+.pin-title{font-size:1.8rem;font-weight:800;color:var(--or);letter-spacing:.12em;margin-top:14px}
+.pin-sub{font-size:.85rem;color:#a8a29e;margin-top:4px}
+.pin-user-label{font-size:.8rem;color:#78716c;margin-bottom:16px;letter-spacing:.05em}
+.pin-dots{display:flex;gap:14px;margin-bottom:32px}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid #57534e;transition:all .2s}
+.pin-dot.filled{background:var(--or);border-color:var(--or);transform:scale(1.1)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:260px}
+.pin-btn{
+  height:70px;border-radius:var(--r);
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
+  color:#fff;font-size:1.4rem;font-weight:600;
+  transition:background .15s,transform .1s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+}
+.pin-btn:active{background:rgba(249,115,22,.25);transform:scale(.95)}
+.pin-btn .sub{font-size:.5rem;letter-spacing:.1em;color:#78716c;font-weight:400}
+.pin-btn.zero{grid-column:2}
+.pin-btn.del{grid-column:3;background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.15)}
+.pin-error{color:#f87171;font-size:.8rem;margin-top:16px;min-height:20px;text-align:center}
+.pin-users{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}
+.pin-user-chip{
+  padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:600;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#a8a29e;
+  cursor:pointer;transition:all .15s;
+}
+.pin-user-chip.active{background:rgba(249,115,22,.2);border-color:var(--or);color:var(--or)}
+
+/* ══ APP ══ */
+#app{display:flex;flex-direction:column;width:100%;height:100vh;overflow:hidden}
+
+/* TOPBAR */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  height:var(--top);padding:0 16px;flex-shrink:0;
+  background:var(--card);border-bottom:1px solid var(--brd);box-shadow:var(--sh);z-index:10;
+}
+.tb-brand{display:flex;align-items:center;gap:8px}
+.tb-title{font-weight:800;font-size:1rem;color:var(--or);letter-spacing:.08em}
+.tb-actions{display:flex;gap:4px;align-items:center}
+.ic-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--rs);color:var(--t2);transition:background .15s}
+.ic-btn:hover{background:var(--inp)}
+
+/* RATE BAR */
+.ratebar{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  background:var(--or);color:#fff;font-size:.72rem;font-weight:600;padding:4px 14px;flex-shrink:0;
+}
+.ratebar-val{font-weight:800;font-size:.78rem}
+.ratebar-spin{opacity:.7;animation:spin 1.5s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ratebar-btn{background:rgba(255,255,255,.2);border-radius:6px;color:#fff;font-size:.68rem;padding:2px 8px;border:none;cursor:pointer}
+.ratebar-btn:hover{background:rgba(255,255,255,.35)}
+
+/* BODY WRAP */
+.body-wrap{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{
+  display:none;width:190px;flex-shrink:0;
+  background:var(--card);border-left:1px solid var(--brd);
+  padding:14px 10px;flex-direction:column;gap:3px;overflow-y:auto;
+}
+@media(min-width:768px){.sidebar{display:flex}.bottomnav{display:none!important}.content{padding:22px 30px!important}}
+@media(min-width:1100px){.sidebar{width:210px}.content{padding:26px 44px!important}}
+.sb-btn{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:var(--rs);color:var(--t2);font-size:.85rem;font-weight:500;width:100%;text-align:right;transition:background .15s,color .15s}
+.sb-btn:hover{background:var(--inp);color:var(--t1)}
+.sb-btn.active{background:var(--orl2);color:var(--or);font-weight:700}
+.sb-footer{margin-top:auto;padding-top:14px;border-top:1px solid var(--brd);font-size:.65rem;color:var(--t3);text-align:center}
+
+/* CONTENT */
+.content{flex:1;min-width:0;overflow-y:auto;padding:12px 12px calc(var(--bot)+12px);height:100%}
+
+/* BOTTOM NAV */
+.bottomnav{position:fixed;bottom:0;left:0;right:0;height:var(--bot);background:var(--nav);border-top:1px solid var(--brd);display:flex;align-items:center;padding:0 2px env(safe-area-inset-bottom,0);z-index:10;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 0;color:var(--t3);font-size:.62rem;font-weight:500;border-radius:var(--rs);transition:color .15s}
+.nb.active,.nb:hover{color:var(--or)}
+
+/* SECTIONS */
+.sec{display:none}.sec.active{display:block;animation:fup .2s ease}
+@keyframes fup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-ttl{font-size:1.15rem;font-weight:700}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:13px;margin-bottom:10px;box-shadow:var(--sh)}
+.card-lbl{font-size:.67rem;font-weight:700;letter-spacing:.06em;color:var(--t3);text-transform:uppercase;margin-bottom:10px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.stat{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:13px 10px;text-align:center;box-shadow:var(--sh)}
+.stat.ac{border-color:var(--or);background:var(--orl2)}
+.stat.ok{background:#f0fdf4;border-color:#86efac}[data-theme=dark] .stat.ok{background:#052e16}
+.stat.wn{background:#fffbeb;border-color:#fcd34d44}[data-theme=dark] .stat.wn{background:#1c1403}
+.sv{font-size:1.3rem;font-weight:800;color:var(--or)}
+.sl{font-size:.67rem;color:var(--t2);margin-top:2px}
+.st{font-size:.62rem;color:var(--t3);margin-top:1px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--rs);font-weight:600;font-size:.82rem;transition:background .15s,transform .1s;white-space:nowrap;border:none;cursor:pointer}
+.btn:active{transform:scale(.97)}
+.btn.pr{background:var(--or);color:#fff}.btn.pr:hover{background:var(--ord)}.btn.pr:disabled{opacity:.6}
+.btn.sc{background:var(--inp);color:var(--t2)}.btn.sc:hover{background:var(--brd)}
+.btn.dn{background:#fee2e2;color:var(--err)}.btn.dn:hover{background:#fecaca}
+.btn.fl{width:100%;justify-content:center}
+.ic-acc{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:var(--rs);background:var(--or);color:#fff;flex-shrink:0;cursor:pointer;border:none}
+.ic-ed{width:30px;height:30px;border-radius:var(--rs);background:var(--orl2);color:var(--or);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+.ic-dl{width:30px;height:30px;border-radius:var(--rs);background:#fee2e2;color:var(--err);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none}
+[data-theme=dark] .ic-dl{background:#3f0f0f}
+
+/* INPUTS */
+.inp{width:100%;padding:9px 11px;background:var(--inp);border:1px solid var(--brd);border-radius:var(--rs);color:var(--t1);outline:none;transition:border-color .15s,box-shadow .15s}
+.inp:focus{border-color:var(--or);box-shadow:0 0 0 3px var(--orl)}
+.inp::placeholder{color:var(--t3)}
+textarea.inp{resize:vertical}
+select.inp{cursor:pointer}
+.srch{display:flex;align-items:center;gap:8px;background:var(--inp);border:1px solid var(--brd);border-radius:var(--rs);padding:7px 11px;transition:border-color .15s}
+.srch:focus-within{border-color:var(--or)}.srch svg{color:var(--t3);flex-shrink:0}
+.srch input{flex:1;background:none;border:none;outline:none;color:var(--t1)}.srch input::placeholder{color:var(--t3)}
+.iwa{display:flex;gap:7px}.iwa .inp{flex:1}
+.fg{margin-bottom:11px}
+.fl-lbl{display:block;font-size:.74rem;font-weight:600;color:var(--t2);margin-bottom:5px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.toman{font-size:.67rem;color:var(--t3);margin-top:2px}
+.hint{font-size:.67rem;color:var(--t3);margin-top:2px}
+
+/* CART */
+.cart-list{min-height:48px}
+.ci{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--brd)}
+.ci:last-child{border:none}
+.ci-info{flex:1}
+.ci-name{font-weight:600;font-size:.86rem}
+.ci-det{font-size:.7rem;color:var(--t2);margin-top:1px}
+.ci-right{text-align:left}
+.ci-price{font-weight:700;color:var(--or);font-size:.86rem}
+.ci-rm{width:26px;height:26px;border-radius:50%;background:var(--inp);color:var(--err);display:flex;align-items:center;justify-content:center;font-size:.9rem;border:none;cursor:pointer}
+.cart-foot{border-top:2px solid var(--brd);padding-top:11px;margin-top:9px}
+.cart-tot{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px}
+.cart-tot strong{font-size:1rem;color:var(--or)}
+.cart-acts{display:flex;gap:7px}
+.cart-acts .btn.sc{flex:1;justify-content:center}
+.cart-acts .btn.pr{flex:2;justify-content:center}
+
+/* PRODUCT ROWS */
+.pgrid{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+@media(min-width:768px){.pgrid{display:grid;grid-template-columns:1fr 1fr}}
+.prow{display:flex;align-items:center;gap:9px;padding:9px;background:var(--inp);border-radius:var(--rs);cursor:pointer;border:1px solid transparent;transition:all .15s}
+.prow:hover{background:var(--orl2);border-color:var(--or)}
+.prow-i{flex:1}
+.prow-n{font-weight:600;font-size:.86rem}
+.prow-b{font-size:.68rem;color:var(--t2)}
+.prow-right{text-align:left}
+.prow-p{font-weight:700;color:var(--or);font-size:.86rem}
+.prow-s{font-size:.66rem;color:var(--t3)}
+.prow-t{font-size:.64rem;color:var(--t3)}
+.out-stock{opacity:.5;pointer-events:none}
+
+/* INV */
+.inv-list{display:flex;flex-direction:column;gap:8px}
+.inv-item{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:11px 13px;display:flex;align-items:flex-start;gap:9px;box-shadow:var(--sh)}
+.inv-main{flex:1;min-width:0}
+.inv-name{font-weight:700;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inv-brand{font-size:.7rem;color:var(--t2);margin-top:1px}
+.inv-bc{font-size:.64rem;color:var(--t3);font-family:monospace;margin-top:1px}
+.inv-meta{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.bdg{font-size:.64rem;font-weight:600;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.b-p{background:var(--orl2);color:var(--ord)}
+.b-s{background:var(--inp);color:var(--t2)}
+.b-low{background:#fee2e2;color:var(--err)}
+.b-t{background:#fef3c7;color:#92400e}[data-theme=dark] .b-t{background:#292104;color:#fbbf24}
+.inv-acts{display:flex;gap:5px;flex-shrink:0}
+
+/* SCANNER */
+.scan-wrap{position:relative;border-radius:var(--rs);overflow:hidden;background:#000;aspect-ratio:4/3}
+.scan-vid{width:100%;height:100%;object-fit:cover}
+.scan-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.scan-fr{width:200px;height:110px;border:2px solid var(--or);border-radius:var(--rs);position:relative;overflow:hidden}
+.scan-ln{position:absolute;top:0;left:0;right:0;height:2px;background:var(--or);animation:scn 2s ease-in-out infinite}
+@keyframes scn{0%,100%{top:0}50%{top:calc(100% - 2px)}}
+
+/* SALES LIST */
+.slist{display:flex;flex-direction:column;gap:6px}
+.se{display:flex;align-items:center;gap:8px;padding:8px;border-radius:var(--rs);background:var(--inp)}
+.se-ico{width:32px;height:32px;border-radius:50%;background:var(--orl2);color:var(--or);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.se-i{flex:1}
+.se-n{font-weight:600;font-size:.82rem}
+.se-t{font-size:.66rem;color:var(--t3)}
+.se-r{text-align:left}
+.se-a{font-weight:700;color:var(--or);font-size:.84rem}
+
+/* PNL */
+.pnl{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+@media(min-width:768px){.pnl{grid-template-columns:1fr 1fr 1fr}}
+.pnl-c{border-radius:var(--r);padding:14px 11px;text-align:center;border:1px solid transparent}
+.pnl-c:nth-child(3){grid-column:span 2}
+@media(min-width:768px){.pnl-c:nth-child(3){grid-column:span 1}}
+.pnl-in{background:#f0fdf4;border-color:#86efac}[data-theme=dark] .pnl-in{background:#052e16}
+.pnl-co{background:#fef2f2;border-color:#fca5a5}[data-theme=dark] .pnl-co{background:#3f0f0f}
+.pnl-nt{background:var(--orl2);border-color:var(--or)}
+.pnl-ico{font-size:1.3rem;margin-bottom:5px}
+.pnl-in .pnl-ico{color:var(--ok)}.pnl-co .pnl-ico{color:var(--err)}.pnl-nt .pnl-ico{color:var(--or)}
+.pnl-v{font-size:1.2rem;font-weight:800}
+.pnl-in .pnl-v{color:var(--ok)}.pnl-co .pnl-v{color:var(--err)}.pnl-nt .pnl-v{color:var(--or)}
+.pnl-l{font-size:.66rem;color:var(--t2);margin-top:2px}
+
+/* CHART */
+.chart-wrap{width:100%;overflow-x:auto;padding-bottom:4px}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:32px}
+.bar{width:100%;border-radius:5px 5px 0 0;transition:height .4s ease;min-height:2px;cursor:pointer}
+.bar.income-bar{background:var(--or);opacity:.85}
+.bar.profit-bar{background:var(--ok);opacity:.85}
+.bar-lbl{font-size:.58rem;color:var(--t3);text-align:center;white-space:nowrap}
+.chart-legend{display:flex;gap:14px;margin-top:8px;justify-content:center}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--t2)}
+.legend-dot{width:10px;height:10px;border-radius:2px}
+
+/* TX */
+.txl{display:flex;flex-direction:column;gap:6px}
+.txr{display:flex;align-items:center;gap:8px;padding:8px;border-radius:var(--rs);background:var(--inp)}
+.txd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.txd.s{background:var(--ok)}
+.tx-i{flex:1}.tx-n{font-weight:600;font-size:.82rem}.tx-t{font-size:.66rem;color:var(--t3)}
+.tx-a{font-weight:700;font-size:.84rem}.tx-a.pos{color:var(--ok)}
+
+/* TOP LIST */
+.toplist{display:flex;flex-direction:column;gap:7px}
+.top-i{display:flex;align-items:center;gap:8px}
+.top-r{width:22px;height:22px;border-radius:50%;background:var(--or);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.66rem;font-weight:700;flex-shrink:0}
+.top-n{font-weight:600;font-size:.82rem}.top-q{font-size:.66rem;color:var(--t3)}
+.top-v{font-weight:700;color:var(--or);font-size:.82rem}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:768px){.modal-bg{align-items:center}}
+.modal{background:var(--card);border-radius:var(--r) var(--r) 0 0;width:100%;max-width:560px;max-height:90dvh;overflow-y:auto;animation:sup .22s ease}
+@media(min-width:768px){.modal{border-radius:var(--r)}}
+@keyframes sup{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-h{display:flex;align-items:center;justify-content:space-between;padding:15px 17px 0;margin-bottom:13px}
+.modal-h h3{font-size:.97rem;font-weight:700}
+.modal-b{padding:0 17px}
+.modal-f{display:flex;gap:8px;justify-content:flex-end;padding:13px 17px 20px}
+.modal-f .btn.sc{flex:1;justify-content:center}.modal-f .btn.pr{flex:2;justify-content:center}
+
+/* QTY MODAL */
+.qty-sel{display:flex;align-items:center;justify-content:center;gap:18px;padding:18px 0}
+.btn-qty{width:42px;height:42px;border-radius:50%;background:var(--or);color:#fff;font-size:1.3rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;transition:transform .1s}
+.btn-qty:active{transform:scale(.9)}
+.qty-v{font-size:1.7rem;font-weight:800;min-width:48px;text-align:center}
+.qty-p{text-align:center;padding-bottom:6px}
+.qty-aed{font-weight:700;color:var(--or);font-size:1rem}
+.qty-t{font-size:.75rem;color:var(--t3);margin-top:2px}
+.disc-row{display:flex;align-items:center;gap:10px;padding:8px 0}
+.disc-row label{font-size:.8rem;color:var(--t2);white-space:nowrap}
+.disc-row .inp{flex:1}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--bot)+12px);left:50%;transform:translateX(-50%);background:#292524;color:#fff;padding:8px 18px;border-radius:30px;font-size:.8rem;font-weight:500;z-index:200;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.3);animation:tin .22s ease}
+@media(min-width:768px){.toast{bottom:18px}}
+[data-theme=dark] .toast{background:var(--or)}
+@keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;gap:6px;color:var(--t3);text-align:center;font-size:.8rem}
+
+/* USER PANEL */
+.user-list{display:flex;flex-direction:column;gap:8px}
+.user-item{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--inp);border-radius:var(--r);border:1px solid var(--brd)}
+.user-avatar{width:38px;height:38px;border-radius:50%;background:var(--orl2);color:var(--or);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0}
+.user-info{flex:1}
+.user-name{font-weight:600;font-size:.88rem}
+.user-role{font-size:.7rem;color:var(--t3)}
+.user-acts{display:flex;gap:5px}
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pinScreen">
+  <div class="pin-logo">
+    <svg width="60" height="60" viewBox="0 0 72 72" fill="none">
+      <circle cx="36" cy="36" r="36" fill="#F97316"/>
+      <path d="M20 22 Q36 14 52 22 L52 42 Q36 56 20 42 Z" fill="none" stroke="white" stroke-width="2.5"/>
+      <ellipse cx="36" cy="34" rx="8" ry="11" fill="white" opacity=".9"/>
+      <line x1="36" y1="23" x2="36" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="36" y1="18" x2="40" y2="14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <div class="pin-title">WHALIXIR</div>
+    <div class="pin-sub">والکسیر — فروشگاه عطر</div>
+  </div>
+  <div class="pin-users" id="pinUsers"></div>
+  <div class="pin-user-label" id="pinUserLabel">کاربر را انتخاب کنید</div>
+  <div class="pin-dots" id="pinDots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-pad" id="pinPad">
+    <button class="pin-btn" data-n="1">1<span class="sub"></span></button>
+    <button class="pin-btn" data-n="2">2<span class="sub">ABC</span></button>
+    <button class="pin-btn" data-n="3">3<span class="sub">DEF</span></button>
+    <button class="pin-btn" data-n="4">4<span class="sub">GHI</span></button>
+    <button class="pin-btn" data-n="5">5<span class="sub">JKL</span></button>
+    <button class="pin-btn" data-n="6">6<span class="sub">MNO</span></button>
+    <button class="pin-btn" data-n="7">7<span class="sub">PQRS</span></button>
+    <button class="pin-btn" data-n="8">8<span class="sub">TUV</span></button>
+    <button class="pin-btn" data-n="9">9<span class="sub">WXYZ</span></button>
+    <button class="pin-btn zero" data-n="0">0</button>
+    <button class="pin-btn del" data-n="del">⌫</button>
+  </div>
+  <div class="pin-error" id="pinError"></div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+  <header class="topbar">
+    <div class="tb-brand">
+      <svg width="24" height="24" viewBox="0 0 72 72" fill="none">
+        <circle cx="36" cy="36" r="36" fill="#F97316"/>
+        <path d="M20 22 Q36 14 52 22 L52 42 Q36 56 20 42 Z" fill="none" stroke="white" stroke-width="2.5"/>
+        <ellipse cx="36" cy="34" rx="8" ry="11" fill="white" opacity=".9"/>
+        <line x1="36" y1="23" x2="36" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <line x1="36" y1="18" x2="40" y2="14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="tb-title">WHALIXIR</span>
+    </div>
+    <div class="tb-actions">
+      <span id="currentUserBadge" style="font-size:.72rem;color:var(--t2);margin-left:4px"></span>
+      <button class="ic-btn" id="darkBtn" title="حالت تاریک">
+        <svg id="iSun" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg id="iMoon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="ic-btn" id="logoutBtn" title="خروج">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="ratebar">
+    <span style="opacity:.8;font-size:.68rem">نرخ درهم (tgju.org):</span>
+    <span id="rateVal" class="ratebar-val">—</span>
+    <button class="ratebar-btn" id="rateBtn">↻</button>
+  </div>
+
+  <div class="body-wrap">
+    <aside class="sidebar">
+      <button class="sb-btn active" data-s="sale"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>فروش</button>
+      <button class="sb-btn" data-s="inv"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L6 7h12l-2-4z"/><path d="M12 12v5"/><path d="M9.5 14.5h5"/></svg>انبار</button>
+      <button class="sb-btn" data-s="dash"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>داشبورد</button>
+      <button class="sb-btn" data-s="pnl"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>سود/زیان</button>
+      <button class="sb-btn" data-s="users"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>کاربران</button>
+      <div class="sb-footer">WHALIXIR © 2025</div>
+    </aside>
+
+    <main class="content">
+
+      <!-- SALE -->
+      <section id="sec-sale" class="sec active">
+        <div class="sec-hd">
+          <h2 class="sec-ttl">فروش</h2>
+          <button class="btn pr" id="newSaleBtn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>فروش جدید</button>
+        </div>
+        <!-- Barcode scan for sale -->
+        <div class="card" id="saleScanCard" style="display:none;border-color:var(--or)">
+          <div class="card-lbl">اسکن بارکد برای فروش</div>
+          <div class="scan-wrap"><video id="saleScanVideo" class="scan-vid" autoplay playsinline muted></video><div class="scan-ov"><div class="scan-fr"><div class="scan-ln"></div></div></div></div>
+          <button class="btn sc fl" id="closeSaleScan" style="margin-top:9px">بستن دوربین</button>
+        </div>
+        <div class="card">
+          <div class="card-lbl">سبد فروش</div>
+          <div id="cartItems" class="cart-list"><div class="empty"><svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" opacity=".3"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><p>سبد خالی است</p></div></div>
+          <div id="cartFoot" style="display:none">
+            <div class="cart-foot">
+              <div class="cart-tot"><span>جمع کل:</span><div><strong id="cartTotal">۰ درهم</strong><div class="toman" id="cartTotalT"></div></div></div>
+              <div class="cart-acts"><button class="btn sc" id="clearCart">پاک کردن</button><button class="btn pr" id="confirmSale">ثبت فروش</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-lbl">جستجو / اسکن</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <div class="srch" style="flex:1"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="saleSearch" placeholder="جستجوی عطر..."/></div>
+            <button class="ic-acc" id="saleScanBtn" title="اسکن بارکد"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9V5a2 2 0 0 1 2-2h4"/><path d="M15 3h4a2 2 0 0 1 2 2v4"/><path d="M21 15v4a2 2 0 0 1-2 2h-4"/><path d="M9 21H5a2 2 0 0 1-2-2v-4"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg></button>
+          </div>
+          <div id="saleList" class="pgrid"></div>
+        </div>
+        <div class="card"><div class="card-lbl">فروش‌های اخیر</div><div id="recentSales" class="slist"></div></div>
+      </section>
+
+      <!-- INVENTORY -->
+      <section id="sec-inv" class="sec">
+        <div class="sec-hd">
+          <h2 class="sec-ttl">انبار</h2>
+          <button class="btn pr" id="addProdBtn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>محصول جدید</button>
+        </div>
+        <div class="card" id="invScanCard" style="display:none;border-color:var(--or)">
+          <div class="card-lbl">اسکن بارکد</div>
+          <div class="scan-wrap"><video id="invScanVideo" class="scan-vid" autoplay playsinline muted></video><div class="scan-ov"><div class="scan-fr"><div class="scan-ln"></div></div></div></div>
+          <button class="btn sc fl" id="closeInvScan" style="margin-top:9px">بستن دوربین</button>
+        </div>
+        <div class="stats">
+          <div class="stat ac"><div class="sv" id="stTotal">۰</div><div class="sl">کل محصولات</div></div>
+          <div class="stat"><div class="sv" id="stQty">۰</div><div class="sl">موجودی کل</div></div>
+          <div class="stat wn"><div class="sv" id="stLow">۰</div><div class="sl">کم‌موجود</div></div>
+        </div>
+        <div class="card"><div class="srch"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="invSearch" placeholder="جستجو در انبار..."/></div></div>
+        <div id="invList" class="inv-list"></div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section id="sec-dash" class="sec">
+        <div class="sec-hd"><h2 class="sec-ttl">داشبورد</h2></div>
+        <div class="stats">
+          <div class="stat ac"><div class="sv" id="dToday">۰</div><div class="sl">فروش امروز (درهم)</div><div class="st" id="dTodayT"></div></div>
+          <div class="stat"><div class="sv" id="dMonth">۰</div><div class="sl">فروش این ماه</div><div class="st" id="dMonthT"></div></div>
+        </div>
+        <div class="stats">
+          <div class="stat ok"><div class="sv" id="dProfit">۰</div><div class="sl">سود خالص ماه</div><div class="st" id="dProfitT"></div></div>
+          <div class="stat wn"><div class="sv" id="dCount">۰</div><div class="sl">تعداد تراکنش</div></div>
+        </div>
+        <div class="card"><div class="card-lbl">پرفروش‌ترین محصولات</div><div id="topProds" class="toplist"></div></div>
+      </section>
+
+      <!-- P&L -->
+      <section id="sec-pnl" class="sec">
+        <div class="sec-hd"><h2 class="sec-ttl">سود و زیان</h2></div>
+        <div class="card" style="display:flex;gap:8px;align-items:center">
+          <select id="pnlPeriod" class="inp" style="flex:1">
+            <option value="week">این هفته</option>
+            <option value="month" selected>این ماه</option>
+            <option value="all">همه</option>
+          </select>
+        </div>
+        <div class="pnl">
+          <div class="pnl-c pnl-in"><div class="pnl-ico">↑</div><div class="pnl-v" id="pIncome">۰</div><div class="pnl-l">درآمد (درهم)</div><div class="toman" id="pIncomeT" style="margin-top:3px"></div></div>
+          <div class="pnl-c pnl-co"><div class="pnl-ico">↓</div><div class="pnl-v" id="pCost">۰</div><div class="pnl-l">هزینه (درهم)</div></div>
+          <div class="pnl-c pnl-nt" id="pnlNet"><div class="pnl-ico">◈</div><div class="pnl-v" id="pNet">۰</div><div class="pnl-l">سود / زیان</div><div class="toman" id="pNetT" style="margin-top:3px"></div></div>
+        </div>
+        <!-- Chart -->
+        <div class="card">
+          <div class="card-lbl">نمودار هفتگی (درهم)</div>
+          <div class="chart-wrap"><div id="chartBars" class="chart-bars"></div></div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--or)"></div>درآمد</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--ok)"></div>سود</div>
+          </div>
+        </div>
+        <div class="card"><div class="card-lbl">تراکنش‌ها</div><div id="txList" class="txl"></div></div>
+      </section>
+
+      <!-- USERS -->
+      <section id="sec-users" class="sec">
+        <div class="sec-hd">
+          <h2 class="sec-ttl">مدیریت کاربران</h2>
+          <button class="btn pr" id="addUserBtn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>کاربر جدید</button>
+        </div>
+        <div class="card"><div class="hint" style="font-size:.78rem;color:var(--t2)">می‌توانید رمز کاربران را تغییر دهید یا کاربر جدید اضافه کنید.</div></div>
+        <div id="userList" class="user-list"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <nav class="bottomnav">
+    <button class="nb active" data-s="sale"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>فروش</span></button>
+    <button class="nb" data-s="inv"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L6 7h12l-2-4z"/><path d="M12 12v5"/><path d="M9.5 14.5h5"/></svg><span>انبار</span></button>
+    <button class="nb" data-s="dash"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>داشبورد</span></button>
+    <button class="nb" data-s="pnl"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span>سود/زیان</span></button>
+    <button class="nb" data-s="users"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>کاربران</span></button>
+  </nav>
+</div>
+
+<!-- MODAL: Product -->
+<div id="mProd" class="modal-bg hidden">
+  <div class="modal">
+    <div class="modal-h"><h3 id="mProdTitle">افزودن محصول</h3><button class="ic-btn" id="mProdClose"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-b">
+      <div class="fg"><label class="fl-lbl">بارکد</label><div class="iwa"><input type="text" id="fBarcode" class="inp" placeholder="اسکن یا وارد کنید"/><button class="ic-acc" id="invScanBtn"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9V5a2 2 0 0 1 2-2h4"/><path d="M15 3h4a2 2 0 0 1 2 2v4"/><path d="M21 15v4a2 2 0 0 1-2 2h-4"/><path d="M9 21H5a2 2 0 0 1-2-2v-4"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg></button></div></div>
+      <div class="fg"><label class="fl-lbl">نام عطر</label><input type="text" id="fName" class="inp" placeholder="مثال: Oud Majestic"/></div>
+      <div class="fg"><label class="fl-lbl">برند</label><input type="text" id="fBrand" class="inp" placeholder="مثال: Swiss Arabian"/></div>
+      <div class="frow">
+        <div class="fg"><label class="fl-lbl">قیمت خرید (درهم)</label><input type="number" id="fBuy" class="inp" placeholder="0" min="0" step="0.01"/></div>
+        <div class="fg">
+          <label class="fl-lbl">قیمت فروش (درهم)</label>
+          <input type="number" id="fSell" class="inp" placeholder="0" min="0" step="0.01"/>
+          <div class="toman" id="fSellT"></div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl-lbl">تعداد موجودی</label><input type="number" id="fQty" class="inp" placeholder="0" min="0"/></div>
+        <div class="fg"><label class="fl-lbl">حجم (ml)</label><input type="number" id="fVol" class="inp" placeholder="100" min="0"/></div>
+      </div>
+      <div class="fg"><label class="fl-lbl">توضیحات</label><textarea id="fDesc" class="inp" rows="2" placeholder="توضیح..."></textarea></div>
+    </div>
+    <div class="modal-f"><button class="btn sc" id="mProdCancel">انصراف</button><button class="btn pr" id="mProdSave">ذخیره</button></div>
+  </div>
+</div>
+
+<!-- MODAL: Qty + Discount -->
+<div id="mQty" class="modal-bg hidden">
+  <div class="modal" style="max-width:330px">
+    <div class="modal-h"><h3 id="mQtyName">تعداد</h3><button class="ic-btn" id="mQtyClose"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-b">
+      <div class="qty-sel">
+        <button class="btn-qty" id="qMinus">−</button>
+        <span class="qty-v" id="qVal">1</span>
+        <button class="btn-qty" id="qPlus">+</button>
+      </div>
+      <div class="disc-row">
+        <label>تخفیف (درهم):</label>
+        <input type="number" id="qDisc" class="inp" value="0" min="0" step="0.5" style="max-width:90px"/>
+      </div>
+      <div class="qty-p">
+        <div class="qty-aed" id="qTotal">۰ درهم</div>
+        <div class="qty-t" id="qTotalT"></div>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn sc" id="mQtyCancel">انصراف</button><button class="btn pr" id="mQtyAdd">افزودن</button></div>
+  </div>
+</div>
+
+<!-- MODAL: User -->
+<div id="mUser" class="modal-bg hidden">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-h"><h3 id="mUserTitle">کاربر جدید</h3><button class="ic-btn" id="mUserClose"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-b">
+      <div class="fg"><label class="fl-lbl">نام کاربر</label><input type="text" id="uName" class="inp" placeholder="مثال: MOLLAEI"/></div>
+      <div class="fg"><label class="fl-lbl">رمز عددی (۴ رقم)</label><input type="password" id="uPin" class="inp" placeholder="****" maxlength="4" inputmode="numeric"/></div>
+      <div class="fg"><label class="fl-lbl">تکرار رمز</label><input type="password" id="uPin2" class="inp" placeholder="****" maxlength="4" inputmode="numeric"/></div>
+    </div>
+    <div class="modal-f"><button class="btn sc" id="mUserCancel">انصراف</button><button class="btn pr" id="mUserSave">ذخیره</button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════════
+// STORAGE — localStorage با fallback
+// ══════════════════════════════════════════════════
+const Store = {
+  get(k,d=null){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
+  uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)},
+};
+
+// ══════════════════════════════════════════════════
+// USERS
+// ══════════════════════════════════════════════════
+const Users = {
+  KEY:'wx_users',
+  load(){
+    let u=Store.get(this.KEY,[]);
+    if(!u.length){
+      u=[{id:'u1',name:'MOLLAEI',pin:'6283',role:'admin'}];
+      Store.set(this.KEY,u);
+    }
+    return u;
+  },
+  save(users){Store.set(this.KEY,users)},
+  add(name,pin){
+    const u=this.load();
+    u.push({id:Store.uid(),name:name.toUpperCase(),pin,role:'user'});
+    this.save(u);
+  },
+  changePin(id,pin){
+    const u=this.load();
+    const i=u.findIndex(x=>x.id===id);
+    if(i>=0){u[i].pin=pin;this.save(u);}
+  },
+  delete(id){
+    let u=this.load().filter(x=>x.id!==id);
+    this.save(u);
+  },
+  verify(name,pin){
+    return this.load().find(u=>u.name===name&&u.pin===pin)||null;
+  }
+};
+
+// ══════════════════════════════════════════════════
+// JALALI DATE
+// ══════════════════════════════════════════════════
+function toJalali(gy,gm,gd){
+  const g_d_no=[0,31,29*((gy%4==0&&gy%100!=0)||(gy%400==0)?1:0),31,30,31,30,31,31,30,31,30,31];
+  const j_d_no=[0,31,31,31,31,31,31,30,30,30,30,30,29];
+  let jy=0,jm=0,jd=0;
+  gy-=1600;gm--;gd--;
+  let g_day_no=365*gy+Math.floor((gy+3)/4)-Math.floor((gy+99)/100)+Math.floor((gy+399)/400);
+  for(let i=0;i<gm;++i)g_day_no+=g_d_no[i+1];
+  g_day_no+=gd;
+  let j_day_no=g_day_no-79;
+  const j_np=Math.floor(j_day_no/12053);j_day_no%=12053;
+  jy=979+33*j_np+4*Math.floor(j_day_no/1461);j_day_no%=1461;
+  if(j_day_no>=366){jy+=Math.floor((j_day_no-1)/365);j_day_no=(j_day_no-1)%365;}
+  for(let i=0;i<11&&j_day_no>=j_d_no[i+1];++i){j_day_no-=j_d_no[i+1];jm=i+1;}
+  jm++;jd=j_day_no+1;
+  return[jy,jm,jd];
+}
+function jalaliNow(){
+  const d=new Date();
+  const[jy,jm,jd]=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());
+  const h=String(d.getHours()).padStart(2,'0');
+  const mi=String(d.getMinutes()).padStart(2,'0');
+  return `${jy}/${String(jm).padStart(2,'0')}/${String(jd).padStart(2,'0')} ${h}:${mi}`;
+}
+function jalaliFromTs(ts){
+  const d=new Date(ts);
+  const[jy,jm,jd]=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());
+  const h=String(d.getHours()).padStart(2,'0');
+  const mi=String(d.getMinutes()).padStart(2,'0');
+  return `${jy}/${String(jm).padStart(2,'0')}/${String(jd).padStart(2,'0')} ${h}:${mi}`;
+}
+function startOfWeekTs(){
+  const d=new Date();d.setHours(0,0,0,0);
+  d.setDate(d.getDate()-d.getDay());
+  return d.getTime();
+}
+function startOfMonthTs(){
+  const d=new Date();d.setHours(0,0,0,0);d.setDate(1);return d.getTime();
+}
+function startOfDayTs(){
+  const d=new Date();d.setHours(0,0,0,0);return d.getTime();
+}
+
+// ══════════════════════════════════════════════════
+// DB — Products & Sales
+// ══════════════════════════════════════════════════
+const DB = {
+  PROD:'wx_products', SALE:'wx_sales',
+  getProds(){return Store.get(this.PROD,[])},
+  saveProd(p){
+    const ps=this.getProds();
+    if(p.id){const i=ps.findIndex(x=>x.id===p.id);if(i>=0)ps[i]={...ps[i],...p,updatedAt:Date.now()};else ps.unshift(p);}
+    else{p.id=Store.uid();p.createdAt=Date.now();p.updatedAt=Date.now();ps.unshift(p);}
+    Store.set(this.PROD,ps);return p.id;
+  },
+  delProd(id){Store.set(this.PROD,this.getProds().filter(p=>p.id!==id))},
+  getProd(id){return this.getProds().find(p=>p.id===id)||null},
+  getProdByBarcode(bc){return this.getProds().find(p=>p.barcode===bc)||null},
+  deductStock(id,qty){
+    const ps=this.getProds();
+    const i=ps.findIndex(p=>p.id===id);
+    if(i>=0){ps[i].qty=Math.max(0,(ps[i].qty||0)-qty);ps[i].updatedAt=Date.now();}
+    Store.set(this.PROD,ps);
+  },
+  getSales(){return Store.get(this.SALE,[])},
+  addSale(sale){
+    const ss=this.getSales();
+    sale.id=Store.uid();sale.createdAt=Date.now();sale.dateJ=jalaliNow();
+    ss.unshift(sale);Store.set(this.SALE,ss);
+    // deduct stock
+    (sale.items||[]).forEach(it=>this.deductStock(it.productId,it.qty));
+    return sale;
+  },
+  getSalesInRange(from,to=Date.now()){
+    return this.getSales().filter(s=>s.createdAt>=from&&s.createdAt<=to);
+  },
+  getStats(period){
+    let from=0;
+    if(period==='today')from=startOfDayTs();
+    else if(period==='week')from=startOfWeekTs();
+    else if(period==='month')from=startOfMonthTs();
+    const sales=this.getSalesInRange(from);
+    const income=sales.reduce((s,x)=>s+(x.total||0),0);
+    const cost=sales.reduce((s,x)=>s+(x.cost||0),0);
+    return{income,cost,profit:income-cost,count:sales.length,sales};
+  },
+  getWeeklyChart(){
+    // آمار 7 روز گذشته
+    const days=[];
+    for(let i=6;i>=0;i--){
+      const d=new Date();d.setDate(d.getDate()-i);d.setHours(0,0,0,0);
+      const from=d.getTime();const to=from+86400000;
+      const sales=this.getSalesInRange(from,to);
+      const[jy,jm,jd]=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());
+      days.push({
+        label:`${jm}/${jd}`,
+        income:sales.reduce((s,x)=>s+(x.total||0),0),
+        profit:sales.reduce((s,x)=>s+(x.profit||0),0),
+      });
+    }
+    return days;
+  },
+  getTopProds(n=5){
+    const map={};
+    this.getSales().forEach(s=>(s.items||[]).forEach(it=>{
+      if(!map[it.productId])map[it.productId]={name:it.name,qty:0,rev:0};
+      map[it.productId].qty+=it.qty;map[it.productId].rev+=it.qty*it.sellPrice;
+    }));
+    return Object.values(map).sort((a,b)=>b.qty-a.qty).slice(0,n);
+  }
+};
+
+// ══════════════════════════════════════════════════
+// RATE
+// ══════════════════════════════════════════════════
+const Rate={
+  _rate:null,_at:0,TTL:5*60*1000,
+  async fetch(){
+    try{
+      // server-side proxy via Cloudflare Function
+      const r=await fetch('/api/rate');
+      if(r.ok){const j=await r.json();if(j.rate>0){this._rate=j.rate;this._at=Date.now();Store.set('wx_rate',{rate:this._rate,at:this._at});return this._rate;}}
+    }catch{}
+    // fallback: cache
+    const c=Store.get('wx_rate');if(c?.rate){this._rate=c.rate;this._at=c.at;}
+    return this._rate;
+  },
+  async get(){if(this._rate&&Date.now()-this._at<this.TTL)return this._rate;return this.fetch()},
+  cur(){return this._rate},
+  fmt(aed){if(!this._rate||!aed)return null;return Math.round(aed*this._rate).toLocaleString('fa-IR')+' تومان'},
+};
+
+// ══════════════════════════════════════════════════
+// SCANNER
+// ══════════════════════════════════════════════════
+const Scanner={
+  _reader:null,_active:false,
+  async start(videoEl,cb){
+    if(typeof ZXing==='undefined'){toast('کتابخانه اسکنر لود نشد');return;}
+    if(!this._reader)this._reader=new ZXing.BrowserMultiFormatReader();
+    this._active=true;
+    try{
+      const devs=await ZXing.BrowserCodeReader.listVideoInputDevices();
+      const did=devs.find(d=>d.label.toLowerCase().includes('back')||d.label.toLowerCase().includes('rear'))?.deviceId||devs[0]?.deviceId;
+      await this._reader.decodeFromVideoDevice(did,videoEl,(res)=>{if(res&&this._active){const t=res.getText();this.stop();cb(t);}});
+    }catch(e){toast('دسترسی به دوربین رد شد');this.stop();}
+  },
+  stop(){this._active=false;try{this._reader?.reset();}catch{}}
+};
+
+// ══════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════
+const $=id=>document.getElementById(id);
+const faNum=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+const fAED=n=>faNum(parseFloat(n||0).toFixed(2))+' درهم';
+let _toastT;
+function toast(msg,dur=2400){
+  const t=$('toast');t.textContent=msg;t.classList.remove('hidden');
+  clearTimeout(_toastT);_toastT=setTimeout(()=>t.classList.add('hidden'),dur);
+}
+function setBtn(el,on){if(!el)return;if(on){el.dataset.o=el.textContent;el.textContent='...';el.disabled=true;}else{el.textContent=el.dataset.o||el.textContent;el.disabled=false;}}
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let currentUser=null;
+let cart=[];
+let editProdId=null;
+let editUserId=null;
+let qtyTarget=null;
+let qtyVal=1;
+let pinInput='';
+let pinUser=null;
+
+// ══════════════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════════════
+function initTheme(){
+  const dark=localStorage.getItem('wx_theme')==='dark'||(!localStorage.getItem('wx_theme')&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+  applyTheme(dark);
+}
+function applyTheme(dark){
+  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+  const s=$('iSun'),m=$('iMoon');
+  if(s)s.classList.toggle('hidden',dark);
+  if(m)m.classList.toggle('hidden',!dark);
+  localStorage.setItem('wx_theme',dark?'dark':'light');
+}
+$('darkBtn')?.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')!=='dark'));
+
+// ══════════════════════════════════════════════════
+// PIN SCREEN
+// ══════════════════════════════════════════════════
+function initPin(){
+  renderPinUsers();
+  $('pinPad').addEventListener('click',e=>{
+    const btn=e.target.closest('.pin-btn');if(!btn)return;
+    const n=btn.dataset.n;
+    if(n==='del'){pinInput=pinInput.slice(0,-1);}
+    else if(pinInput.length<4){pinInput+=n;}
+    updatePinDots();
+    if(pinInput.length===4)checkPin();
+  });
+}
+
+function renderPinUsers(){
+  const users=Users.load();
+  const el=$('pinUsers');
+  el.innerHTML=users.map(u=>`<div class="pin-user-chip${pinUser?.id===u.id?' active':''}" data-id="${u.id}">${u.name}</div>`).join('');
+  el.querySelectorAll('.pin-user-chip').forEach(c=>{
+    c.addEventListener('click',()=>{
+      pinUser=Users.load().find(u=>u.id===c.dataset.id)||null;
+      pinInput='';
+      updatePinDots();
+      $('pinUserLabel').textContent=pinUser?`رمز ${pinUser.name} را وارد کنید`:'کاربر را انتخاب کنید';
+      $('pinError').textContent='';
+      renderPinUsers();
+    });
+  });
+  if(!pinUser&&users.length===1){pinUser=users[0];$('pinUserLabel').textContent=`رمز ${pinUser.name} را وارد کنید`;renderPinUsers();}
+}
+
+function updatePinDots(){
+  for(let i=0;i<4;i++){
+    const d=$('d'+i);if(d)d.classList.toggle('filled',i<pinInput.length);
+  }
+}
+
+function checkPin(){
+  if(!pinUser){$('pinError').textContent='ابتدا کاربر را انتخاب کنید';pinInput='';updatePinDots();return;}
+  const u=Users.verify(pinUser.name,pinInput);
+  if(u){
+    currentUser=u;
+    $('pinScreen').style.display='none';
+    $('app').classList.remove('hidden');
+    $('currentUserBadge').textContent=u.name;
+    initApp();
+  }else{
+    $('pinError').textContent='رمز اشتباه است';
+    pinInput='';
+    setTimeout(()=>{updatePinDots();$('pinError').textContent='';},600);
+  }
+}
+
+$('logoutBtn')?.addEventListener('click',()=>{
+  currentUser=null;pinInput='';pinUser=null;
+  $('app').classList.add('hidden');
+  $('pinScreen').style.display='flex';
+  $('pinUserLabel').textContent='کاربر را انتخاب کنید';
+  updatePinDots();renderPinUsers();
+});
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function nav(s){
+  document.querySelectorAll('.sec').forEach(x=>x.classList.remove('active'));
+  const el=$('sec-'+s);if(el)el.classList.add('active');
+  document.querySelectorAll('.nb,.sb-btn').forEach(b=>b.classList.toggle('active',b.dataset.s===s));
+  if(s==='sale'){renderSaleList();renderRecentSales();}
+  if(s==='inv')renderInv();
+  if(s==='dash')renderDash();
+  if(s==='pnl')renderPnl();
+  if(s==='users')renderUsers();
+}
+document.querySelectorAll('.nb,.sb-btn').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.s)));
+
+// ══════════════════════════════════════════════════
+// RATE BAR
+// ══════════════════════════════════════════════════
+async function initRate(){
+  $('rateVal').innerHTML='<span class="ratebar-spin">◌</span>';
+  await Rate.fetch();
+  updateRateBar();
+}
+function updateRateBar(){
+  const r=Rate.cur();
+  $('rateVal').textContent=r?`۱ درهم = ${Math.round(r).toLocaleString('fa-IR')} تومان`:'در دسترس نیست';
+}
+$('rateBtn')?.addEventListener('click',async()=>{
+  $('rateVal').innerHTML='<span class="ratebar-spin">◌</span>';
+  await Rate.fetch();updateRateBar();
+  renderSaleList();renderInv();toast('نرخ بروز شد ✓');
+});
+
+// ══════════════════════════════════════════════════
+// SALE SECTION
+// ══════════════════════════════════════════════════
+function renderCart(){
+  const el=$('cartItems'),foot=$('cartFoot');
+  if(!cart.length){
+    el.innerHTML='<div class="empty"><svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" opacity=".3"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><p>سبد خالی است</p></div>';
+    foot.style.display='none';return;
+  }
+  const total=cart.reduce((s,i)=>s+i.finalPrice,0);
+  el.innerHTML=cart.map((it,idx)=>`
+    <div class="ci">
+      <div class="ci-info">
+        <div class="ci-name">${it.name}</div>
+        <div class="ci-det">${faNum(it.qty)} عدد × ${fAED(it.sellPrice)}${it.discount>0?` − ${fAED(it.discount)} تخفیف`:''}</div>
+      </div>
+      <div class="ci-right">
+        <div class="ci-price">${fAED(it.finalPrice)}</div>
+        ${Rate.fmt(it.finalPrice)?`<div class="toman">${Rate.fmt(it.finalPrice)}</div>`:''}
+      </div>
+      <button class="ci-rm" data-i="${idx}">×</button>
+    </div>`).join('');
+  $('cartTotal').textContent=fAED(total);
+  $('cartTotalT').textContent=Rate.fmt(total)||'';
+  foot.style.display='block';
+  el.querySelectorAll('.ci-rm').forEach(b=>b.addEventListener('click',()=>{cart.splice(+b.dataset.i,1);renderCart();}));
+}
+
+function renderSaleList(){
+  const el=$('saleList');
+  const prods=DB.getProds();
+  const q=$('saleSearch').value.toLowerCase();
+  const filtered=q?prods.filter(p=>p.name?.toLowerCase().includes(q)||p.barcode?.includes(q)||p.brand?.toLowerCase().includes(q)):prods;
+  if(!filtered.length){el.innerHTML='<div class="empty"><p>'+(q?'محصولی یافت نشد':'انبار خالی است')+'</p></div>';return;}
+  el.innerHTML=filtered.map(p=>`
+    <div class="prow${(p.qty||0)<1?' out-stock':''}" data-id="${p.id}">
+      <div class="prow-i">
+        <div class="prow-n">${p.name}</div>
+        <div class="prow-b">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>
+      </div>
+      <div class="prow-right">
+        <div class="prow-p">${fAED(p.sellPrice)}</div>
+        ${Rate.fmt(p.sellPrice)?`<div class="prow-t">${Rate.fmt(p.sellPrice)}</div>`:''}
+        <div class="prow-s">موجودی: ${faNum(p.qty||0)}</div>
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('.prow:not(.out-stock)').forEach(r=>r.addEventListener('click',()=>openQtyModal(r.dataset.id)));
+}
+
+$('saleSearch').addEventListener('input',renderSaleList);
+$('newSaleBtn').addEventListener('click',()=>{cart=[];renderCart();});
+$('clearCart').addEventListener('click',()=>{cart=[];renderCart();});
+
+// Sale barcode scan
+$('saleScanBtn').addEventListener('click',()=>{
+  $('saleScanCard').style.display='block';
+  Scanner.start($('saleScanVideo'),code=>{
+    $('saleScanCard').style.display='none';
+    const p=DB.getProdByBarcode(code);
+    if(p&&p.qty>0)openQtyModal(p.id);
+    else if(p)toast('موجودی این محصول صفر است');
+    else toast('محصول با این بارکد یافت نشد: '+code);
+  });
+});
+$('closeSaleScan').addEventListener('click',()=>{Scanner.stop();$('saleScanCard').style.display='none';});
+
+$('confirmSale').addEventListener('click',()=>{
+  if(!cart.length)return;
+  const total=cart.reduce((s,i)=>s+i.finalPrice,0);
+  const cost=cart.reduce((s,i)=>s+i.qty*(i.buyPrice||0),0);
+  DB.addSale({items:cart,total,cost,profit:total-cost,user:currentUser?.name});
+  toast('فروش ثبت شد ✓');cart=[];renderCart();renderSaleList();renderRecentSales();
+});
+
+function renderRecentSales(){
+  const sales=DB.getSales().slice(0,8);
+  const el=$('recentSales');
+  if(!sales.length){el.innerHTML='<div class="empty"><p>فروشی ثبت نشده</p></div>';return;}
+  el.innerHTML=sales.map(s=>`
+    <div class="se">
+      <div class="se-ico">🧴</div>
+      <div class="se-i">
+        <div class="se-n">${(s.items||[]).map(i=>i.name).join('، ')||'فروش'}</div>
+        <div class="se-t">${s.dateJ||jalaliFromTs(s.createdAt)}</div>
+      </div>
+      <div class="se-r">
+        <div class="se-a">${fAED(s.total)}</div>
+        ${Rate.fmt(s.total)?`<div class="toman">${Rate.fmt(s.total)}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+// ── QTY MODAL ──
+function openQtyModal(id){
+  const p=DB.getProd(id);if(!p)return;
+  qtyTarget=p;qtyVal=1;
+  $('mQtyName').textContent=p.name;
+  $('qDisc').value='0';
+  updateQtyDisplay();
+  $('mQty').classList.remove('hidden');
+}
+function updateQtyDisplay(){
+  const p=qtyTarget;if(!p)return;
+  const disc=parseFloat($('qDisc').value)||0;
+  const total=Math.max(0,qtyVal*p.sellPrice-disc);
+  $('qVal').textContent=faNum(qtyVal);
+  $('qTotal').textContent=fAED(total);
+  $('qTotalT').textContent=Rate.fmt(total)||'';
+}
+$('qMinus').addEventListener('click',()=>{if(qtyVal>1){qtyVal--;updateQtyDisplay();}});
+$('qPlus').addEventListener('click',()=>{if(qtyVal<(qtyTarget?.qty||1)){qtyVal++;updateQtyDisplay();}else toast('بیش از موجودی نمی‌توان انتخاب کرد');});
+$('qDisc').addEventListener('input',updateQtyDisplay);
+$('mQtyAdd').addEventListener('click',()=>{
+  const p=qtyTarget;if(!p)return;
+  const disc=parseFloat($('qDisc').value)||0;
+  const finalPrice=Math.max(0,qtyVal*p.sellPrice-disc);
+  const ex=cart.find(i=>i.productId===p.id);
+  if(ex){ex.qty+=qtyVal;ex.discount=(ex.discount||0)+disc;ex.finalPrice=Math.max(0,ex.qty*p.sellPrice-ex.discount);}
+  else cart.push({productId:p.id,name:p.name,qty:qtyVal,sellPrice:p.sellPrice,buyPrice:p.buyPrice||0,discount:disc,finalPrice});
+  $('mQty').classList.add('hidden');
+  renderCart();toast(`${p.name} به سبد اضافه شد`);
+});
+$('mQtyCancel').addEventListener('click',()=>$('mQty').classList.add('hidden'));
+$('mQtyClose').addEventListener('click',()=>$('mQty').classList.add('hidden'));
+$('mQty').addEventListener('click',e=>{if(e.target===$('mQty'))$('mQty').classList.add('hidden');});
+
+// ══════════════════════════════════════════════════
+// INVENTORY
+// ══════════════════════════════════════════════════
+function renderInv(){
+  const prods=DB.getProds();
+  const q=$('invSearch').value.toLowerCase();
+  const filtered=q?prods.filter(p=>p.name?.toLowerCase().includes(q)||p.barcode?.includes(q)||p.brand?.toLowerCase().includes(q)):prods;
+  const totalQty=prods.reduce((s,p)=>s+(p.qty||0),0);
+  const lowStock=prods.filter(p=>(p.qty||0)>0&&(p.qty||0)<=3).length;
+  $('stTotal').textContent=faNum(prods.length);
+  $('stQty').textContent=faNum(totalQty);
+  $('stLow').textContent=faNum(lowStock);
+  const el=$('invList');
+  if(!filtered.length){el.innerHTML='<div class="card"><div class="empty"><p>'+(q?'یافت نشد':'انبار خالی است')+'</p></div></div>';return;}
+  el.innerHTML=filtered.map(p=>{
+    const isLow=(p.qty||0)>0&&(p.qty||0)<=3;
+    const isEmpty=(p.qty||0)===0;
+    const sb=isEmpty?'<span class="bdg b-low">ناموجود</span>':isLow?`<span class="bdg b-low">کم‌موجود: ${faNum(p.qty)}</span>`:`<span class="bdg b-s">موجودی: ${faNum(p.qty)}</span>`;
+    const tb=Rate.fmt(p.sellPrice)?`<span class="bdg b-t">≈ ${Rate.fmt(p.sellPrice)}</span>`:'';
+    return `<div class="inv-item">
+      <div class="inv-main">
+        <div class="inv-name">${p.name}</div>
+        <div class="inv-brand">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>
+        ${p.barcode?`<div class="inv-bc">${p.barcode}</div>`:''}
+        <div class="inv-meta">
+          <span class="bdg b-p">خرید: ${fAED(p.buyPrice)} | فروش: ${fAED(p.sellPrice)}</span>
+          ${tb}${sb}
+        </div>
+      </div>
+      <div class="inv-acts">
+        <button class="ic-ed" data-id="${p.id}"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="ic-dl" data-id="${p.id}"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
+      </div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.ic-ed').forEach(b=>b.addEventListener('click',()=>openProdModal(b.dataset.id)));
+  el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',()=>{if(confirm('حذف شود؟')){DB.delProd(b.dataset.id);renderInv();toast('محصول حذف شد');}});
+}
+$('invSearch').addEventListener('input',renderInv);
+$('addProdBtn').addEventListener('click',()=>openProdModal());
+
+// Inv barcode scan
+$('invScanBtn').addEventListener('click',()=>{
+  $('invScanCard').style.display='block';
+  $('mProd').classList.add('hidden');
+  Scanner.start($('invScanVideo'),code=>{
+    $('invScanCard').style.display='none';
+    const p=DB.getProdByBarcode(code);
+    if(p)openProdModal(p.id);
+    else{openProdModal();$('fBarcode').value=code;}
+    toast('بارکد: '+code);
+  });
+});
+$('closeInvScan').addEventListener('click',()=>{Scanner.stop();$('invScanCard').style.display='none';});
+
+function openProdModal(id=null){
+  editProdId=id;
+  const p=id?DB.getProd(id):null;
+  $('mProdTitle').textContent=id?'ویرایش محصول':'افزودن محصول';
+  $('fBarcode').value=p?.barcode||'';$('fName').value=p?.name||'';$('fBrand').value=p?.brand||'';
+  $('fBuy').value=p?.buyPrice||'';$('fSell').value=p?.sellPrice||'';$('fQty').value=p?.qty||'';
+  $('fVol').value=p?.volume||'';$('fDesc').value=p?.desc||'';
+  updateSellT();
+  $('mProd').classList.remove('hidden');
+}
+function updateSellT(){const v=parseFloat($('fSell').value);$('fSellT').textContent=v>0?(Rate.fmt(v)||''):''}
+$('fSell').addEventListener('input',updateSellT);
+$('mProdSave').addEventListener('click',()=>{
+  const name=$('fName').value.trim();if(!name){toast('نام را وارد کنید');return;}
+  const sell=parseFloat($('fSell').value);if(!sell||sell<=0){toast('قیمت فروش را وارد کنید');return;}
+  const data={id:editProdId||undefined,barcode:$('fBarcode').value.trim(),name,brand:$('fBrand').value.trim(),
+    buyPrice:parseFloat($('fBuy').value)||0,sellPrice:sell,qty:parseInt($('fQty').value)||0,
+    volume:parseInt($('fVol').value)||0,desc:$('fDesc').value.trim()};
+  if(!data.id)delete data.id;
+  DB.saveProd(data);
+  $('mProd').classList.add('hidden');
+  renderInv();renderSaleList();
+  toast(editProdId?'محصول ویرایش شد ✓':'محصول اضافه شد ✓');
+});
+$('mProdCancel').addEventListener('click',()=>$('mProd').classList.add('hidden'));
+$('mProdClose').addEventListener('click',()=>$('mProd').classList.add('hidden'));
+$('mProd').addEventListener('click',e=>{if(e.target===$('mProd'))$('mProd').classList.add('hidden');});
+
+// ══════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════
+function renderDash(){
+  const today=DB.getStats('today');
+  const month=DB.getStats('month');
+  $('dToday').textContent=faNum(today.income.toFixed(2));$('dTodayT').textContent=Rate.fmt(today.income)||'';
+  $('dMonth').textContent=faNum(month.income.toFixed(2));$('dMonthT').textContent=Rate.fmt(month.income)||'';
+  $('dProfit').textContent=faNum(month.profit.toFixed(2));$('dProfitT').textContent=Rate.fmt(month.profit)||'';
+  $('dCount').textContent=faNum(month.count);
+  const tops=DB.getTopProds();
+  const el=$('topProds');
+  if(!tops.length){el.innerHTML='<div class="empty"><p>فروشی ثبت نشده</p></div>';return;}
+  el.innerHTML=tops.map((t,i)=>`<div class="top-i"><div class="top-r">${faNum(i+1)}</div><div style="flex:1"><div class="top-n">${t.name}</div><div class="top-q">${faNum(t.qty)} عدد</div></div><div class="top-v">${fAED(t.rev)}</div></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+// P&L + CHART
+// ══════════════════════════════════════════════════
+function renderPnl(){
+  const period=$('pnlPeriod').value;
+  const st=DB.getStats(period);
+  $('pIncome').textContent=faNum(st.income.toFixed(2));$('pIncomeT').textContent=Rate.fmt(st.income)||'';
+  $('pCost').textContent=faNum(st.cost.toFixed(2));
+  $('pNet').textContent=faNum(Math.abs(st.profit).toFixed(2));$('pNetT').textContent=Rate.fmt(Math.abs(st.profit))||'';
+  const nc=$('pnlNet');
+  if(st.profit>=0){nc.style.background='';nc.style.borderColor='';$('pNet').style.color='';}
+  else{nc.style.background='#fef2f2';nc.style.borderColor='#fca5a5';$('pNet').style.color='var(--err)';}
+  renderChart();
+  // TX list
+  const txEl=$('txList');
+  if(!st.sales.length){txEl.innerHTML='<div class="empty"><p>تراکنشی وجود ندارد</p></div>';return;}
+  txEl.innerHTML=st.sales.map(s=>`<div class="txr"><div class="txd s"></div><div class="tx-i"><div class="tx-n">${(s.items||[]).map(i=>i.name).join('، ')||'فروش'}</div><div class="tx-t">${s.dateJ||jalaliFromTs(s.createdAt)}</div></div><div><div class="tx-a pos">+${fAED(s.total)}</div><div style="font-size:.64rem;color:var(--t3)">سود: ${fAED(s.profit)}</div></div></div>`).join('');
+}
+$('pnlPeriod').addEventListener('change',renderPnl);
+
+function renderChart(){
+  const days=DB.getWeeklyChart();
+  const maxVal=Math.max(...days.map(d=>Math.max(d.income,d.profit)),1);
+  const el=$('chartBars');
+  el.innerHTML=days.map(d=>`
+    <div class="bar-col">
+      <div style="display:flex;gap:2px;align-items:flex-end;width:100%">
+        <div class="bar income-bar" style="height:${Math.round(d.income/maxVal*100)}px;flex:1" title="درآمد: ${fAED(d.income)}"></div>
+        <div class="bar profit-bar" style="height:${Math.round(Math.max(0,d.profit)/maxVal*100)}px;flex:1" title="سود: ${fAED(d.profit)}"></div>
+      </div>
+      <div class="bar-lbl">${d.label}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
+// USERS
+// ══════════════════════════════════════════════════
+function renderUsers(){
+  const users=Users.load();
+  const el=$('userList');
+  el.innerHTML=users.map(u=>`
+    <div class="user-item">
+      <div class="user-avatar">${u.name.charAt(0)}</div>
+      <div class="user-info"><div class="user-name">${u.name}</div><div class="user-role">${u.role==='admin'?'مدیر':'کاربر'}</div></div>
+      <div class="user-acts">
+        <button class="ic-ed" data-id="${u.id}" title="تغییر رمز"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
+        ${u.id!=='u1'?`<button class="ic-dl" data-id="${u.id}" title="حذف"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>`:''}
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('.ic-ed').forEach(b=>b.addEventListener('click',()=>openUserModal(b.dataset.id)));
+  el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',()=>{if(confirm('حذف شود؟')){Users.delete(b.dataset.id);renderUsers();toast('کاربر حذف شد');}});
+}
+
+$('addUserBtn').addEventListener('click',()=>openUserModal());
+function openUserModal(id=null){
+  editUserId=id;
+  const u=id?Users.load().find(x=>x.id===id):null;
+  $('mUserTitle').textContent=id?`تغییر رمز ${u?.name||''}`:'کاربر جدید';
+  $('uName').value=u?.name||'';$('uName').disabled=!!id;
+  $('uPin').value='';$('uPin2').value='';
+  $('mUser').classList.remove('hidden');
+}
+$('mUserSave').addEventListener('click',()=>{
+  const pin=$('uPin').value.trim();
+  const pin2=$('uPin2').value.trim();
+  if(pin.length!==4||!/^\d{4}$/.test(pin)){toast('رمز باید ۴ رقم عددی باشد');return;}
+  if(pin!==pin2){toast('رمزها یکسان نیستند');return;}
+  if(editUserId){Users.changePin(editUserId,pin);toast('رمز تغییر کرد ✓');}
+  else{
+    const name=$('uName').value.trim().toUpperCase();
+    if(!name){toast('نام کاربر را وارد کنید');return;}
+    Users.add(name,pin);toast('کاربر اضافه شد ✓');
+  }
+  $('mUser').classList.add('hidden');
+  renderUsers();renderPinUsers();
+});
+$('mUserCancel').addEventListener('click',()=>$('mUser').classList.add('hidden'));
+$('mUserClose').addEventListener('click',()=>$('mUser').classList.add('hidden'));
+$('mUser').addEventListener('click',e=>{if(e.target===$('mUser'))$('mUser').classList.add('hidden');});
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+function initApp(){
+  initRate();
+  renderCart();
+  renderSaleList();
+  renderRecentSales();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  initTheme();
+  initPin();
+});
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
