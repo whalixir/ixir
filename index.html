@@ -118,8 +118,9 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 
 /* BOTTOM NAV */
 .bottomnav{position:fixed;bottom:0;left:0;right:0;height:var(--bot);background:var(--nav);border-top:1px solid var(--brd);display:flex;align-items:center;padding:0 2px env(safe-area-inset-bottom,0);z-index:10;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 0;color:var(--t3);font-size:.62rem;font-weight:500;border-radius:var(--rs);transition:color .15s}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 0 5px;color:var(--t3);font-size:.6rem;font-weight:500;border-radius:var(--rs);transition:color .15s;border:none;background:none;cursor:pointer;font-family:Vazirmatn}
 .nb.active,.nb:hover{color:var(--or)}
+.nb svg{margin-top:3px}
 
 /* SECTIONS */
 .sec{display:none}.sec.active{display:block;animation:fup .2s ease}
@@ -415,6 +416,10 @@ select.inp{cursor:pointer}
 [data-theme=dark] .swipe-track{background:rgba(77,139,255,.1);border-color:var(--or)}
 [data-theme=dark] .swipe-label{color:var(--or)}
 .btn-sm{padding:6px 10px}
+
+/* ── discount type buttons ── */
+.disc-type-btn{flex:1;padding:8px;border-radius:10px;font-size:.78rem;font-weight:600;border:2px solid var(--brd);background:var(--inp);color:var(--t2);cursor:pointer;transition:all .2s;font-family:Vazirmatn}
+.disc-type-btn.active{border-color:var(--or)!important;background:var(--orl2)!important;color:var(--or)!important;box-shadow:0 0 0 3px rgba(77,139,255,.15)}
 </style>
 </head>
 <body>
@@ -511,7 +516,6 @@ select.inp{cursor:pointer}
       <section id="sec-sale" class="sec active">
         <div class="sec-hd">
           <h2 class="sec-ttl">فروش</h2>
-          <button class="btn pr" id="newSaleBtn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>فروش جدید</button>
         </div>
         <!-- Barcode scan for sale -->
         <div class="card" id="saleScanCard" style="display:none;border-color:var(--or)">
@@ -630,8 +634,8 @@ select.inp{cursor:pointer}
   <nav class="bottomnav">
     <button class="nb active" data-s="sale"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>فروش</span></button>
     <button class="nb" data-s="inv"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L6 7h12l-2-4z"/><path d="M12 12v5"/><path d="M9.5 14.5h5"/></svg><span>انبار</span></button>
-    <button class="nb" data-s="dash"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>داشبورد</span></button>
     <button class="nb" data-s="pnl"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span>سود/زیان</span></button>
+    <button class="nb" data-s="dash"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>داشبورد</span></button>
   </nav>
 </div>
 
@@ -677,8 +681,8 @@ select.inp{cursor:pointer}
       </div>
       <div style="padding:0 4px 8px">
         <div style="display:flex;gap:8px;margin-bottom:8px">
-          <button class="btn sc" id="discTypePct" style="flex:1;font-size:.8rem;border:2px solid var(--or);color:var(--or)">٪ درصد</button>
-          <button class="btn sc" id="discTypeAmt" style="flex:1;font-size:.8rem">مبلغ (تومان)</button>
+          <button class="disc-type-btn active" id="discTypePct">٪ درصد</button>
+          <button class="disc-type-btn" id="discTypeAmt">مبلغ (تومان)</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <input type="number" id="qDisc" class="inp" value="0" min="0" style="flex:1" placeholder="0"/>
@@ -776,6 +780,10 @@ const Scanner={
 const $=id=>document.getElementById(id);
 const faNum=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
 const fAED=n=>faNum(parseFloat(n||0).toFixed(2))+' درهم';
+const fNum3=n=>{// سه رقم سه رقم با کاما
+  if(!n&&n!==0)return '';
+  return Math.round(n).toLocaleString('fa-IR');
+};
 let _tt;function toast(m,d=2400){const t=$('toast');t.textContent=m;t.classList.remove('hidden');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.add('hidden'),d);}
 function loading(el,on){if(!el)return;if(on){el.dataset.o=el.textContent;el.textContent='...';el.disabled=true;}else{el.textContent=el.dataset.o;el.disabled=false;}}
 
@@ -878,7 +886,9 @@ function nav(s){
   if(s==='pnl')loadPnl();
   if(s==='users')loadUsers();
 }
-document.querySelectorAll('.nb,.sb-btn').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.s)));
+document.querySelectorAll('.nb,.sb-btn').forEach(b=>b.addEventListener('click',()=>{
+  playClick();nav(b.dataset.s);
+}));
 
 // ══ RATE BAR ══
 async function initRate(){
@@ -1001,8 +1011,8 @@ function renderSaleList(){
   el.querySelectorAll('.prow:not(.out-stock)').forEach(r=>r.addEventListener('click',()=>openQtyModal(r.dataset.id)));
 }
 
-$('saleSearch').addEventListener('input',renderSaleList);
-$('newSaleBtn').addEventListener('click',()=>{cart=[];renderCart();});
+$('saleSearch')?.addEventListener('input',renderSaleList);
+$('newSaleBtn')?.addEventListener('click',()=>{cart=[];renderCart();});
 $('clearCart')?.addEventListener('click',()=>{cart=[];renderCart();});
 
 // ── نوع پرداخت ──
@@ -1015,7 +1025,18 @@ document.querySelectorAll('.pay-btn').forEach(btn=>{
   });
 });
 
-// ── صدای beep ──
+// ── صداها ──
+function playClick(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator();const g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.frequency.value=440;o.type='sine';
+    g.gain.setValueAtTime(0.08,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.06);
+    o.start();o.stop(ctx.currentTime+0.06);
+  }catch{}
+}
 function playBeep(type='add'){
   try{
     const ctx=new (window.AudioContext||window.webkitAudioContext)();
@@ -1129,7 +1150,7 @@ function resetSwipe(){
   if(lbl)lbl.textContent='برای ثبت فروش بکشید ←';
 }
 
-$('saleScanBtn').addEventListener('click',()=>{
+$('saleScanBtn')?.addEventListener('click',()=>{
   $('saleScanCard').style.display='block';
   Scanner.start($('saleScanVideo'),code=>{
     $('saleScanCard').style.display='none';
@@ -1139,7 +1160,7 @@ $('saleScanBtn').addEventListener('click',()=>{
     else toast('بارکد یافت نشد: '+code);
   });
 });
-$('closeSaleScan').addEventListener('click',()=>{Scanner.stop();$('saleScanCard').style.display='none';});
+$('closeSaleScan')?.addEventListener('click',()=>{Scanner.stop();$('saleScanCard').style.display='none';});
 
 
 
@@ -1204,22 +1225,22 @@ function openQtyModal(id){
   $('mQtyName').textContent=p.name;
   $('qDisc').value='0';
   $('qDiscUnit').textContent='٪';
-  $('discTypePct').style.borderColor='var(--or)';$('discTypePct').style.color='var(--or)';
-  $('discTypeAmt').style.borderColor='';$('discTypeAmt').style.color='';
+  $('discTypePct')?.classList.add('active');
+  $('discTypeAmt')?.classList.remove('active');
   updQty();
   $('mQty').classList.remove('hidden');
 }
 
 $('discTypePct')?.addEventListener('click',()=>{
   discType='pct';$('qDiscUnit').textContent='٪';$('qDisc').value='0';
-  $('discTypePct').style.borderColor='var(--or)';$('discTypePct').style.color='var(--or)';
-  $('discTypeAmt').style.borderColor='';$('discTypeAmt').style.color='';
+  $('discTypePct').classList.add('active');
+  $('discTypeAmt').classList.remove('active');
   updQty();
 });
 $('discTypeAmt')?.addEventListener('click',()=>{
   discType='amt';$('qDiscUnit').textContent='تومان';$('qDisc').value='0';
-  $('discTypeAmt').style.borderColor='var(--or)';$('discTypeAmt').style.color='var(--or)';
-  $('discTypePct').style.borderColor='';$('discTypePct').style.color='';
+  $('discTypeAmt').classList.add('active');
+  $('discTypePct').classList.remove('active');
   updQty();
 });
 
@@ -1243,7 +1264,7 @@ function updQty(){
   const finalAed=r?finalToman/r:qtyVal*sp;
   $('qVal').textContent=faNum(qtyVal);
   if(r){
-    $('qTotal').textContent=Math.round(finalToman).toLocaleString('fa-IR')+' تومان';
+    $('qTotal').textContent=fNum3(finalToman)+' تومان';
     $('qTotalT').textContent=finalAed.toFixed(2)+' درهم';
   }else{
     $('qTotal').textContent=fAED(finalAed);
@@ -1251,18 +1272,18 @@ function updQty(){
   }
   const prev=$('qDiscPreview');
   if(prev&&discToman>0){
-    prev.textContent=`تخفیف: ${Math.round(discToman).toLocaleString('fa-IR')} تومان`;
+    prev.textContent=`تخفیف: ${fNum3(discToman)} تومان`;
   }else if(prev){prev.textContent='';}
 }
 
-$('qMinus').addEventListener('click',()=>{if(qtyVal>1){qtyVal--;updQty();}});
-$('qPlus').addEventListener('click',()=>{
+$('qMinus')?.addEventListener('click',()=>{if(qtyVal>1){qtyVal--;updQty();}});
+$('qPlus')?.addEventListener('click',()=>{
   if(qtyVal<(qtyTarget?.qty||1)){qtyVal++;updQty();}
   else toast('بیش از موجودی');
 });
-$('qDisc').addEventListener('input',updQty);
+$('qDisc')?.addEventListener('input',updQty);
 
-$('mQtyAdd').addEventListener('click',()=>{
+$('mQtyAdd')?.addEventListener('click',()=>{
   const p=qtyTarget;if(!p)return;
   const sp=parseFloat(p.sell_price||p.sellPrice||0);
   const bp=parseFloat(p.buy_price||p.buyPrice||0);
@@ -1296,9 +1317,9 @@ $('mQtyAdd').addEventListener('click',()=>{
   renderCart();
   toast(`✓ ${p.name} به سبد اضافه شد`);
 });
-$('mQtyCancel').addEventListener('click',()=>$('mQty').classList.add('hidden'));
-$('mQtyClose').addEventListener('click',()=>$('mQty').classList.add('hidden'));
-$('mQty').addEventListener('click',e=>{if(e.target===$('mQty'))$('mQty').classList.add('hidden');});
+$('mQtyCancel')?.addEventListener('click',()=>$('mQty').classList.add('hidden'));
+$('mQtyClose')?.addEventListener('click',()=>$('mQty').classList.add('hidden'));
+$('mQty')?.addEventListener('click',e=>{if(e.target===$('mQty'))$('mQty').classList.add('hidden');});
 
 // ══ INVENTORY ══
 async function loadInv(){
@@ -1336,10 +1357,10 @@ function renderInvList(){
     catch(e){toast('خطا: '+e.message);}
   }));
 }
-$('invSearch').addEventListener('input',renderInvList);
-$('addProdBtn').addEventListener('click',()=>openProdModal());
+$('invSearch')?.addEventListener('input',renderInvList);
+$('addProdBtn')?.addEventListener('click',()=>openProdModal());
 
-$('invScanBtn').addEventListener('click',()=>{
+$('invScanBtn')?.addEventListener('click',()=>{
   $('invScanCard').style.display='block';$('mProd').classList.add('hidden');
   Scanner.start($('invScanVideo'),code=>{
     $('invScanCard').style.display='none';
@@ -1348,7 +1369,7 @@ $('invScanBtn').addEventListener('click',()=>{
     toast('بارکد: '+code);
   });
 });
-$('closeInvScan').addEventListener('click',()=>{Scanner.stop();$('invScanCard').style.display='none';});
+$('closeInvScan')?.addEventListener('click',()=>{Scanner.stop();$('invScanCard').style.display='none';});
 
 function openProdModal(id=null){
   editProdId=id;
@@ -1390,7 +1411,7 @@ function updBuyT(){
 }
 $('fSell')?.addEventListener('input',updSellT);
 $('fBuy')?.addEventListener('input',updBuyT);
-$('mProdSave').addEventListener('click',async()=>{
+$('mProdSave')?.addEventListener('click',async()=>{
   const name=$('fName').value.trim();if(!name){toast('نام را وارد کنید');return;}
   const sellPrice=parseFloat($('fSell').value)||0;
   if(!sellPrice||sellPrice<=0){toast('قیمت فروش (درهم) را وارد کنید');return;}
@@ -1406,9 +1427,9 @@ $('mProdSave').addEventListener('click',async()=>{
   }catch(e){toast('خطا: '+e.message);}
   loading(btn,false);
 });
-$('mProdCancel').addEventListener('click',()=>$('mProd').classList.add('hidden'));
-$('mProdClose').addEventListener('click',()=>$('mProd').classList.add('hidden'));
-$('mProd').addEventListener('click',e=>{if(e.target===$('mProd'))$('mProd').classList.add('hidden');});
+$('mProdCancel')?.addEventListener('click',()=>$('mProd').classList.add('hidden'));
+$('mProdClose')?.addEventListener('click',()=>$('mProd').classList.add('hidden'));
+$('mProd')?.addEventListener('click',e=>{if(e.target===$('mProd'))$('mProd').classList.add('hidden');});
 
 // ══ DASHBOARD ══
 async function loadDash(){
@@ -1448,7 +1469,7 @@ async function loadPnl(){
     }
   }catch(e){toast('خطا در بارگذاری');}
 }
-$('pnlPeriod').addEventListener('change',loadPnl);
+$('pnlPeriod')?.addEventListener('change',loadPnl);
 
 function renderChart(days){
   const maxV=Math.max(...days.map(d=>Math.max(d.income||0,d.profit||0)),1);
@@ -1471,7 +1492,7 @@ async function loadUsers(){
   }catch{el.innerHTML='<div class="card"><div class="empty"><p>خطا در اتصال</p></div></div>';}
 }
 
-$('addUserBtn').addEventListener('click',()=>openUserModal());
+$('addUserBtn')?.addEventListener('click',()=>openUserModal());
 function openUserModal(id=null,name=null){
   editUserId=id;
   $('mUserTitle').textContent=id?`تغییر رمز ${name||''}`:'کاربر جدید';
@@ -1479,7 +1500,7 @@ function openUserModal(id=null,name=null){
   $('uPin').value='';$('uPin2').value='';
   $('mUser').classList.remove('hidden');
 }
-$('mUserSave').addEventListener('click',async()=>{
+$('mUserSave')?.addEventListener('click',async()=>{
   const pin=$('uPin').value.trim(),pin2=$('uPin2').value.trim();
   if(pin.length!==4||!/^\d{4}$/.test(pin)){toast('رمز باید ۴ رقم عددی باشد');return;}
   if(pin!==pin2){toast('رمزها یکسان نیستند');return;}
@@ -1491,14 +1512,13 @@ $('mUserSave').addEventListener('click',async()=>{
     else toast('خطا: '+r.error);
   }catch(e){toast('خطا: '+e.message);}
 });
-$('mUserCancel').addEventListener('click',()=>$('mUser').classList.add('hidden'));
-$('mUserClose').addEventListener('click',()=>$('mUser').classList.add('hidden'));
-$('mUser').addEventListener('click',e=>{if(e.target===$('mUser'))$('mUser').classList.add('hidden');});
+$('mUserCancel')?.addEventListener('click',()=>$('mUser').classList.add('hidden'));
+$('mUserClose')?.addEventListener('click',()=>$('mUser').classList.add('hidden'));
+$('mUser')?.addEventListener('click',e=>{if(e.target===$('mUser'))$('mUser').classList.add('hidden');});
 
 // ══ کلیک روی نام کاربر ══
 $('currentUserBadge')?.addEventListener('click',()=>nav('users'));
-$('currentUserBadge').style.cursor='pointer';
-$('currentUserBadge').title='کلیک برای مدیریت کاربران';
+if($('currentUserBadge')){$('currentUserBadge').style.cursor='pointer';$('currentUserBadge').title='کلیک برای مدیریت کاربران';}
 
 // ══ PULL TO REFRESH ══
 let ptStart=0,ptEl=null;
@@ -1541,12 +1561,20 @@ async function refreshAll(){
 
 // ══ AUTO REFRESH RATE ══
 function startAutoRate(){
-  // هر ۵ دقیقه نرخ را آپدیت کن
-  setInterval(async()=>{
-    await Rate.fetch();
-    updateRateBar();
-    updSellT();updBuyT();
-  },5*60*1000);
+  // هر ۳ دقیقه نرخ را آپدیت کن
+  async function doUpdate(){
+    try{
+      await Rate.fetch();
+      updateRateBar();
+      updSellT();updBuyT();
+      // اگر در بخش فروش یا انبار هستیم، قیمت‌ها را آپدیت کن
+      renderSaleList();
+      renderInvList();
+    }catch{}
+  }
+  setInterval(doUpdate,3*60*1000);
+  // اولین بار بعد از ۵ ثانیه
+  setTimeout(doUpdate,5000);
 }
 
 // ══ INIT ══
