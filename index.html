@@ -451,9 +451,11 @@ select.inp{cursor:pointer}
   </header>
 
   <div class="ratebar">
-    <span style="opacity:.8;font-size:.68rem">نرخ درهم (tgju.org):</span>
-    <span id="rateVal" class="ratebar-val">—</span>
+    <span style="opacity:.8;font-size:.68rem">۱ درهم =</span>
+    <span id="rateVal" class="ratebar-val" style="cursor:pointer" title="کلیک برای تغییر دستی">—</span>
+    <span style="opacity:.8;font-size:.68rem">تومان</span>
     <button class="ratebar-btn" id="rateBtn">↻</button>
+    <button class="ratebar-btn" id="rateManualBtn" style="background:rgba(255,255,255,.15)">✏️</button>
   </div>
 
   <div class="body-wrap">
@@ -593,7 +595,7 @@ select.inp{cursor:pointer}
       <div class="fg"><label class="fl-lbl">نام عطر</label><input type="text" id="fName" class="inp" placeholder="مثال: Oud Majestic"/></div>
       <div class="fg"><label class="fl-lbl">برند</label><input type="text" id="fBrand" class="inp" placeholder="مثال: Swiss Arabian"/></div>
       <div class="frow">
-        <div class="fg"><label class="fl-lbl">قیمت خرید (درهم)</label><input type="number" id="fBuy" class="inp" placeholder="0" min="0" step="0.01"/></div>
+        <div class="fg" id="buyPriceField"><label class="fl-lbl">قیمت خرید (درهم)</label><input type="number" id="fBuy" class="inp" placeholder="0" min="0" step="0.01"/><div class="toman" id="fBuyT"></div></div>
         <div class="fg">
           <label class="fl-lbl">قیمت فروش (درهم)</label>
           <input type="number" id="fSell" class="inp" placeholder="0" min="0" step="0.01"/>
@@ -675,13 +677,23 @@ const API={
 const Rate={
   _r:null,_t:0,TTL:5*60*1000,
   async fetch(){
-    try{const j=await API.get('/rate');if(j.rate>0){this._r=j.rate;this._t=Date.now();localStorage.setItem('wx_r',JSON.stringify({r:this._r,t:this._t}));return this._r;}}catch{}
-    try{const c=JSON.parse(localStorage.getItem('wx_r'));if(c?.r){this._r=c.r;this._t=c.t;}}catch{}
+    try{
+      const j=await API.get('/rate');
+      if(j.rate&&j.rate>1000){
+        this._r=j.rate;this._t=Date.now();
+        localStorage.setItem('wx_r',JSON.stringify({r:this._r,t:this._t}));
+        return this._r;
+      }
+    }catch{}
+    // از cache بخوان
+    try{const c=JSON.parse(localStorage.getItem('wx_r'));if(c?.r>1000){this._r=c.r;this._t=c.t;return this._r;}}catch{}
     return this._r;
   },
   async get(){if(this._r&&Date.now()-this._t<this.TTL)return this._r;return this.fetch();},
   cur(){return this._r;},
+  set(v){if(v>1000){this._r=v;this._t=Date.now();localStorage.setItem('wx_r',JSON.stringify({r:v,t:Date.now()}));}},
   fmt(aed){if(!this._r||!aed)return null;return Math.round(aed*this._r).toLocaleString('fa-IR')+' تومان';},
+  fmtFull(aed){if(!this._r||!aed)return null;const t=Math.round(aed*this._r);return t.toLocaleString('fa-IR')+' تومان';},
 };
 
 // ══ SCANNER ══
@@ -794,15 +806,33 @@ async function initRate(){
   await Rate.fetch();
   updateRateBar();
 }
-function updateRateBar(){$('rateVal').textContent=Rate.cur()?`۱ درهم = ${Math.round(Rate.cur()).toLocaleString('fa-IR')} تومان`:'در دسترس نیست';}
-$('rateBtn')?.addEventListener('click',async()=>{$('rateVal').textContent='...';await Rate.fetch();updateRateBar();renderSaleList();renderInvList();toast('نرخ بروز شد ✓');});
+function updateRateBar(){
+  const r=Rate.cur();
+  $('rateVal').textContent=r?Math.round(r).toLocaleString('fa-IR'):'دسترس نیست';
+}
+$('rateBtn')?.addEventListener('click',async()=>{
+  $('rateVal').textContent='...';
+  await Rate.fetch();
+  updateRateBar();
+  renderSaleList();
+  renderInvList();
+  toast('نرخ بروز شد ✓');
+});
+$('rateManualBtn')?.addEventListener('click',()=>{
+  const v=prompt('نرخ درهم به تومان را وارد کنید:\n(مثال: 18500)');
+  if(!v)return;
+  const n=parseFloat(v.replace(/,/g,''));
+  if(n>1000){Rate.set(n);updateRateBar();renderSaleList();renderInvList();toast('نرخ ذخیره شد ✓');}
+  else toast('عدد معتبر وارد کنید');
+});
+$('rateVal')?.addEventListener('click',()=>$('rateManualBtn')?.click());
 
 // ══ SALE ══
 function renderCart(){
   const el=$('cartItems'),foot=$('cartFoot');
   if(!cart.length){el.innerHTML='<div class="empty"><svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" opacity=".3"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><p>سبد خالی است</p></div>';foot.style.display='none';return;}
   const total=cart.reduce((s,i)=>s+i.finalPrice,0);
-  el.innerHTML=cart.map((it,idx)=>`<div class="ci"><div class="ci-info"><div class="ci-name">${it.name}</div><div class="ci-det">${faNum(it.qty)} × ${fAED(it.sellPrice)}${it.discount>0?` − ${fAED(it.discount)} تخفیف`:''}</div></div><div class="ci-right"><div class="ci-price">${fAED(it.finalPrice)}</div>${Rate.fmt(it.finalPrice)?`<div class="toman">${Rate.fmt(it.finalPrice)}</div>`:''}</div><button class="ci-rm" data-i="${idx}">×</button></div>`).join('');
+  el.innerHTML=cart.map((it,idx)=>`<div class="ci"><div class="ci-info"><div class="ci-name">${it.name}</div><div class="ci-det">${faNum(it.qty)} × ${fAED(it.sellPrice)}${it.discount>0?` − ${fAED(it.discount)} تخفیف`:''}</div></div><div class="ci-right"><div class="ci-price">${fAED(it.finalPrice)}</div>${Rate.fmt(it.finalPrice)?`<div class="toman" style="font-size:.72rem;color:var(--or);opacity:.8">${Rate.fmt(it.finalPrice)}</div>`:''}</div><button class="ci-rm" data-i="${idx}">×</button></div>`).join('');
   $('cartTotal').textContent=fAED(total);$('cartTotalT').textContent=Rate.fmt(total)||'';
   foot.style.display='block';
   el.querySelectorAll('.ci-rm').forEach(b=>b.addEventListener('click',()=>{cart.splice(+b.dataset.i,1);renderCart();}));
@@ -816,7 +846,21 @@ function renderSaleList(){
   const el=$('saleList');const q=$('saleSearch').value.toLowerCase();
   const list=q?cachedProds.filter(p=>p.name?.toLowerCase().includes(q)||p.barcode?.includes(q)):cachedProds;
   if(!list.length){el.innerHTML=`<div class="empty"><p>${q?'یافت نشد':'انبار خالی'}</p></div>`;return;}
-  el.innerHTML=list.map(p=>{const sp=p.sell_price||p.sellPrice||0;const qty=p.qty||0;return`<div class="prow${qty<1?' out-stock':''}" data-id="${p.id}"><div class="prow-i"><div class="prow-n">${p.name}</div><div class="prow-b">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div></div><div class="prow-right"><div class="prow-p">${fAED(sp)}</div>${Rate.fmt(sp)?`<div class="prow-t">${Rate.fmt(sp)}</div>`:''}<div class="prow-s">موجودی: ${faNum(qty)}</div></div></div>`;}).join('');
+  el.innerHTML=list.map(p=>{
+    const sp=p.sell_price||p.sellPrice||0;const qty=p.qty||0;
+    const tm=Rate.fmt(sp);
+    return`<div class="prow${qty<1?' out-stock':''}" data-id="${p.id}">
+      <div class="prow-i">
+        <div class="prow-n">${p.name}</div>
+        <div class="prow-b">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>
+      </div>
+      <div class="prow-right">
+        <div class="prow-p">${fAED(sp)}</div>
+        ${tm?`<div class="prow-t" style="color:var(--or);font-weight:600">${tm}</div>`:'<div class="prow-t">نرخ تنظیم نشده</div>'}
+        <div class="prow-s">موجودی: ${faNum(qty)}</div>
+      </div>
+    </div>`;
+  }).join('');
   el.querySelectorAll('.prow:not(.out-stock)').forEach(r=>r.addEventListener('click',()=>openQtyModal(r.dataset.id)));
 }
 
@@ -870,7 +914,10 @@ function updQty(){
   const sp=p.sell_price||p.sellPrice||0;
   const disc=parseFloat($('qDisc').value)||0;
   const tot=Math.max(0,qtyVal*sp-disc);
-  $('qVal').textContent=faNum(qtyVal);$('qTotal').textContent=fAED(tot);$('qTotalT').textContent=Rate.fmt(tot)||'';
+  $('qVal').textContent=faNum(qtyVal);
+  $('qTotal').textContent=fAED(tot);
+  const toman=Rate.fmt(tot);
+  $('qTotalT').textContent=toman?toman:'نرخ درهم را تنظیم کنید';
 }
 $('qMinus').addEventListener('click',()=>{if(qtyVal>1){qtyVal--;updQty();}});
 $('qPlus').addEventListener('click',()=>{if(qtyVal<(qtyTarget?.qty||1)){qtyVal++;updQty();}else toast('بیش از موجودی');});
@@ -911,7 +958,10 @@ function renderInvList(){
     const isLow=qty>0&&qty<=3,isEmpty=qty===0;
     const sb=isEmpty?'<span class="bdg b-low">ناموجود</span>':isLow?`<span class="bdg b-low">کم‌موجود: ${faNum(qty)}</span>`:`<span class="bdg b-s">موجودی: ${faNum(qty)}</span>`;
     const tb=Rate.fmt(sp)?`<span class="bdg b-t">≈ ${Rate.fmt(sp)}</span>`:'';
-    return `<div class="inv-item"><div class="inv-main"><div class="inv-name">${p.name}</div><div class="inv-brand">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>${p.barcode?`<div class="inv-bc">${p.barcode}</div>`:''}<div class="inv-meta"><span class="bdg b-p">خرید: ${fAED(bp)} | فروش: ${fAED(sp)}</span>${tb}${sb}</div></div><div class="inv-acts"><button class="ic-ed" data-id="${p.id}">✏️</button><button class="ic-dl" data-id="${p.id}">🗑</button></div></div>`;
+    const ttoman=Rate.fmt(sp)?`<span class="bdg" style="background:var(--orl2);color:var(--ord);font-size:.62rem">فروش تومان: ${Rate.fmt(sp)}</span>`:'';
+    const buyBadge=currentUser?.role==='admin'?`<span class="bdg b-p">خرید: ${fAED(bp)}${Rate.fmt(bp)?` | ${Rate.fmt(bp)}`:''}</span>`:'';
+    const sellBadge=`<span class="bdg" style="background:#dbeafe;color:#1e40af">فروش: ${fAED(sp)}</span>`;
+    return `<div class="inv-item"><div class="inv-main"><div class="inv-name">${p.name}</div><div class="inv-brand">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>${p.barcode?`<div class="inv-bc">${p.barcode}</div>`:''}<div class="inv-meta">${buyBadge}${sellBadge}${ttoman}${sb}</div></div><div class="inv-acts"><button class="ic-ed" data-id="${p.id}">✏️</button><button class="ic-dl" data-id="${p.id}">🗑</button></div></div>`;
   }).join('');
   el.querySelectorAll('.ic-ed').forEach(b=>b.addEventListener('click',()=>openProdModal(b.dataset.id)));
   el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',async()=>{
@@ -941,10 +991,16 @@ function openProdModal(id=null){
   $('fBarcode').value=p?.barcode||'';$('fName').value=p?.name||'';$('fBrand').value=p?.brand||'';
   $('fBuy').value=p?.buy_price||p?.buyPrice||'';$('fSell').value=p?.sell_price||p?.sellPrice||'';
   $('fQty').value=p?.qty||'';$('fVol').value=p?.volume||'';$('fDesc').value=p?.description||p?.desc||'';
-  updSellT();$('mProd').classList.remove('hidden');
+  // قیمت خرید فقط برای admin
+  const bf=$('buyPriceField');
+  if(bf)bf.style.display=currentUser?.role==='admin'?'':'none';
+  updSellT();updBuyT();
+  $('mProd').classList.remove('hidden');
 }
 function updSellT(){const v=parseFloat($('fSell').value);$('fSellT').textContent=v>0?(Rate.fmt(v)||''):''}
+function updBuyT(){const v=parseFloat($('fBuy').value);const el=$('fBuyT');if(el)el.textContent=v>0?(Rate.fmt(v)||''):''}
 $('fSell').addEventListener('input',updSellT);
+$('fBuy').addEventListener('input',updBuyT);
 $('mProdSave').addEventListener('click',async()=>{
   const name=$('fName').value.trim();if(!name){toast('نام را وارد کنید');return;}
   const sell=parseFloat($('fSell').value);if(!sell||sell<=0){toast('قیمت فروش را وارد کنید');return;}
