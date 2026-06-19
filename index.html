@@ -20,22 +20,32 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* Light Mode — آبی روشن شیک مثل Nexora */
-  --or:#1e6fff;--ord:#1558e0;--orl:#eff6ff;--orl2:#dbeafe;
-  --bg:#e8f0fe;--card:#ffffff;--inp:#f0f4ff;--brd:#c7d7fd;
-  --t1:#0a1628;--t2:#4b6085;--t3:#8fa3c8;--t4:#c7d7fd;
-  --nav:#ffffff;--ok:#059669;--err:#dc2626;--warn:#d97706;
-  --r:16px;--rs:12px;--sh:0 2px 12px rgba(30,111,255,.08);
+  /* تیم پیش‌فرض: روشن - سفید و آبی */
+  --or:#2563eb;--ord:#1d4ed8;--orl:#eff6ff;--orl2:#dbeafe;
+  --bg:#f1f5f9;--card:#ffffff;--inp:#e8f0fe;--brd:#cbd5e1;
+  --t1:#0f172a;--t2:#475569;--t3:#94a3b8;--t4:#cbd5e1;
+  --nav:#ffffff;--ok:#16a34a;--err:#dc2626;--warn:#d97706;
+  --r:14px;--rs:10px;--sh:0 2px 10px rgba(0,0,0,.06);
   --top:56px;--bot:calc(58px + env(safe-area-inset-bottom, 0px));
-  --grad:linear-gradient(135deg,#1e3a8a 0%,#1e6fff 100%);
+  --grad:linear-gradient(135deg,#1e40af,#3b82f6);
+  --pin-bg:linear-gradient(160deg,#dbeafe,#eff6ff,#e0f2fe);
+  --pin-btn:rgba(37,99,235,.08);
+  --pin-dot:#94a3b8;
+  --pin-text:#0f172a;
+  --pin-sub:#475569;
 }
 [data-theme=dark]{
-  /* Dark Mode — آبی نیوی تیره مثل تصویر دوم */
-  --or:#4d8bff;--ord:#3a76ff;--orl:rgba(77,139,255,.1);--orl2:rgba(77,139,255,.18);
-  --bg:#060d1f;--card:#0d1b35;--inp:#0f2040;--brd:#1a3060;
-  --t1:#e8f0fe;--t2:#7b9cc8;--t3:#3d5a8a;--t4:#1a3060;
-  --nav:#0d1b35;--ok:#10b981;--err:#f87171;--warn:#fbbf24;
-  --grad:linear-gradient(135deg,#060d1f 0%,#0d1b35 100%);
+  /* تیم تاریک: مشکی کامل */
+  --or:#3b82f6;--ord:#2563eb;--orl:rgba(59,130,246,.1);--orl2:rgba(59,130,246,.18);
+  --bg:#09090b;--card:#18181b;--inp:#27272a;--brd:#3f3f46;
+  --t1:#fafafa;--t2:#a1a1aa;--t3:#52525b;--t4:#3f3f46;
+  --nav:#18181b;--ok:#22c55e;--err:#f87171;--warn:#fbbf24;
+  --grad:linear-gradient(135deg,#1e1b4b,#1e3a8a);
+  --pin-bg:linear-gradient(160deg,#09090b,#18181b,#0f172a);
+  --pin-btn:rgba(255,255,255,.06);
+  --pin-dot:#52525b;
+  --pin-text:#fafafa;
+  --pin-sub:#a1a1aa;
 }
 html,body{width:100%;height:100%;font-family:'Vazirmatn',sans-serif;font-size:15px;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;overflow:hidden}
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
@@ -43,35 +53,31 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .hidden{display:none!important}
 
 /* ══ PIN SCREEN ══ */
-#pinScreen{direction:ltr;
-  position:fixed;inset:0;z-index:999;
-  background:var(--grad,linear-gradient(135deg,#060d1f 0%,#0d1b35 100%));
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
-}
+#pinScreen{direction:ltr;position:fixed;inset:0;z-index:999;background:var(--pin-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:background .3s}
 .pin-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:36px}
 .pin-title{font-size:1.8rem;font-weight:800;color:var(--or);letter-spacing:.12em;margin-top:14px}
-.pin-sub{font-size:.85rem;color:#a8a29e;margin-top:4px}
-.pin-user-label{font-size:.8rem;color:#78716c;margin-bottom:16px;letter-spacing:.05em}
+.pin-sub{font-size:.85rem;color:var(--pin-sub,#a8a29e);margin-top:4px}
+.pin-user-label{font-size:.8rem;color:var(--pin-sub,#78716c);margin-bottom:16px;letter-spacing:.05em}
 .pin-dots{display:flex;gap:14px;margin-bottom:32px}
-.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid #57534e;transition:all .2s}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--pin-dot,#57534e);transition:all .2s}
 .pin-dot.filled{background:#4d8bff;border-color:#4d8bff;transform:scale(1.1)}
 .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:260px}
 .pin-btn{
   height:70px;border-radius:var(--r);
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
-  color:#fff;font-size:1.4rem;font-weight:600;
+  background:var(--pin-btn,rgba(255,255,255,.06));border:1px solid rgba(128,128,128,.15);
+  color:var(--pin-text,#fff);font-size:1.4rem;font-weight:600;
   transition:background .15s,transform .1s;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
 }
 .pin-btn:active{background:rgba(77,139,255,.3);transform:scale(.95)}
-.pin-btn .sub{font-size:.5rem;letter-spacing:.1em;color:#78716c;font-weight:400;pointer-events:none}
+.pin-btn .sub{font-size:.5rem;letter-spacing:.1em;color:var(--t3);font-weight:400;pointer-events:none}
 .pin-btn.zero{grid-column:2}
 .pin-btn.del{grid-column:3;background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.15)}
 .pin-error{color:#f87171;font-size:.8rem;margin-top:16px;min-height:20px;text-align:center}
 .pin-users{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}
 .pin-user-chip{
   padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:600;
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#a8a29e;
+  background:var(--pin-btn,rgba(255,255,255,.06));border:1px solid rgba(128,128,128,.15);color:#a8a29e;
   cursor:pointer;transition:all .15s;
 }
 .pin-user-chip.active{background:rgba(249,115,22,.2);border-color:var(--or);color:var(--or)}
@@ -125,22 +131,26 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 
 /* BOTTOM NAV */
 .bottomnav{
-  position:fixed;bottom:0;left:0;right:0;
-  background:rgba(8,20,50,.97);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-top:1px solid rgba(96,165,250,.15);
-  display:flex;align-items:stretch;
-  padding:0;
-  padding-bottom:max(env(safe-area-inset-bottom,0px),8px);
-  z-index:10;
-  box-shadow:0 -4px 24px rgba(0,0,10,.4);
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:rgba(6,14,40,.98);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-top:1px solid rgba(96,165,250,.12);
+  display:flex;
+  align-items:center;
+  /* safe area برای آیفون X و بالاتر */
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  height:calc(58px + env(safe-area-inset-bottom,0px));
+  z-index:100;
+  box-shadow:0 -2px 20px rgba(0,0,0,.5);
 }
 [data-theme=light] .bottomnav{background:rgba(255,255,255,.96);border-top:1px solid rgba(30,58,138,.12);box-shadow:0 -2px 16px rgba(30,58,138,.08)}
 [data-theme=light] .nb{color:#64748b}
 [data-theme=light] .nb.active{color:#1d4ed8}
 [data-theme=light] .nb.active svg{filter:drop-shadow(0 0 5px #3b82f6)}
 [data-theme=light] .nb:hover{color:#2563eb}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;padding:10px 0 2px;color:#4a6fa5;font-size:.58rem;font-weight:500;border-radius:0;transition:all .2s;border:none;background:none;cursor:pointer;font-family:Vazirmatn;position:relative}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;height:58px;color:#4a6fa5;font-size:.58rem;font-weight:500;border-radius:0;transition:all .2s;border:none;background:none;cursor:pointer;font-family:Vazirmatn;position:relative}
 .nb svg{transition:all .25s;filter:drop-shadow(0 0 0 transparent)}
 .nb.active{color:#60a5fa}
 .nb.active svg{filter:drop-shadow(0 0 6px #60a5fa) drop-shadow(0 0 12px #3b82f6);transform:translateY(-1px)}
@@ -372,7 +382,7 @@ select.inp{cursor:pointer}
 [data-theme=dark] .ratebar{background:linear-gradient(90deg,#0d1b35,#1a3060)}
 
 /* bottom nav */
-.bottomnav{border-radius:24px 24px 0 0;box-shadow:0 -4px 20px rgba(30,111,255,.1)}
+.bottomnav{box-shadow:0 -4px 20px rgba(30,111,255,.1)}
 [data-theme=dark] .bottomnav{box-shadow:0 -4px 20px rgba(0,0,0,.5)}
 .nb.active{color:var(--or)}
 
@@ -677,10 +687,9 @@ select.inp{cursor:pointer}
         </div>
         <div class="card" style="padding:14px">
           <div class="card-lbl">انتخاب تم</div>
-          <div style="display:flex;gap:8px">
-            <button class="theme-btn" data-theme="light" style="background:#f8fafc;border:2px solid #e2e8f0;color:#0f172a">☀️ روشن</button>
-            <button class="theme-btn" data-theme="dark" style="background:#0d1b35;border:2px solid #1a3060;color:#e8f0fe">🌙 تاریک</button>
-            <button class="theme-btn" data-theme="purple" style="background:#150f2a;border:2px solid #2d1f50;color:#f3e8ff">💜 بنفش</button>
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <button class="theme-btn" data-theme="light" style="flex:1;padding:16px 8px;border-radius:12px;border:2px solid #cbd5e1;background:#f1f5f9;color:#0f172a;font-family:Vazirmatn;font-weight:700;cursor:pointer;font-size:.9rem">☀️<br><span style="font-size:.72rem;font-weight:500">روشن</span></button>
+            <button class="theme-btn" data-theme="dark" style="flex:1;padding:16px 8px;border-radius:12px;border:2px solid #3f3f46;background:#18181b;color:#fafafa;font-family:Vazirmatn;font-weight:700;cursor:pointer;font-size:.9rem">🌙<br><span style="font-size:.72rem;font-weight:500">تاریک</span></button>
           </div>
         </div>
         <div id="userList" class="user-list"></div>
@@ -888,14 +897,9 @@ let cachedProds=[];
 // ══ THEME ══
 function initTheme(){
   const saved=localStorage.getItem('wx_theme');
-  if(saved==='purple'){
-    document.documentElement.setAttribute('data-theme','purple');
-    const s=$('iSun'),m=$('iMoon');
-    if(s)s.classList.add('hidden');if(m)m.classList.remove('hidden');
-  }else{
-    const dark=saved==='dark'||(!saved&&window.matchMedia('(prefers-color-scheme: dark)').matches);
-    applyTheme(dark);
-  }
+  // پیش‌فرض: تیم روشن
+  const dark=saved==='dark';
+  applyTheme(dark);
 }
 function applyTheme(dark){
   const theme=dark?'dark':'light';
@@ -904,6 +908,11 @@ function applyTheme(dark){
   if(s)s.classList.toggle('hidden',dark);
   if(m)m.classList.toggle('hidden',!dark);
   localStorage.setItem('wx_theme',theme);
+  // PIN screen هم آپدیت بشه
+  const pin=$('pinScreen');
+  if(pin){
+    pin.style.background=''; // از CSS variable استفاده کن
+  }
 }
 $('darkBtn')?.addEventListener('click',()=>{
   const cur=document.documentElement.getAttribute('data-theme');
@@ -912,20 +921,19 @@ $('darkBtn')?.addEventListener('click',()=>{
 
 // ── theme buttons ──
 function initThemeBtns(){
+  const cur=localStorage.getItem('wx_theme')||'light';
   document.querySelectorAll('.theme-btn').forEach(btn=>{
     const t=btn.dataset.theme;
-    if(t===localStorage.getItem('wx_theme')||(!localStorage.getItem('wx_theme')&&t==='dark'))
-      btn.classList.add('active');
+    // نمایش active
+    btn.style.outline=t===cur?'3px solid var(--or)':'none';
+    btn.style.outlineOffset='2px';
     btn.addEventListener('click',()=>{
-      document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
+      document.querySelectorAll('.theme-btn').forEach(b=>{b.style.outline='none';});
+      btn.style.outline='3px solid var(--or)';
+      btn.style.outlineOffset='2px';
       const theme=btn.dataset.theme;
       localStorage.setItem('wx_theme',theme);
-      document.documentElement.setAttribute('data-theme',theme);
-      // dark button icon
-      const s=$('iSun'),m=$('iMoon');
-      if(s)s.classList.toggle('hidden',theme!=='light');
-      if(m)m.classList.toggle('hidden',theme==='light');
+      applyTheme(theme==='dark');
     });
   });
 }
