@@ -805,6 +805,7 @@ async function initRate(){
   $('rateVal').textContent='...';
   await Rate.fetch();
   updateRateBar();
+  updSellT();updBuyT();
 }
 function updateRateBar(){
   const r=Rate.cur();
@@ -816,13 +817,15 @@ $('rateBtn')?.addEventListener('click',async()=>{
   updateRateBar();
   renderSaleList();
   renderInvList();
+  // اگر فرم باز بود آپدیت کن
+  updSellT();updBuyT();
   toast('نرخ بروز شد ✓');
 });
 $('rateManualBtn')?.addEventListener('click',()=>{
   const v=prompt('نرخ درهم به تومان را وارد کنید:\n(مثال: 18500)');
   if(!v)return;
   const n=parseFloat(v.replace(/,/g,''));
-  if(n>1000){Rate.set(n);updateRateBar();renderSaleList();renderInvList();toast('نرخ ذخیره شد ✓');}
+  if(n>1000){Rate.set(n);updateRateBar();renderSaleList();renderInvList();updSellT();updBuyT();toast('نرخ ذخیره شد ✓');}
   else toast('عدد معتبر وارد کنید');
 });
 $('rateVal')?.addEventListener('click',()=>$('rateManualBtn')?.click());
@@ -997,8 +1000,27 @@ function openProdModal(id=null){
   updSellT();updBuyT();
   $('mProd').classList.remove('hidden');
 }
-function updSellT(){const v=parseFloat($('fSell').value);$('fSellT').textContent=v>0?(Rate.fmt(v)||''):''}
-function updBuyT(){const v=parseFloat($('fBuy').value);const el=$('fBuyT');if(el)el.textContent=v>0?(Rate.fmt(v)||''):''}
+function fmtOrHint(aed){
+  if(!aed||aed<=0)return '';
+  const t=Rate.fmt(aed);
+  if(t)return t;
+  // نرخ هنوز لود نشده
+  const r=Rate.cur();
+  if(!r)return '⚠️ نرخ درهم را تنظیم کنید';
+  return '';
+}
+function updSellT(){
+  const v=parseFloat($('fSell').value)||0;
+  const el=$('fSellT');if(!el)return;
+  el.textContent=fmtOrHint(v);
+  el.style.color=Rate.cur()?'var(--or)':'var(--err)';
+}
+function updBuyT(){
+  const v=parseFloat($('fBuy').value)||0;
+  const el=$('fBuyT');if(!el)return;
+  el.textContent=fmtOrHint(v);
+  el.style.color=Rate.cur()?'var(--t3)':'var(--err)';
+}
 $('fSell').addEventListener('input',updSellT);
 $('fBuy').addEventListener('input',updBuyT);
 $('mProdSave').addEventListener('click',async()=>{
