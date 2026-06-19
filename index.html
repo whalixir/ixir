@@ -626,9 +626,16 @@ select.inp{cursor:pointer}
         <span class="qty-v" id="qVal">1</span>
         <button class="btn-qty" id="qPlus">+</button>
       </div>
-      <div class="disc-row">
-        <label>تخفیف (درهم):</label>
-        <input type="number" id="qDisc" class="inp" value="0" min="0" step="0.5" style="max-width:90px"/>
+      <div style="padding:0 4px 8px">
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button class="btn sc" id="discTypePct" style="flex:1;font-size:.8rem;border:2px solid var(--or);color:var(--or)">٪ درصد</button>
+          <button class="btn sc" id="discTypeAmt" style="flex:1;font-size:.8rem">مبلغ (تومان)</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" id="qDisc" class="inp" value="0" min="0" style="flex:1" placeholder="0"/>
+          <span id="qDiscUnit" style="color:var(--t2);font-size:.8rem;white-space:nowrap">٪</span>
+        </div>
+        <div id="qDiscPreview" style="font-size:.75rem;color:var(--or);margin-top:4px;text-align:center"></div>
       </div>
       <div class="qty-p">
         <div class="qty-aed" id="qTotal">۰ درهم</div>
@@ -841,21 +848,25 @@ function renderCart(){
   const total=cart.reduce((s,i)=>s+i.finalPrice,0);
   const rc=Rate.cur();
   el.innerHTML=cart.map((it,idx)=>{
-    const tomanItem=rc&&it.finalPrice?Math.round(it.finalPrice*rc).toLocaleString('fa-IR')+' تومان':null;
+    const ft=it.finalToman||it.finalPrice*(rc||1)*(!rc?0:1);
+    const tomanItem=rc&&ft?Math.round(ft).toLocaleString('fa-IR')+' تومان':null;
     const tomanUnit=rc&&it.sellPrice?Math.round(it.sellPrice*rc).toLocaleString('fa-IR')+' تومان':null;
+    const hasDisc=(it.discountToman||0)>0;
     return`<div class="ci">
       <div class="ci-info">
-        <div class="ci-name">${it.name}</div>
-        <div class="ci-det">${faNum(it.qty)} × ${tomanUnit||fAED(it.sellPrice)}${it.discount>0?` − تخفیف`:''}</div>
+        <div class="ci-name" style="font-weight:700">${it.name}</div>
+        <div class="ci-det">${faNum(it.qty)} × ${tomanUnit||fAED(it.sellPrice)}</div>
+        ${hasDisc?`<div style="font-size:.68rem;color:var(--ok)">تخفیف: ${Math.round(it.discountToman).toLocaleString('fa-IR')} تومان</div>`:''}
       </div>
       <div class="ci-right">
-        <div class="ci-price" style="font-size:.95rem">${tomanItem||fAED(it.finalPrice)}</div>
-        ${tomanItem?`<div class="toman" style="font-size:.65rem;color:var(--t3)">${fAED(it.finalPrice)}</div>`:''}
+        <div class="ci-price" style="font-size:.95rem;font-weight:800">${tomanItem||fAED(it.finalPrice)}</div>
+        <div style="font-size:.62rem;color:var(--t3)">${fAED(it.finalPrice)}</div>
       </div>
       <button class="ci-rm" data-i="${idx}">×</button>
     </div>`;
   }).join('');
-  const totalToman2=rc&&total?Math.round(total*rc).toLocaleString('fa-IR')+' تومان':null;
+  const sumToman=cart.reduce((s,i)=>s+(i.finalToman||i.finalPrice*(rc||0)),0);
+  const totalToman2=rc&&sumToman?Math.round(sumToman).toLocaleString('fa-IR')+' تومان':null;
   $('cartTotal').textContent=totalToman2||fAED(total);
   $('cartTotalT').textContent=totalToman2?fAED(total):'';
   foot.style.display='block';
@@ -863,26 +874,56 @@ function renderCart(){
 }
 
 async function loadSaleProds(){
-  if(!cachedProds.length){try{const r=await API.get('/products');if(r.ok)cachedProds=r.data;}catch{}}
+  try{
+    const r=await API.get('/products');
+    if(r.ok){
+      cachedProds=r.data;
+    }else{
+      console.warn('Products API error:',r.error);
+      // نمایش خطا فقط اگر واقعاً مشکل داشته باشیم
+      if(!cachedProds.length)toast('⚠️ خطا در بارگذاری محصولات: '+r.error);
+    }
+  }catch(e){
+    console.warn('Products fetch failed:',e.message);
+    if(!cachedProds.length)toast('⚠️ اتصال به سرور: '+e.message);
+  }
   renderSaleList();
 }
 function renderSaleList(){
   const el=$('saleList');const q=$('saleSearch').value.toLowerCase();
   const list=q?cachedProds.filter(p=>p.name?.toLowerCase().includes(q)||p.barcode?.includes(q)):cachedProds;
   if(!list.length){el.innerHTML=`<div class="empty"><p>${q?'یافت نشد':'انبار خالی'}</p></div>`;return;}
-  el.innerHTML=list.map(p=>{
+  const colors=[
+    {bg:'#eff6ff',brd:'#bfdbfe',clr:'#1d4ed8'},
+    {bg:'#f0fdf4',brd:'#bbf7d0',clr:'#15803d'},
+    {bg:'#fdf4ff',brd:'#e9d5ff',clr:'#7e22ce'},
+    {bg:'#fff7ed',brd:'#fed7aa',clr:'#c2410c'},
+    {bg:'#fff1f2',brd:'#fecdd3',clr:'#be123c'},
+    {bg:'#f0fdfa',brd:'#99f6e4',clr:'#0f766e'},
+  ];
+  const darkColors=[
+    {bg:'#1e3a5f',brd:'#2563eb',clr:'#93c5fd'},
+    {bg:'#14532d',brd:'#16a34a',clr:'#86efac'},
+    {bg:'#3b0764',brd:'#7c3aed',clr:'#d8b4fe'},
+    {bg:'#431407',brd:'#ea580c',clr:'#fdba74'},
+    {bg:'#4c0519',brd:'#e11d48',clr:'#fda4af'},
+    {bg:'#042f2e',brd:'#0d9488',clr:'#5eead4'},
+  ];
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  el.innerHTML=list.map((p,i)=>{
     const sp=p.sell_price||p.sellPrice||0;const qty=p.qty||0;
     const r=Rate.cur();
     const toman=r&&sp?Math.round(sp*r).toLocaleString('fa-IR')+' تومان':null;
-    return`<div class="prow${qty<1?' out-stock':''}" data-id="${p.id}">
+    const c=isDark?darkColors[i%darkColors.length]:colors[i%colors.length];
+    return`<div class="prow${qty<1?' out-stock':''}" data-id="${p.id}" style="background:${c.bg};border-color:${c.brd}">
       <div class="prow-i">
         <div class="prow-n">${p.name}</div>
-        <div class="prow-b">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>
+        <div class="prow-b" style="color:${c.clr};opacity:.8">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>
       </div>
       <div class="prow-right">
-        <div class="prow-p" style="font-size:1rem;font-weight:800;color:var(--or)">${toman||fAED(sp)}</div>
-        ${toman?`<div class="prow-t" style="color:var(--t3);font-size:.65rem">${fAED(sp)}</div>`:'<div class="prow-t" style="color:var(--err)">↻ نرخ تنظیم نشده</div>'}
-        <div class="prow-s">موجودی: ${faNum(qty)}</div>
+        <div class="prow-p" style="color:${c.clr};font-size:1rem;font-weight:800">${toman||fAED(sp)}</div>
+        ${toman?`<div class="prow-t" style="color:${c.clr};opacity:.6;font-size:.65rem">${fAED(sp)}</div>`:'<div class="prow-t" style="color:var(--err)">↻ نرخ</div>'}
+        <div class="prow-s" style="color:${c.clr};opacity:.7">موجودی: ${faNum(qty)}</div>
       </div>
     </div>`;
   }).join('');
@@ -928,35 +969,93 @@ async function loadRecentSales(){
 }
 
 // ── QTY MODAL ──
+let discType='pct'; // 'pct' یا 'amt'
 function openQtyModal(id){
   const p=cachedProds.find(x=>x.id===id);if(!p)return;
-  qtyTarget=p;qtyVal=1;
-  $('mQtyName').textContent=p.name;$('qDisc').value='0';
-  updQty();$('mQty').classList.remove('hidden');
+  qtyTarget=p;qtyVal=1;discType='pct';
+  $('mQtyName').textContent=p.name;
+  $('qDisc').value='0';
+  $('qDiscUnit').textContent='٪';
+  $('discTypePct').style.borderColor='var(--or)';$('discTypePct').style.color='var(--or)';
+  $('discTypeAmt').style.borderColor='';$('discTypeAmt').style.color='';
+  updQty();
+  $('mQty').classList.remove('hidden');
 }
+
+$('discTypePct')?.addEventListener('click',()=>{
+  discType='pct';$('qDiscUnit').textContent='٪';$('qDisc').value='0';
+  $('discTypePct').style.borderColor='var(--or)';$('discTypePct').style.color='var(--or)';
+  $('discTypeAmt').style.borderColor='';$('discTypeAmt').style.color='';
+  updQty();
+});
+$('discTypeAmt')?.addEventListener('click',()=>{
+  discType='amt';$('qDiscUnit').textContent='تومان';$('qDisc').value='0';
+  $('discTypeAmt').style.borderColor='var(--or)';$('discTypeAmt').style.color='var(--or)';
+  $('discTypePct').style.borderColor='';$('discTypePct').style.color='';
+  updQty();
+});
+
+function calcDiscount(){
+  const p=qtyTarget;if(!p)return 0;
+  const sp=p.sell_price||p.sellPrice||0;
+  const r=Rate.cur()||1;
+  const spToman=sp*r;
+  const v=parseFloat($('qDisc').value)||0;
+  if(discType==='pct') return Math.min(qtyVal*spToman, qtyVal*spToman*v/100);
+  return Math.min(qtyVal*spToman, v); // تومان مستقیم
+}
+
 function updQty(){
   const p=qtyTarget;if(!p)return;
   const sp=p.sell_price||p.sellPrice||0;
-  const disc=parseFloat($('qDisc').value)||0;
-  const tot=Math.max(0,qtyVal*sp-disc);
-  const r2=Rate.cur();
-  const totalToman=r2&&tot?Math.round(tot*r2):null;
+  const r=Rate.cur()||0;
+  const totalTomanBefore=r?qtyVal*sp*r:0;
+  const discToman=calcDiscount();
+  const finalToman=Math.max(0,totalTomanBefore-discToman);
+  const finalAed=r?finalToman/r:qtyVal*sp;
   $('qVal').textContent=faNum(qtyVal);
-  $('qTotal').textContent=totalToman?(totalToman.toLocaleString('fa-IR')+' تومان'):fAED(tot);
-  $('qTotalT').textContent=totalToman?fAED(tot):'⚠️ نرخ درهم را تنظیم کنید';
+  if(r){
+    $('qTotal').textContent=Math.round(finalToman).toLocaleString('fa-IR')+' تومان';
+    $('qTotalT').textContent=finalAed.toFixed(2)+' درهم';
+  }else{
+    $('qTotal').textContent=fAED(finalAed);
+    $('qTotalT').textContent='⚠️ نرخ را تنظیم کنید';
+  }
+  const prev=$('qDiscPreview');
+  if(prev&&discToman>0){
+    prev.textContent=`تخفیف: ${Math.round(discToman).toLocaleString('fa-IR')} تومان`;
+  }else if(prev){prev.textContent='';}
 }
+
 $('qMinus').addEventListener('click',()=>{if(qtyVal>1){qtyVal--;updQty();}});
-$('qPlus').addEventListener('click',()=>{if(qtyVal<(qtyTarget?.qty||1)){qtyVal++;updQty();}else toast('بیش از موجودی');});
+$('qPlus').addEventListener('click',()=>{
+  if(qtyVal<(qtyTarget?.qty||1)){qtyVal++;updQty();}
+  else toast('بیش از موجودی');
+});
 $('qDisc').addEventListener('input',updQty);
+
 $('mQtyAdd').addEventListener('click',()=>{
   const p=qtyTarget;if(!p)return;
-  const sp=p.sell_price||p.sellPrice||0;const bp=p.buy_price||p.buyPrice||0;
-  const disc=parseFloat($('qDisc').value)||0;
-  const finalPrice=Math.max(0,qtyVal*sp-disc);
+  const sp=p.sell_price||p.sellPrice||0;
+  const bp=p.buy_price||p.buyPrice||0;
+  const r=Rate.cur()||0;
+  const totalToman=r?qtyVal*sp*r:0;
+  const discToman=calcDiscount();
+  const finalToman=Math.max(0,totalToman-discToman);
+  const finalAed=r&&finalToman?finalToman/r:qtyVal*sp;
   const ex=cart.find(i=>i.productId===p.id);
-  if(ex){ex.qty+=qtyVal;ex.discount=(ex.discount||0)+disc;ex.finalPrice=Math.max(0,ex.qty*sp-ex.discount);}
-  else cart.push({productId:p.id,name:p.name,qty:qtyVal,sellPrice:sp,buyPrice:bp,buy_price:bp,discount:disc,finalPrice});
-  $('mQty').classList.add('hidden');renderCart();toast(`${p.name} اضافه شد`);
+  if(ex){
+    ex.qty+=qtyVal;
+    ex.discountToman=(ex.discountToman||0)+discToman;
+    ex.finalPrice=finalAed;
+    ex.finalToman=finalToman;
+  }else{
+    cart.push({productId:p.id,name:p.name,qty:qtyVal,sellPrice:sp,buyPrice:bp,
+      discountToman,finalPrice:finalAed,finalToman});
+  }
+  $('mQty').classList.add('hidden');
+  renderCart();
+  toast(`${p.name} اضافه شد`);
 });
 $('mQtyCancel').addEventListener('click',()=>$('mQty').classList.add('hidden'));
 $('mQtyClose').addEventListener('click',()=>$('mQty').classList.add('hidden'));
@@ -1157,12 +1256,68 @@ $('mUserCancel').addEventListener('click',()=>$('mUser').classList.add('hidden')
 $('mUserClose').addEventListener('click',()=>$('mUser').classList.add('hidden'));
 $('mUser').addEventListener('click',e=>{if(e.target===$('mUser'))$('mUser').classList.add('hidden');});
 
+// ══ کلیک روی نام کاربر ══
+$('currentUserBadge')?.addEventListener('click',()=>nav('users'));
+$('currentUserBadge').style.cursor='pointer';
+$('currentUserBadge').title='کلیک برای مدیریت کاربران';
+
+// ══ PULL TO REFRESH ══
+let ptStart=0,ptEl=null;
+function initPullToRefresh(){
+  const content=document.querySelector('.content');
+  if(!content)return;
+  content.addEventListener('touchstart',e=>{
+    if(content.scrollTop===0)ptStart=e.touches[0].clientY;
+  },{passive:true});
+  content.addEventListener('touchmove',e=>{
+    if(!ptStart)return;
+    const diff=e.touches[0].clientY-ptStart;
+    if(diff>60&&content.scrollTop===0){
+      if(!ptEl){
+        ptEl=document.createElement('div');
+        ptEl.style.cssText='position:fixed;top:120px;left:50%;transform:translateX(-50%);background:var(--or);color:#fff;padding:6px 18px;border-radius:20px;font-size:.8rem;z-index:999;font-family:Vazirmatn';
+        ptEl.textContent='↓ رها کنید برای بروزرسانی';
+        document.body.appendChild(ptEl);
+      }
+    }
+  },{passive:true});
+  content.addEventListener('touchend',async()=>{
+    if(ptEl){ptEl.remove();ptEl=null;await refreshAll();toast('بروزرسانی شد ✓');}
+    ptStart=0;
+  },{passive:true});
+}
+
+async function refreshAll(){
+  cachedProds=[];
+  await Rate.fetch();
+  updateRateBar();
+  const s=document.querySelector('.sec.active');
+  const sid=s?.id?.replace('sec-','');
+  if(sid==='sale'){await loadSaleProds();await loadRecentSales();}
+  else if(sid==='inv')await loadInv();
+  else if(sid==='dash')await loadDash();
+  else if(sid==='pnl')await loadPnl();
+  else if(sid==='users')await loadUsers();
+}
+
+// ══ AUTO REFRESH RATE ══
+function startAutoRate(){
+  // هر ۵ دقیقه نرخ را آپدیت کن
+  setInterval(async()=>{
+    await Rate.fetch();
+    updateRateBar();
+    updSellT();updBuyT();
+  },5*60*1000);
+}
+
 // ══ INIT ══
 async function initApp(){
   await initRate();
   renderCart();
   await loadSaleProds();
   await loadRecentSales();
+  initPullToRefresh();
+  startAutoRate();
 }
 
 document.addEventListener('DOMContentLoaded',async()=>{
