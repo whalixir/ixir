@@ -1057,14 +1057,23 @@ document.querySelectorAll('.nb,.sb-btn').forEach(b=>b.addEventListener('click',(
 
 // ══ RATE BAR ══
 async function initRate(){
-  $('rateVal').textContent='...';
-  await Rate.fetch();
+  const el=$('rateVal');
+  if(el){el.textContent='⏳';el.style.color='#fff';}
+  const r=await Rate.fetch();
   updateRateBar();
+  if(!r)setTimeout(()=>Rate.fetch().then(updateRateBar),8000);
   updSellT();updBuyT();
 }
 function updateRateBar(){
   const r=Rate.cur();
-  $('rateVal').textContent=r?Math.round(r).toLocaleString('fa-IR'):'دسترس نیست';
+  const el=$('rateVal');if(!el)return;
+  if(r){
+    el.textContent=Math.round(r).toLocaleString('en-US');
+    el.style.color='#fff';
+  }else{
+    el.textContent='✏️ دستی';
+    el.style.color='#fde68a';
+  }
 }
 $('rateBtn')?.addEventListener('click',async()=>{
   $('rateVal').textContent='...';
@@ -1789,20 +1798,23 @@ async function refreshAll(){
 
 // ══ AUTO REFRESH RATE ══
 function startAutoRate(){
-  // هر ۳ دقیقه نرخ را آپدیت کن
   async function doUpdate(){
     try{
-      await Rate.fetch();
+      const r=await Rate.fetch();
       updateRateBar();
-      updSellT();updBuyT();
-      // اگر در بخش فروش یا انبار هستیم، قیمت‌ها را آپدیت کن
-      renderSaleList();
-      renderInvList();
+      if(r){
+        updSellT();updBuyT();
+        renderSaleList();
+        renderInvList();
+      }
     }catch{}
   }
-  setInterval(doUpdate,3*60*1000);
-  // اولین بار بعد از ۵ ثانیه
-  setTimeout(doUpdate,5000);
+  // هر ۲ دقیقه
+  setInterval(doUpdate, 2*60*1000);
+  // بعد از ۳ ثانیه اول
+  setTimeout(doUpdate, 3000);
+  // بعد از ۱۵ ثانیه دوباره (برای اطمینان)
+  setTimeout(doUpdate, 15000);
 }
 
 // ══ INIT ══
