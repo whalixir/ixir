@@ -401,6 +401,20 @@ select.inp{cursor:pointer}
 .se{transition:transform .2s;border-radius:12px;margin:0}
 .se-wrap.sw .se-del-bg{transform:translateX(0)}
 .se-wrap.sw .se{transform:translateX(80px)}
+
+/* ── pay buttons ── */
+.pay-btn{flex:1;padding:7px 4px;border-radius:10px;font-size:.7rem;font-weight:600;border:2px solid var(--brd);background:var(--inp);color:var(--t2);cursor:pointer;transition:all .15s;font-family:Vazirmatn;text-align:center}
+.pay-btn.active{border-color:var(--or);background:var(--orl2);color:var(--or)}
+
+/* ── swipe to confirm ── */
+.swipe-confirm{margin:4px 0 0;user-select:none;-webkit-user-select:none}
+.swipe-track{position:relative;height:48px;background:var(--orl);border:2px solid var(--or);border-radius:30px;overflow:hidden;display:flex;align-items:center}
+.swipe-thumb{position:absolute;right:4px;width:40px;height:40px;background:var(--or);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;cursor:grab;touch-action:none;z-index:2;transition:background .15s;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.swipe-thumb.done{background:var(--ok)}
+.swipe-label{position:absolute;width:100%;text-align:center;font-size:.75rem;color:var(--ord);font-weight:600;pointer-events:none;padding-right:50px}
+[data-theme=dark] .swipe-track{background:rgba(77,139,255,.1);border-color:var(--or)}
+[data-theme=dark] .swipe-label{color:var(--or)}
+.btn-sm{padding:6px 10px}
 </style>
 </head>
 <body>
@@ -510,8 +524,21 @@ select.inp{cursor:pointer}
           <div id="cartItems" class="cart-list"><div class="empty"><svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" opacity=".3"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><p>سبد خالی است</p></div></div>
           <div id="cartFoot" style="display:none">
             <div class="cart-foot">
-              <div class="cart-tot"><span>جمع کل:</span><div><strong id="cartTotal">۰ درهم</strong><div class="toman" id="cartTotalT"></div></div></div>
-              <div class="cart-acts"><button class="btn sc" id="clearCart">پاک کردن</button><button class="btn pr" id="confirmSale">ثبت فروش</button></div>
+              <div class="cart-tot"><span>جمع کل:</span><div><strong id="cartTotal">۰</strong><div class="toman" id="cartTotalT" style="font-size:.7rem;color:var(--t3)"></div></div></div>
+              <!-- نوع پرداخت -->
+              <div style="display:flex;gap:6px;margin:10px 0">
+                <button class="pay-btn active" data-pay="card2card">💳 کارت به کارت</button>
+                <button class="pay-btn" data-pay="cash">💵 نقدی</button>
+                <button class="pay-btn" data-pay="pos">🖨 کارتخوان</button>
+              </div>
+              <!-- swipe برای تایید -->
+              <div class="swipe-confirm" id="swipeConfirm">
+                <div class="swipe-track">
+                  <div class="swipe-thumb" id="swipeThumb">▶</div>
+                  <span class="swipe-label" id="swipeLabel">برای ثبت فروش بکشید ←</span>
+                </div>
+              </div>
+              <button class="btn sc btn-sm" id="clearCart" style="width:100%;margin-top:8px;justify-content:center;font-size:.8rem">🗑 پاک کردن سبد</button>
             </div>
           </div>
         </div>
@@ -974,7 +1001,131 @@ function renderSaleList(){
 
 $('saleSearch').addEventListener('input',renderSaleList);
 $('newSaleBtn').addEventListener('click',()=>{cart=[];renderCart();});
-$('clearCart').addEventListener('click',()=>{cart=[];renderCart();});
+$('clearCart')?.addEventListener('click',()=>{cart=[];renderCart();});
+
+// ── نوع پرداخت ──
+let payType='card2card';
+document.querySelectorAll('.pay-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    payType=btn.dataset.pay;
+  });
+});
+
+// ── صدای beep ──
+function playBeep(type='add'){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    if(type==='add'){osc.frequency.value=880;gain.gain.value=0.15;osc.start();osc.stop(ctx.currentTime+0.12);}
+    else if(type==='done'){
+      osc.frequency.value=523;gain.gain.value=0.2;osc.start();osc.stop(ctx.currentTime+0.08);
+      setTimeout(()=>{
+        const o2=ctx.createOscillator();const g2=ctx.createGain();
+        o2.connect(g2);g2.connect(ctx.destination);
+        o2.frequency.value=784;g2.gain.value=0.2;o2.start();o2.stop(ctx.currentTime+0.15);
+      },100);
+    }
+  }catch{}
+}
+
+// ── swipe confirm ──
+function initSwipeConfirm(){
+  const thumb=$('swipeThumb');
+  const track=thumb?.parentElement;
+  if(!thumb||!track)return;
+  let startX=0,curX=0,dragging=false,maxX=0;
+
+  function getMax(){return track.offsetWidth-thumb.offsetWidth-8;}
+
+  function onStart(e){
+    dragging=true;maxX=getMax();
+    startX=(e.touches?e.touches[0].clientX:e.clientX);
+    thumb.style.transition='none';
+  }
+  function onMove(e){
+    if(!dragging)return;
+    const x=(e.touches?e.touches[0].clientX:e.clientX);
+    // RTL: کشیدن به چپ
+    curX=Math.max(0,Math.min(maxX,startX-x));
+    // thumb از راست به چپ
+    thumb.style.right=(4+curX)+'px';
+    const pct=curX/maxX;
+    thumb.style.opacity=0.5+pct*0.5;
+    if(pct>0.5)$('swipeLabel').textContent='رها کنید...';
+    else $('swipeLabel').textContent='برای ثبت فروش بکشید ←';
+  }
+  function onEnd(){
+    if(!dragging)return;dragging=false;
+    thumb.style.transition='';
+    const pct=curX/getMax();
+    if(pct>0.75){
+      thumb.style.right=(getMax()+4)+'px';
+      thumb.classList.add('done');
+      thumb.textContent='✓';
+      $('swipeLabel').textContent='در حال ثبت...';
+      setTimeout(()=>doConfirmSale(),300);
+    }else{
+      thumb.style.right='4px';curX=0;
+      $('swipeLabel').textContent='برای ثبت فروش بکشید ←';
+    }
+  }
+  thumb.addEventListener('touchstart',onStart,{passive:true});
+  thumb.addEventListener('touchmove',onMove,{passive:true});
+  thumb.addEventListener('touchend',onEnd,{passive:true});
+  thumb.addEventListener('mousedown',onStart);
+  document.addEventListener('mousemove',onMove);
+  document.addEventListener('mouseup',onEnd);
+}
+
+async function doConfirmSale(){
+  if(!cart.length)return;
+  try{
+    const rc=Rate.cur()||0;
+    const total=cart.reduce((s,i)=>s+(i.finalPrice||0),0);
+    const cost=cart.reduce((s,i)=>s+i.qty*(i.buyPrice||0),0);
+    const totalToman=cart.reduce((s,i)=>s+(i.finalToman||i.finalPrice*(rc||0)),0);
+    const items=cart.map(i=>({
+      productId:i.productId,name:i.name,qty:i.qty,
+      sellPrice:i.sellPrice||0,buyPrice:i.buyPrice||0,
+      discount:i.discountToman||0,
+      finalPrice:i.finalPrice||0,
+      finalToman:i.finalToman||0,
+    }));
+    const r=await API.post('/sales',{
+      items,total,cost,
+      totalToman:Math.round(totalToman),
+      payType,
+      dateJ:jalaliNow(),
+      user:currentUser?.name||'',
+    });
+    if(r.ok){
+      playBeep('done');
+      toast('✅ فروش با موفقیت ثبت شد');
+      cart=[];
+      renderCart();
+      cachedProds=[];
+      await loadSaleProds();
+      await loadRecentSales();
+    }else{
+      toast('خطا: '+(r.error||'نامشخص'));
+      resetSwipe();
+    }
+  }catch(e){
+    toast('خطا: '+e.message);
+    resetSwipe();
+  }
+}
+
+function resetSwipe(){
+  const thumb=$('swipeThumb');
+  if(thumb){thumb.style.right='4px';thumb.classList.remove('done');thumb.textContent='▶';}
+  const lbl=$('swipeLabel');
+  if(lbl)lbl.textContent='برای ثبت فروش بکشید ←';
+}
 
 $('saleScanBtn').addEventListener('click',()=>{
   $('saleScanCard').style.display='block';
@@ -988,48 +1139,7 @@ $('saleScanBtn').addEventListener('click',()=>{
 });
 $('closeSaleScan').addEventListener('click',()=>{Scanner.stop();$('saleScanCard').style.display='none';});
 
-$('confirmSale').addEventListener('click',async()=>{
-  if(!cart.length){toast('سبد خالی است');return;}
-  const btn=$('confirmSale');loading(btn,true);
-  try{
-    const rc=Rate.cur()||0;
-    // محاسبه total به درهم
-    const total=cart.reduce((s,i)=>s+(i.finalPrice||0),0);
-    const cost=cart.reduce((s,i)=>s+i.qty*(i.buyPrice||i.buy_price||0),0);
-    // total تومان برای نمایش
-    const totalToman=cart.reduce((s,i)=>s+(i.finalToman||i.finalPrice*(rc||0)),0);
-    const items=cart.map(i=>({
-      productId:i.productId,
-      name:i.name,
-      qty:i.qty,
-      sellPrice:i.sellPrice||0,
-      buyPrice:i.buyPrice||i.buy_price||0,
-      discount:i.discountToman||0,
-      finalPrice:i.finalPrice||0,
-      finalToman:i.finalToman||0,
-    }));
-    const r=await API.post('/sales',{
-      items,total,cost,
-      totalToman:Math.round(totalToman),
-      dateJ:jalaliNow(),
-      user:currentUser?.name||'',
-    });
-    if(r.ok){
-      toast('فروش ثبت شد ✓');
-      cart=[];
-      renderCart();
-      cachedProds=[];
-      await loadSaleProds();
-      await loadRecentSales();
-    }else{
-      toast('خطا: '+(r.error||'نامشخص'));
-    }
-  }catch(e){
-    toast('خطا در ثبت: '+e.message);
-    console.error(e);
-  }
-  loading(btn,false);
-});
+
 
 async function loadRecentSales(){
   const el=$('recentSales');
@@ -1152,26 +1262,34 @@ $('qDisc').addEventListener('input',updQty);
 
 $('mQtyAdd').addEventListener('click',()=>{
   const p=qtyTarget;if(!p)return;
-  const sp=p.sell_price||p.sellPrice||0;
-  const bp=p.buy_price||p.buyPrice||0;
+  const sp=parseFloat(p.sell_price||p.sellPrice||0);
+  const bp=parseFloat(p.buy_price||p.buyPrice||0);
   const r=Rate.cur()||0;
-  const totalToman=r?qtyVal*sp*r:0;
+  // finalPrice همیشه درهم است
+  const finalAed=Math.max(0,qtyVal*sp);
   const discToman=calcDiscount();
-  const finalToman=Math.max(0,totalToman-discToman);
-  const finalAed=r&&finalToman?finalToman/r:qtyVal*sp;
+  const finalToman=r?Math.max(0,qtyVal*sp*r-discToman):0;
+  // اگر نرخ نداریم، finalPrice به درهم ذخیره میشه
+  const item={
+    productId:p.id,name:p.name,qty:qtyVal,
+    sellPrice:sp,buyPrice:bp,
+    discountToman,
+    finalPrice:finalAed,
+    finalToman:finalToman||0,
+  };
   const ex=cart.find(i=>i.productId===p.id);
   if(ex){
     ex.qty+=qtyVal;
     ex.discountToman=(ex.discountToman||0)+discToman;
-    ex.finalPrice=finalAed;
-    ex.finalToman=finalToman;
+    ex.finalPrice+=(finalAed||0);
+    ex.finalToman+=(finalToman||0);
   }else{
-    cart.push({productId:p.id,name:p.name,qty:qtyVal,sellPrice:sp,buyPrice:bp,
-      discountToman,finalPrice:finalAed,finalToman});
+    cart.push(item);
   }
   $('mQty').classList.add('hidden');
+  playBeep();
   renderCart();
-  toast(`${p.name} اضافه شد`);
+  toast(`${p.name} به سبد اضافه شد ✓`);
 });
 $('mQtyCancel').addEventListener('click',()=>$('mQty').classList.add('hidden'));
 $('mQtyClose').addEventListener('click',()=>$('mQty').classList.add('hidden'));
@@ -1434,6 +1552,7 @@ async function initApp(){
   await loadRecentSales();
   initPullToRefresh();
   startAutoRate();
+  setTimeout(initSwipeConfirm,500);
 }
 
 document.addEventListener('DOMContentLoaded',async()=>{
