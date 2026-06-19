@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
 <meta name="theme-color" content="#0f172a"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -25,7 +26,7 @@
   --t1:#0a1628;--t2:#4b6085;--t3:#8fa3c8;--t4:#c7d7fd;
   --nav:#ffffff;--ok:#059669;--err:#dc2626;--warn:#d97706;
   --r:16px;--rs:12px;--sh:0 2px 12px rgba(30,111,255,.08);
-  --top:56px;--bot:72px;
+  --top:56px;--bot:calc(72px + env(safe-area-inset-bottom, 0px));
   --grad:linear-gradient(135deg,#1e3a8a 0%,#1e6fff 100%);
 }
 [data-theme=dark]{
@@ -81,7 +82,9 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 /* TOPBAR */
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
-  height:var(--top);padding:0 16px;flex-shrink:0;
+  height:calc(var(--top) + env(safe-area-inset-top, 0px));
+  padding:env(safe-area-inset-top, 0px) 16px 0;
+  flex-shrink:0;
   background:var(--card);border-bottom:1px solid var(--brd);box-shadow:var(--sh);z-index:10;
 }
 .tb-brand{display:flex;align-items:center;gap:8px}
@@ -121,7 +124,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .content{flex:1;min-width:0;overflow-y:auto;padding:12px 12px calc(var(--bot)+12px);height:100%}
 
 /* BOTTOM NAV */
-.bottomnav{position:fixed;bottom:0;left:0;right:0;height:var(--bot);background:rgba(8,20,50,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(96,165,250,.15);display:flex;align-items:center;padding:0 4px env(safe-area-inset-bottom,0);z-index:10;box-shadow:0 -4px 24px rgba(0,0,10,.4)}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;height:var(--bot);background:rgba(8,20,50,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(96,165,250,.15);display:flex;align-items:flex-start;padding:4px 4px env(safe-area-inset-bottom,12px);z-index:10;box-shadow:0 -4px 24px rgba(0,0,10,.4)}
 [data-theme=light] .bottomnav{background:rgba(255,255,255,.96);border-top:1px solid rgba(30,58,138,.12);box-shadow:0 -2px 16px rgba(30,58,138,.08)}
 [data-theme=light] .nb{color:#64748b}
 [data-theme=light] .nb.active{color:#1d4ed8}
@@ -434,6 +437,27 @@ select.inp{cursor:pointer}
 /* ── discount type buttons ── */
 .disc-type-btn{flex:1;padding:8px;border-radius:10px;font-size:.78rem;font-weight:600;border:2px solid var(--brd);background:var(--inp);color:var(--t2);cursor:pointer;transition:all .2s;font-family:Vazirmatn}
 .disc-type-btn.active{border-color:var(--or)!important;background:var(--orl2)!important;color:var(--or)!important;box-shadow:0 0 0 3px rgba(77,139,255,.15)}
+
+/* ── inv swipe ── */
+.inv-wrap{position:relative;overflow:hidden;border-radius:16px;margin-bottom:8px}
+.inv-action-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;gap:0;transform:translateX(100%);transition:transform .25s ease;z-index:1}
+.inv-act-edit,.inv-act-del{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:72px;height:100%;font-size:1.2rem;border:none;cursor:pointer;font-family:Vazirmatn}
+.inv-act-edit span,.inv-act-del span{font-size:.6rem;font-weight:600}
+.inv-act-edit{background:#2563eb;color:#fff}
+.inv-act-del{background:#dc2626;color:#fff}
+.inv-slidable{transition:transform .25s ease;position:relative;z-index:2;margin:0;border-radius:16px}
+.inv-wrap.sw .inv-action-bg{transform:translateX(0)}
+.inv-wrap.sw .inv-slidable{transform:translateX(-144px)}
+
+/* ── تم‌ها ── */
+[data-theme=purple]{
+  --or:#a855f7;--ord:#7e22ce;--orl:rgba(168,85,247,.1);--orl2:rgba(168,85,247,.18);
+  --bg:#0d0a1a;--card:#150f2a;--inp:#1e1535;--brd:#2d1f50;
+  --t1:#f3e8ff;--t2:#c084fc;--t3:#7c3aed;--t4:#2d1f50;--nav:#150f2a;
+}
+
+.theme-btn{flex:1;padding:10px 6px;border-radius:12px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:Vazirmatn;transition:all .2s;text-align:center}
+.theme-btn.active{box-shadow:0 0 0 2px var(--or)!important}
 </style>
 </head>
 <body>
@@ -611,10 +635,6 @@ select.inp{cursor:pointer}
       <section id="sec-inv" class="sec">
         <div class="sec-hd">
           <h2 class="sec-ttl">انبار</h2>
-          <button class="btn pr" id="addProdBtn" style="padding:8px 14px;font-size:.82rem;border-radius:12px">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            محصول جدید
-          </button>
         </div>
         <div class="card" id="invScanCard" style="display:none;border-color:var(--or)">
           <div class="card-lbl">اسکن بارکد</div>
@@ -626,7 +646,12 @@ select.inp{cursor:pointer}
           <div class="stat"><div class="sv" id="stQty">۰</div><div class="sl">موجودی کل</div></div>
           <div class="stat wn"><div class="sv" id="stLow">۰</div><div class="sl">کم‌موجود</div></div>
         </div>
-        <div class="card"><div class="srch"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="invSearch" placeholder="جستجو در انبار..."/></div></div>
+        <div class="card" style="padding:10px">
+            <div style="display:flex;gap:8px;align-items:center">
+              <div class="srch" style="flex:1"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="invSearch" placeholder="جستجو در انبار..."/></div>
+              <button class="btn pr" id="addProdBtn" style="padding:9px 12px;font-size:.8rem;border-radius:12px;white-space:nowrap;flex-shrink:0">+ جدید</button>
+            </div>
+          </div>
         <div id="invList" class="inv-list"></div>
       </section>
 
@@ -680,7 +705,14 @@ select.inp{cursor:pointer}
             کاربر جدید
           </button>
         </div>
-        <div class="card"><div class="hint" style="font-size:.78rem;color:var(--t2)">می‌توانید رمز کاربران را تغییر دهید یا کاربر جدید اضافه کنید.</div></div>
+        <div class="card" style="padding:14px">
+          <div class="card-lbl">انتخاب تم</div>
+          <div style="display:flex;gap:8px">
+            <button class="theme-btn" data-theme="light" style="background:#f8fafc;border:2px solid #e2e8f0;color:#0f172a">☀️ روشن</button>
+            <button class="theme-btn" data-theme="dark" style="background:#0d1b35;border:2px solid #1a3060;color:#e8f0fe">🌙 تاریک</button>
+            <button class="theme-btn" data-theme="purple" style="background:#150f2a;border:2px solid #2d1f50;color:#f3e8ff">💜 بنفش</button>
+          </div>
+        </div>
         <div id="userList" class="user-list"></div>
       </section>
 
@@ -706,18 +738,18 @@ select.inp{cursor:pointer}
       <div class="frow">
         <div class="fg" id="buyPriceField">
           <label class="fl-lbl">قیمت خرید (درهم)</label>
-          <input type="number" id="fBuy" class="inp" placeholder="0.00" min="0" step="0.01"/>
+          <input type="number" id="fBuy" class="inp" placeholder="0.00" min="0" step="0.01" inputmode="decimal" pattern="[0-9.]*"/>
           <div class="hint" id="fBuyD" style="color:var(--t3);font-weight:600;margin-top:3px"></div>
         </div>
         <div class="fg">
           <label class="fl-lbl">قیمت فروش (درهم)</label>
-          <input type="number" id="fSell" class="inp" placeholder="0.00" min="0" step="0.01"/>
+          <input type="number" id="fSell" class="inp" placeholder="0.00" min="0" step="0.01" inputmode="decimal" pattern="[0-9.]*"/>
           <div class="hint" id="fSellD" style="color:var(--or);font-weight:600;margin-top:3px"></div>
         </div>
       </div>
       <div class="frow">
-        <div class="fg"><label class="fl-lbl">تعداد موجودی</label><input type="number" id="fQty" class="inp" placeholder="0" min="0"/></div>
-        <div class="fg"><label class="fl-lbl">حجم (ml)</label><input type="number" id="fVol" class="inp" placeholder="100" min="0"/></div>
+        <div class="fg"><label class="fl-lbl">تعداد موجودی</label><input type="number" id="fQty" class="inp" placeholder="0" min="0" inputmode="numeric"/></div>
+        <div class="fg"><label class="fl-lbl">حجم (ml)</label><input type="number" id="fVol" class="inp" placeholder="100" min="0" inputmode="numeric"/></div>
       </div>
       <div class="fg"><label class="fl-lbl">توضیحات</label><textarea id="fDesc" class="inp" rows="2" placeholder="توضیح..."></textarea></div>
     </div>
@@ -726,8 +758,8 @@ select.inp{cursor:pointer}
 </div>
 
 <!-- MODAL: Qty + Discount -->
-<div id="mQty" class="modal-bg hidden">
-  <div class="modal" style="max-width:330px">
+<div id="mQty" class="modal-bg hidden" style="align-items:center">
+  <div class="modal" style="max-width:330px;border-radius:20px;margin-bottom:10vh">
     <div class="modal-h"><h3 id="mQtyName">تعداد</h3><button class="ic-btn" id="mQtyClose"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="modal-b">
       <div class="qty-sel">
@@ -741,7 +773,7 @@ select.inp{cursor:pointer}
           <button class="disc-type-btn" id="discTypeAmt">مبلغ (تومان)</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px">
-          <input type="number" id="qDisc" class="inp" value="0" min="0" style="flex:1" placeholder="0"/>
+          <input type="number" id="qDisc" class="inp" value="0" min="0" style="flex:1" placeholder="0" inputmode="decimal"/>
           <span id="qDiscUnit" style="color:var(--t2);font-size:.8rem;white-space:nowrap">٪</span>
         </div>
         <div id="qDiscPreview" style="font-size:.75rem;color:var(--or);margin-top:4px;text-align:center"></div>
@@ -793,48 +825,84 @@ const API={
   del(p,b){return this.req('DELETE',p,b);},
 };
 
-// ══ RATE ══
+// ══ RATE از TGJU ══
 const Rate={
-  _r:null,_t:0,TTL:5*60*1000,
+  _r:null,_t:0,TTL:3*60*1000,
   async fetch(){
+    // اول از API خودمان بگیر (Cloudflare Function که CORS ندارد)
     try{
-      const j=await API.get('/rate');
-      if(j.rate&&j.rate>1000){
-        this._r=j.rate;this._t=Date.now();
-        localStorage.setItem('wx_r',JSON.stringify({r:this._r,t:this._t}));
-        return this._r;
+      const r=await fetch('/api/rate',{cache:'no-store'});
+      if(r.ok){
+        const j=await r.json();
+        if(j.rate&&j.rate>1000){
+          this._r=j.rate;this._t=Date.now();
+          localStorage.setItem('wx_r',JSON.stringify({r:this._r,t:this._t}));
+          console.log('Rate from TGJU:',this._r);
+          return this._r;
+        }
       }
+    }catch(e){console.warn('Rate API error:',e.message);}
+    // cache
+    try{
+      const c=JSON.parse(localStorage.getItem('wx_r'));
+      if(c?.r>1000){this._r=c.r;this._t=c.t;return this._r;}
     }catch{}
-    // از cache بخوان
-    try{const c=JSON.parse(localStorage.getItem('wx_r'));if(c?.r>1000){this._r=c.r;this._t=c.t;return this._r;}}catch{}
     return this._r;
   },
   async get(){if(this._r&&Date.now()-this._t<this.TTL)return this._r;return this.fetch();},
   cur(){return this._r;},
   set(v){if(v>1000){this._r=v;this._t=Date.now();localStorage.setItem('wx_r',JSON.stringify({r:v,t:Date.now()}));}},
-  fmt(aed){if(!this._r||!aed)return null;return Math.round(aed*this._r).toLocaleString('fa-IR')+' تومان';},
-  fmtFull(aed){if(!this._r||!aed)return null;const t=Math.round(aed*this._r);return t.toLocaleString('fa-IR')+' تومان';},
+  fmt(aed){
+    if(!this._r||!aed)return null;
+    return Math.round(aed*this._r).toLocaleString('en-US')+' T';
+  },
 };
 
 // ══ SCANNER ══
 const Scanner={
-  _rd:null,_on:false,
+  _rd:null,_on:false,_stream:null,
   async start(vid,cb){
-    if(typeof ZXing==='undefined'){toast('اسکنر لود نشد');return;}
-    if(!this._rd)this._rd=new ZXing.BrowserMultiFormatReader();
+    this.stop(); // اول هر stream قبلی را ببند
     this._on=true;
     try{
-      const devs=await ZXing.BrowserCodeReader.listVideoInputDevices();
-      const did=devs.find(d=>d.label.toLowerCase().includes('back'))?.deviceId||devs[0]?.deviceId;
-      await this._rd.decodeFromVideoDevice(did,vid,(res)=>{if(res&&this._on){this.stop();cb(res.getText());}});
-    }catch{toast('دسترسی به دوربین رد شد');this.stop();}
+      // درخواست دسترسی دوربین
+      const stream=await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}
+      });
+      this._stream=stream;
+      vid.srcObject=stream;
+      await vid.play();
+
+      if(typeof ZXing==='undefined'){
+        toast('اسکنر لود نشد - صبر کنید');
+        return;
+      }
+      if(!this._rd)this._rd=new ZXing.BrowserMultiFormatReader();
+
+      // decode از stream فعال
+      await this._rd.decodeFromStream(stream,vid,(res,err)=>{
+        if(res&&this._on){
+          const text=res.getText();
+          this.stop();
+          cb(text);
+        }
+      });
+    }catch(e){
+      console.error('Camera error:',e);
+      toast('دوربین: '+e.message);
+      this.stop();
+    }
   },
-  stop(){this._on=false;try{this._rd?.reset();}catch{}},
+  stop(){
+    this._on=false;
+    try{this._rd?.reset();}catch{}
+    try{this._stream?.getTracks().forEach(t=>t.stop());this._stream=null;}catch{}
+  },
 };
 
 // ══ UTILS ══
 const $=id=>document.getElementById(id);
-const faNum=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+const faNum=n=>String(n); // اعداد انگلیسی
 const fAED=n=>faNum(parseFloat(n||0).toFixed(2))+' درهم';
 const fNum3=n=>{// سه رقم سه رقم با کاما
   if(!n&&n!==0)return '';
@@ -848,9 +916,49 @@ let currentUser=null,cart=[],editProdId=null,editUserId=null,qtyTarget=null,qtyV
 let cachedProds=[];
 
 // ══ THEME ══
-function initTheme(){const dark=localStorage.getItem('wx_theme')==='dark'||(!localStorage.getItem('wx_theme')&&window.matchMedia('(prefers-color-scheme: dark)').matches);applyTheme(dark);}
-function applyTheme(dark){document.documentElement.setAttribute('data-theme',dark?'dark':'light');const s=$('iSun'),m=$('iMoon');if(s)s.classList.toggle('hidden',dark);if(m)m.classList.toggle('hidden',!dark);localStorage.setItem('wx_theme',dark?'dark':'light');}
-$('darkBtn')?.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')!=='dark'));
+function initTheme(){
+  const saved=localStorage.getItem('wx_theme');
+  if(saved==='purple'){
+    document.documentElement.setAttribute('data-theme','purple');
+    const s=$('iSun'),m=$('iMoon');
+    if(s)s.classList.add('hidden');if(m)m.classList.remove('hidden');
+  }else{
+    const dark=saved==='dark'||(!saved&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    applyTheme(dark);
+  }
+}
+function applyTheme(dark){
+  const theme=dark?'dark':'light';
+  document.documentElement.setAttribute('data-theme',theme);
+  const s=$('iSun'),m=$('iMoon');
+  if(s)s.classList.toggle('hidden',dark);
+  if(m)m.classList.toggle('hidden',!dark);
+  localStorage.setItem('wx_theme',theme);
+}
+$('darkBtn')?.addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  applyTheme(cur!=='dark');
+});
+
+// ── theme buttons ──
+function initThemeBtns(){
+  document.querySelectorAll('.theme-btn').forEach(btn=>{
+    const t=btn.dataset.theme;
+    if(t===localStorage.getItem('wx_theme')||(!localStorage.getItem('wx_theme')&&t==='dark'))
+      btn.classList.add('active');
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const theme=btn.dataset.theme;
+      localStorage.setItem('wx_theme',theme);
+      document.documentElement.setAttribute('data-theme',theme);
+      // dark button icon
+      const s=$('iSun'),m=$('iMoon');
+      if(s)s.classList.toggle('hidden',theme!=='light');
+      if(m)m.classList.toggle('hidden',theme==='light');
+    });
+  });
+}
 
 // ══ PIN ══
 async function initPin(){
@@ -1416,10 +1524,42 @@ function renderInvList(){
     const buyBadge=currentUser?.role==='admin'?`<span class="bdg b-p">خرید: ${bpToman||fAED(bp)}</span>`:'';
     const sellBadge=`<span class="bdg" style="background:#dbeafe;color:#1e40af;font-weight:700">فروش: ${spToman||fAED(sp)}</span>`;
     const aedBadge=currentUser?.role==='admin'?`<span class="bdg" style="background:var(--inp);color:var(--t3);font-size:.6rem">${fAED(sp)}</span>`:'';
-    return `<div class="inv-item"><div class="inv-main"><div class="inv-name">${p.name}</div><div class="inv-brand">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>${p.barcode?`<div class="inv-bc">${p.barcode}</div>`:''}<div class="inv-meta">${buyBadge}${sellBadge}${aedBadge}${sb}</div></div><div class="inv-acts"><button class="ic-ed" data-id="${p.id}">✏️</button><button class="ic-dl" data-id="${p.id}">🗑</button></div></div>`;
+    return `<div class="inv-wrap" data-id="${p.id}">
+      <div class="inv-action-bg">
+        <button class="inv-act-edit" data-id="${p.id}">✏️<span>ویرایش</span></button>
+        <button class="inv-act-del" data-id="${p.id}">🗑<span>حذف</span></button>
+      </div>
+      <div class="inv-item inv-slidable">
+        <div class="inv-main">
+          <div class="inv-name">${p.name}</div>
+          <div class="inv-brand">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>
+          ${p.barcode?`<div class="inv-bc">${p.barcode}</div>`:''}
+          <div class="inv-meta">${buyBadge}${sellBadge}${aedBadge}${sb}</div>
+        </div>
+      </div>
+    </div>`;
   }).join('');
-  el.querySelectorAll('.ic-ed').forEach(b=>b.addEventListener('click',()=>openProdModal(b.dataset.id)));
-  el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',async()=>{
+  // swipe انبار
+  el.querySelectorAll('.inv-wrap').forEach(wrap=>{
+    const slide=wrap.querySelector('.inv-slidable');
+    let sx=0,opened=false;
+    wrap.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});
+    wrap.addEventListener('touchend',e=>{
+      const dx=e.changedTouches[0].clientX-sx;
+      if(dx<-50){wrap.classList.add('sw');opened=true;}
+      else if(dx>30){wrap.classList.remove('sw');opened=false;}
+    },{passive:true});
+    // بستن با کلیک بیرون
+    document.addEventListener('touchstart',e=>{
+      if(opened&&!wrap.contains(e.target)){wrap.classList.remove('sw');opened=false;}
+    },{passive:true});
+  });
+  el.querySelectorAll('.inv-act-edit').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.inv-wrap').forEach(w=>w.classList.remove('sw'));
+    openProdModal(b.dataset.id);
+  }));
+  el.querySelectorAll('.inv-act-del').forEach(b=>b.addEventListener('click',async()=>{
+    document.querySelectorAll('.inv-wrap').forEach(w=>w.classList.remove('sw'));
     if(!confirm('حذف شود؟'))return;
     try{await API.del('/products',{id:b.dataset.id});cachedProds=[];await loadInv();toast('حذف شد');}
     catch(e){toast('خطا: '+e.message);}
@@ -1547,9 +1687,9 @@ function renderChart(days){
 // ══ USERS ══
 async function loadUsers(){
   const el=$('userList');
-  // دکمه کاربر جدید فقط برای admin
   const addBtn=$('addUserBtn');
   if(addBtn)addBtn.style.display=currentUser?.role==='admin'?'':'none';
+  initThemeBtns();
   try{
     const r=await API.get('/users');
     if(!r.ok||!r.data.length){el.innerHTML='<div class="card"><div class="empty"><p>خطا</p></div></div>';return;}
