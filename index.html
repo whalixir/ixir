@@ -1078,7 +1078,7 @@ function renderInv(){
     </div>`;
   }).join('');
   el.querySelectorAll('.ic-ed').forEach(b=>b.addEventListener('click',()=>openProdModal(b.dataset.id)));
-  el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',()=>{if(confirm('حذف شود؟')){DB.delProd(b.dataset.id);renderInv();toast('محصول حذف شد');}});
+  el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',()=>{if(confirm('حذف شود؟')){DB.delProd(b.dataset.id);renderInv();toast('محصول حذف شد');}}));
 }
 $('invSearch').addEventListener('input',renderInv);
 $('addProdBtn').addEventListener('click',()=>openProdModal());
@@ -1191,7 +1191,7 @@ function renderUsers(){
       </div>
     </div>`).join('');
   el.querySelectorAll('.ic-ed').forEach(b=>b.addEventListener('click',()=>openUserModal(b.dataset.id)));
-  el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',()=>{if(confirm('حذف شود؟')){Users.delete(b.dataset.id);renderUsers();toast('کاربر حذف شد');}});
+  el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',()=>{if(confirm('حذف شود؟')){Users.delete(b.dataset.id);renderUsers();toast('کاربر حذف شد');}}));
 }
 
 $('addUserBtn').addEventListener('click',()=>openUserModal());
