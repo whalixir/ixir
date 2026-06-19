@@ -33,7 +33,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .hidden{display:none!important}
 
 /* ══ PIN SCREEN ══ */
-#pinScreen{
+#pinScreen{direction:ltr;
   position:fixed;inset:0;z-index:999;
   background:linear-gradient(135deg,#1c1917 0%,#292524 50%,#1c1917 100%);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
@@ -54,7 +54,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
 }
 .pin-btn:active{background:rgba(249,115,22,.25);transform:scale(.95)}
-.pin-btn .sub{font-size:.5rem;letter-spacing:.1em;color:#78716c;font-weight:400}
+.pin-btn .sub{font-size:.5rem;letter-spacing:.1em;color:#78716c;font-weight:400;pointer-events:none}
 .pin-btn.zero{grid-column:2}
 .pin-btn.del{grid-column:3;background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.15)}
 .pin-error{color:#f87171;font-size:.8rem;margin-top:16px;min-height:20px;text-align:center}
@@ -317,7 +317,7 @@ select.inp{cursor:pointer}
 
 <!-- PIN SCREEN -->
 <div id="pinScreen">
-  <div class="pin-logo">
+  <div class="pin-logo" dir="rtl">
     <svg width="60" height="60" viewBox="0 0 72 72" fill="none">
       <circle cx="36" cy="36" r="36" fill="#F97316"/>
       <path d="M20 22 Q36 14 52 22 L52 42 Q36 56 20 42 Z" fill="none" stroke="white" stroke-width="2.5"/>
@@ -328,15 +328,15 @@ select.inp{cursor:pointer}
     <div class="pin-title">WHALIXIR</div>
     <div class="pin-sub">والکسیر — فروشگاه عطر</div>
   </div>
-  <div class="pin-users" id="pinUsers"></div>
-  <div class="pin-user-label" id="pinUserLabel">کاربر را انتخاب کنید</div>
-  <div class="pin-dots" id="pinDots">
+  <div class="pin-users" id="pinUsers" dir="rtl"></div>
+  <div class="pin-user-label" id="pinUserLabel" dir="rtl">کاربر را انتخاب کنید</div>
+  <div class="pin-dots" id="pinDots" dir="ltr">
     <div class="pin-dot" id="d0"></div>
     <div class="pin-dot" id="d1"></div>
     <div class="pin-dot" id="d2"></div>
     <div class="pin-dot" id="d3"></div>
   </div>
-  <div class="pin-pad" id="pinPad">
+  <div class="pin-pad" id="pinPad" dir="ltr">
     <button class="pin-btn" data-n="1">1<span class="sub"></span></button>
     <button class="pin-btn" data-n="2">2<span class="sub">ABC</span></button>
     <button class="pin-btn" data-n="3">3<span class="sub">DEF</span></button>
@@ -349,7 +349,7 @@ select.inp{cursor:pointer}
     <button class="pin-btn zero" data-n="0">0</button>
     <button class="pin-btn del" data-n="del">⌫</button>
   </div>
-  <div class="pin-error" id="pinError"></div>
+  <div class="pin-error" id="pinError" dir="rtl"></div>
 </div>
 
 <!-- APP -->
@@ -855,17 +855,23 @@ function updatePinDots(){
 
 function checkPin(){
   if(!pinUser){$('pinError').textContent='ابتدا کاربر را انتخاب کنید';pinInput='';updatePinDots();return;}
-  const u=Users.verify(pinUser.name,pinInput);
+  const enteredPin=pinInput;
+  const u=Users.verify(pinUser.name,enteredPin);
   if(u){
-    currentUser=u;
-    $('pinScreen').style.display='none';
-    $('app').classList.remove('hidden');
-    $('currentUserBadge').textContent=u.name;
-    initApp();
+    setTimeout(()=>{
+      currentUser=u;
+      $('pinScreen').style.display='none';
+      $('app').classList.remove('hidden');
+      $('currentUserBadge').textContent=u.name;
+      initApp();
+    },150);
   }else{
-    $('pinError').textContent='رمز اشتباه است';
+    $('pinError').textContent='رمز اشتباه است ❌';
     pinInput='';
-    setTimeout(()=>{updatePinDots();$('pinError').textContent='';},600);
+    setTimeout(()=>{
+      updatePinDots();
+      $('pinError').textContent='';
+    },800);
   }
 }
 
@@ -1228,6 +1234,13 @@ function initApp(){
 document.addEventListener('DOMContentLoaded',()=>{
   initTheme();
   initPin();
+  // Auto select اگر فقط یک کاربر هست
+  const users=Users.load();
+  if(users.length===1&&!pinUser){
+    pinUser=users[0];
+    $('pinUserLabel').textContent=`رمز ${pinUser.name} را وارد کنید`;
+    renderPinUsers();
+  }
 });
 </script>
 <script>
