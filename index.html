@@ -199,53 +199,8 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .content{flex:1;min-width:0;overflow-y:auto;padding:14px 14px calc(var(--bot)+20px);height:100%}
 
 /* ══ BOTTOM NAV — Nexora style ══ */
-.bottomnav{
-  position:fixed;
-  bottom:0;left:0;right:0;
-  background:var(--nav-bg);
-  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-  border-top:1px solid var(--nav-brd);
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-  z-index:100;
-  box-shadow:0 -4px 20px rgba(0,0,0,.08);
-}
-.nb-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-around;
-  height:54px;
-  padding:0 4px;
-}
-/* Home indicator space — فقط روی دستگاه‌های با notch */
-.nb-safe{
-  height:env(safe-area-inset-bottom,0px);
-  background:var(--nav-bg);
-}
-.nb{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;padding:0;
-  color:var(--t3);font-size:.6rem;font-weight:600;
-  border:none;background:none;cursor:pointer;
-  font-family:Vazirmatn;position:relative;
-  transition:color .2s;border-radius:12px;
-  height:54px;
-}
-.nb svg{transition:all .25s;width:22px;height:22px}
-.nb span{transition:all .2s}
-.nb.active{color:var(--or)}
-.nb.active svg{
-  filter:drop-shadow(0 0 6px var(--or));
-  transform:translateY(-1px);
-}
-.nb.active::before{
-  content:'';position:absolute;top:4px;left:50%;transform:translateX(-50%);
-  width:28px;height:3px;border-radius:2px;
-  background:var(--or);
-  box-shadow:0 0 8px var(--or);
-}
-.nb:active{transform:scale(.9)}
+
+
 
 /* ══ SECTIONS ══ */
 .sec{display:none}
@@ -533,6 +488,61 @@ select.inp{cursor:pointer}
 
 
 /* bottomnav at bottom */
+
+/* ══ BOTTOM NAV ══ */
+.bottomnav{
+  position:fixed;
+  left:0;right:0;bottom:0;
+  z-index:9999;
+  background:var(--nav-bg);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--nav-brd);
+  box-shadow:0 -2px 16px rgba(0,0,0,.1);
+  /* آیفون: دکمه‌ها 54px + home indicator */
+  display:grid;
+  grid-template-rows:54px env(safe-area-inset-bottom,0px);
+}
+.nb-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-around;
+  padding:0 4px;
+}
+.nb-safe{
+  background:var(--nav-bg);
+}
+.nb{
+  flex:1;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:3px;
+  border:none;background:none;
+  color:var(--t3);
+  font-size:.6rem;font-weight:600;
+  font-family:Vazirmatn;
+  cursor:pointer;
+  position:relative;
+  transition:color .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.nb svg{width:22px;height:22px;transition:all .22s}
+.nb span{transition:color .2s}
+.nb.active{color:var(--or)}
+.nb.active svg{
+  filter:drop-shadow(0 0 5px var(--or));
+  transform:translateY(-2px) scale(1.08);
+}
+.nb.active::after{
+  content:'';
+  position:absolute;
+  bottom:-1px;
+  left:50%;transform:translateX(-50%);
+  width:24px;height:3px;
+  border-radius:3px 3px 0 0;
+  background:var(--or);
+}
+.nb:active svg{transform:scale(.88)}
 </style>
 </head>
 <body>
