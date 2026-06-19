@@ -568,10 +568,9 @@ select.inp{cursor:pointer}
 
   <div class="ratebar">
     <span style="opacity:.8;font-size:.68rem">۱ درهم =</span>
-    <span id="rateVal" class="ratebar-val" style="cursor:pointer" title="کلیک برای تغییر دستی">—</span>
+    <span id="rateVal" class="ratebar-val">در حال دریافت...</span>
     <span style="opacity:.8;font-size:.68rem">تومان</span>
-    <button class="ratebar-btn" id="rateBtn">↻</button>
-    <button class="ratebar-btn" id="rateManualBtn" style="background:rgba(255,255,255,.15)">✏️</button>
+    <button class="ratebar-btn" id="rateBtn" title="بروزرسانی نرخ">↻</button>
   </div>
 
   <div class="body-wrap">
@@ -1085,14 +1084,7 @@ $('rateBtn')?.addEventListener('click',async()=>{
   updSellT();updBuyT();
   toast('نرخ بروز شد ✓');
 });
-$('rateManualBtn')?.addEventListener('click',()=>{
-  const v=prompt('نرخ درهم به تومان را وارد کنید:\n(مثال: 18500)');
-  if(!v)return;
-  const n=parseFloat(v.replace(/,/g,''));
-  if(n>1000){Rate.set(n);updateRateBar();renderSaleList();renderInvList();updSellT();updBuyT();toast('نرخ ذخیره شد ✓');}
-  else toast('عدد معتبر وارد کنید');
-});
-$('rateVal')?.addEventListener('click',()=>$('rateManualBtn')?.click());
+
 
 // ══ SALE ══
 function renderCart(){
