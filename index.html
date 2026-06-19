@@ -47,7 +47,7 @@
   --sh2:0 8px 32px rgba(26,86,219,0.15);
   --r:18px;--rs:12px;
   --top:60px;
-  --bot:calc(58px + env(safe-area-inset-bottom,0px));
+  --bot:calc(54px + env(safe-area-inset-bottom,0px));
   --page-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 40%,#e8f2ff 70%,#dde9ff 100%);
   --pin-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 50%,#e8f2ff 100%);
   --hero-bg:linear-gradient(135deg,#1a56db 0%,#3b82f6 50%,#1e40af 100%);
@@ -205,11 +205,23 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   background:var(--nav-bg);
   backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
   border-top:1px solid var(--nav-brd);
-  display:flex;align-items:center;justify-content:space-around;
-  padding:0 4px env(safe-area-inset-bottom,0px);
-  height:calc(58px + env(safe-area-inset-bottom,0px));
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
   z-index:100;
   box-shadow:0 -4px 20px rgba(0,0,0,.08);
+}
+.nb-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-around;
+  height:54px;
+  padding:0 4px;
+}
+/* Home indicator space — فقط روی دستگاه‌های با notch */
+.nb-safe{
+  height:env(safe-area-inset-bottom,0px);
+  background:var(--nav-bg);
 }
 .nb{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -218,7 +230,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   border:none;background:none;cursor:pointer;
   font-family:Vazirmatn;position:relative;
   transition:color .2s;border-radius:12px;
-  height:52px;
+  height:54px;
 }
 .nb svg{transition:all .25s;width:22px;height:22px}
 .nb span{transition:all .2s}
@@ -734,10 +746,13 @@ select.inp{cursor:pointer}
   </div>
 
   <nav class="bottomnav">
+    <div class="nb-row">
     <button class="nb active" data-s="sale"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>فروش</span></button>
     <button class="nb" data-s="inv"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L6 7h12l-2-4z"/><path d="M12 12v5"/><path d="M9.5 14.5h5"/></svg><span>انبار</span></button>
     <button class="nb" data-s="pnl"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span>سود/زیان</span></button>
     <button class="nb" data-s="dash"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>داشبورد</span></button>
+    </div>
+    <div class="nb-safe"></div>
   </nav>
 </div>
 
