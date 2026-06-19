@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="theme-color" content="#1e6fff"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -383,6 +383,24 @@ select.inp{cursor:pointer}
 /* user items */
 .user-item{border-radius:14px}
 .user-avatar{background:var(--orl2);color:var(--or)}
+
+/* ── PIN users dropdown ── */
+.pin-users-wrap{width:100%;max-width:280px;position:relative;margin-bottom:16px}
+.pin-users-btn{width:100%;padding:12px 16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:12px;color:#e8f0fe;font-size:.95rem;font-weight:600;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:Vazirmatn}
+.pin-users-btn svg{transition:transform .25s}
+.pin-users-btn.open svg{transform:rotate(180deg)}
+.pin-drop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#0d1b35;border:1px solid rgba(77,139,255,.3);border-radius:12px;overflow:hidden;z-index:99;max-height:0;transition:max-height .3s ease}
+.pin-drop.open{max-height:300px}
+.pin-opt{padding:13px 16px;color:#e8f0fe;font-size:.9rem;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(255,255,255,.05);font-family:Vazirmatn}
+.pin-opt:last-child{border:none}
+.pin-opt:hover,.pin-opt.sel{background:rgba(77,139,255,.25);color:#93c5fd}
+
+/* ── swipe delete ── */
+.se-wrap{position:relative;overflow:hidden;border-radius:12px;margin-bottom:6px;touch-action:pan-y}
+.se-del-bg{position:absolute;left:0;top:0;bottom:0;width:80px;background:#dc2626;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:700;flex-direction:column;gap:2px;transform:translateX(-100%);transition:transform .2s;border-radius:12px 0 0 12px}
+.se{transition:transform .2s;border-radius:12px;margin:0}
+.se-wrap.sw .se-del-bg{transform:translateX(0)}
+.se-wrap.sw .se{transform:translateX(80px)}
 </style>
 </head>
 <body>
@@ -400,8 +418,13 @@ select.inp{cursor:pointer}
     <div class="pin-title">WHALIXIR</div>
     <div class="pin-sub">والکسیر — فروشگاه عطر</div>
   </div>
-  <div class="pin-users" id="pinUsers" dir="rtl"></div>
-  <div class="pin-user-label" id="pinUserLabel" dir="rtl">کاربر را انتخاب کنید</div>
+  <div class="pin-users-wrap" dir="rtl">
+    <button class="pin-users-btn" id="pinDropBtn">
+      <span id="pinUserLabel">کاربر را انتخاب کنید ▾</span>
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="pin-drop" id="pinDrop"></div>
+  </div>
   <div class="pin-dots" id="pinDots" dir="ltr">
     <div class="pin-dot" id="d0"></div>
     <div class="pin-dot" id="d1"></div>
@@ -582,7 +605,6 @@ select.inp{cursor:pointer}
     <button class="nb" data-s="inv"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L6 7h12l-2-4z"/><path d="M12 12v5"/><path d="M9.5 14.5h5"/></svg><span>انبار</span></button>
     <button class="nb" data-s="dash"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>داشبورد</span></button>
     <button class="nb" data-s="pnl"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span>سود/زیان</span></button>
-    <button class="nb" data-s="users"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>کاربران</span></button>
   </nav>
 </div>
 
@@ -755,19 +777,39 @@ async function initPin(){
 async function loadPinUsers(){
   let users=[];
   try{const r=await API.get('/users');if(r.ok)users=r.data;}
-  catch{users=JSON.parse(localStorage.getItem('wx_users')||'[{"id":"u1","name":"MOLLAEI","role":"admin"}]');}
-  const el=$('pinUsers');
-  el.innerHTML=users.map(u=>`<div class="pin-user-chip${pinUser?.id===u.id?' active':''}" data-id="${u.id}" data-name="${u.name}">${u.name}</div>`).join('');
-  el.querySelectorAll('.pin-user-chip').forEach(c=>{
-    c.addEventListener('click',()=>{
-      pinUser={id:c.dataset.id,name:c.dataset.name};
-      pinInput='';updateDots();
-      $('pinUserLabel').textContent=`رمز ${pinUser.name} را وارد کنید`;
-      $('pinError').textContent='';
-      loadPinUsers();
+  catch{users=[{id:'u1',name:'MOLLAEI',role:'admin'}];}
+  
+  // کشوی کاربران
+  const drop=$('pinDrop');
+  if(drop){
+    drop.innerHTML=users.map(u=>`<div class="pin-opt${pinUser?.id===u.id?' sel':''}" data-id="${u.id}" data-name="${u.name}">${u.name}</div>`).join('');
+    drop.querySelectorAll('.pin-opt').forEach(c=>{
+      c.addEventListener('click',()=>{
+        pinUser={id:c.dataset.id,name:c.dataset.name};
+        pinInput='';updateDots();
+        $('pinUserLabel').textContent=pinUser.name+' ▾';
+        $('pinError').textContent='';
+        drop.classList.remove('open');
+        $('pinDropBtn')?.classList.remove('open');
+        loadPinUsers();
+      });
     });
-  });
-  if(!pinUser&&users.length===1){pinUser={id:users[0].id,name:users[0].name};$('pinUserLabel').textContent=`رمز ${pinUser.name} را وارد کنید`;loadPinUsers();}
+  }
+  
+  // toggle کشو
+  const dropBtn=$('pinDropBtn');
+  if(dropBtn&&!dropBtn._init){
+    dropBtn._init=true;
+    dropBtn.addEventListener('click',()=>{
+      drop?.classList.toggle('open');
+      dropBtn.classList.toggle('open');
+    });
+  }
+  
+  if(!pinUser&&users.length===1){
+    pinUser={id:users[0].id,name:users[0].name};
+    $('pinUserLabel').textContent=pinUser.name+' ▾';
+  }
 }
 
 function updateDots(){for(let i=0;i<4;i++){const d=$('d'+i);if(d)d.classList.toggle('filled',i<pinInput.length);}}
@@ -947,15 +989,45 @@ $('saleScanBtn').addEventListener('click',()=>{
 $('closeSaleScan').addEventListener('click',()=>{Scanner.stop();$('saleScanCard').style.display='none';});
 
 $('confirmSale').addEventListener('click',async()=>{
-  if(!cart.length)return;
+  if(!cart.length){toast('سبد خالی است');return;}
   const btn=$('confirmSale');loading(btn,true);
   try{
-    const total=cart.reduce((s,i)=>s+i.finalPrice,0);
+    const rc=Rate.cur()||0;
+    // محاسبه total به درهم
+    const total=cart.reduce((s,i)=>s+(i.finalPrice||0),0);
     const cost=cart.reduce((s,i)=>s+i.qty*(i.buyPrice||i.buy_price||0),0);
-    const r=await API.post('/sales',{items:cart,total,cost,dateJ:jalaliNow(),user:currentUser?.name});
-    if(r.ok){toast('فروش ثبت شد ✓');cart=[];renderCart();cachedProds=[];await loadSaleProds();await loadRecentSales();}
-    else toast('خطا: '+r.error);
-  }catch(e){toast('خطا: '+e.message);}
+    // total تومان برای نمایش
+    const totalToman=cart.reduce((s,i)=>s+(i.finalToman||i.finalPrice*(rc||0)),0);
+    const items=cart.map(i=>({
+      productId:i.productId,
+      name:i.name,
+      qty:i.qty,
+      sellPrice:i.sellPrice||0,
+      buyPrice:i.buyPrice||i.buy_price||0,
+      discount:i.discountToman||0,
+      finalPrice:i.finalPrice||0,
+      finalToman:i.finalToman||0,
+    }));
+    const r=await API.post('/sales',{
+      items,total,cost,
+      totalToman:Math.round(totalToman),
+      dateJ:jalaliNow(),
+      user:currentUser?.name||'',
+    });
+    if(r.ok){
+      toast('فروش ثبت شد ✓');
+      cart=[];
+      renderCart();
+      cachedProds=[];
+      await loadSaleProds();
+      await loadRecentSales();
+    }else{
+      toast('خطا: '+(r.error||'نامشخص'));
+    }
+  }catch(e){
+    toast('خطا در ثبت: '+e.message);
+    console.error(e);
+  }
   loading(btn,false);
 });
 
@@ -964,8 +1036,52 @@ async function loadRecentSales(){
   try{
     const r=await API.get('/sales?period=month');
     if(!r.ok||!r.data.length){el.innerHTML='<div class="empty"><p>فروشی ثبت نشده</p></div>';return;}
-    el.innerHTML=r.data.slice(0,8).map(s=>`<div class="se"><div class="se-ico">🧴</div><div class="se-i"><div class="se-n">${(s.items||[]).map(i=>i.name).join('، ')||'فروش'}</div><div class="se-t">${s.date_j||s.dateJ||jalaliFromTs(s.created_at)}</div></div><div class="se-r"><div class="se-a">${fAED(s.total)}</div>${Rate.fmt(s.total)?`<div class="toman">${Rate.fmt(s.total)}</div>`:''}</div></div>`).join('');
-  }catch{el.innerHTML='<div class="empty"><p>خطا در بارگذاری</p></div>';}
+    const sales=r.data.slice(0,20);
+    const rc=Rate.cur();
+    el.innerHTML=sales.map(s=>{
+      const toman=rc&&s.total?Math.round(s.total*rc).toLocaleString('fa-IR')+' تومان':null;
+      return`<div class="se-wrap" data-id="${s.id}">
+        <div class="se-del-bg">🗑<span>حذف</span></div>
+        <div class="se">
+          <div class="se-ico">🧴</div>
+          <div class="se-i">
+            <div class="se-n">${(s.items||[]).map(i=>i.name).join('، ')||'فروش'}</div>
+            <div class="se-t">${s.date_j||jalaliFromTs(s.created_at)}</div>
+          </div>
+          <div class="se-r">
+            <div class="se-a">${toman||fAED(s.total)}</div>
+            ${toman?`<div class="toman">${fAED(s.total)}</div>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    // swipe برای حذف
+    el.querySelectorAll('.se-wrap').forEach(wrap=>{
+      let sx=0,sw=false;
+      wrap.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sw=false;},{passive:true});
+      wrap.addEventListener('touchmove',e=>{
+        const dx=sx-e.touches[0].clientX;
+        if(dx>40){wrap.classList.add('sw');sw=true;}
+        else if(dx<-10){wrap.classList.remove('sw');sw=false;}
+      },{passive:true});
+      wrap.addEventListener('touchend',()=>{
+        if(sw){
+          // نمایش دکمه حذف - کلیک روی حذف
+          wrap.querySelector('.se-del-bg')?.addEventListener('click',async()=>{
+            if(!confirm('این فروش حذف شود؟'))return;
+            try{
+              await API.del('/sales',{id:wrap.dataset.id});
+              wrap.remove();toast('فروش حذف شد');
+            }catch(e){toast('خطا: '+e.message);}
+          },{once:true});
+        }
+      });
+      // کلیک خارج برای بستن
+      document.addEventListener('touchstart',e=>{
+        if(!wrap.contains(e.target))wrap.classList.remove('sw');
+      },{passive:true});
+    });
+  }catch(e){el.innerHTML='<div class="empty"><p>خطا</p></div>';}
 }
 
 // ── QTY MODAL ──
