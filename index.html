@@ -940,6 +940,8 @@ function renderCart(){
   $('cartTotalT').textContent=totalToman2?fAED(total):'';
   foot.style.display='block';
   el.querySelectorAll('.ci-rm').forEach(b=>b.addEventListener('click',()=>{cart.splice(+b.dataset.i,1);renderCart();}));
+  // swipe confirm را دوباره init کن
+  setTimeout(initSwipeConfirm,100);
 }
 
 async function loadSaleProds(){
@@ -1271,25 +1273,28 @@ $('mQtyAdd').addEventListener('click',()=>{
   const finalToman=r?Math.max(0,qtyVal*sp*r-discToman):0;
   // اگر نرخ نداریم، finalPrice به درهم ذخیره میشه
   const item={
-    productId:p.id,name:p.name,qty:qtyVal,
-    sellPrice:sp,buyPrice:bp,
-    discountToman,
-    finalPrice:finalAed,
+    productId:p.id,
+    name:p.name,
+    qty:qtyVal,
+    sellPrice:sp,
+    buyPrice:bp,
+    discountToman:discToman,
+    finalPrice:sp>0?finalAed:0.01, // حداقل یک مقدار
     finalToman:finalToman||0,
   };
   const ex=cart.find(i=>i.productId===p.id);
   if(ex){
     ex.qty+=qtyVal;
     ex.discountToman=(ex.discountToman||0)+discToman;
-    ex.finalPrice+=(finalAed||0);
-    ex.finalToman+=(finalToman||0);
+    ex.finalPrice=Number(ex.finalPrice||0)+Number(finalAed||0);
+    ex.finalToman=Number(ex.finalToman||0)+Number(finalToman||0);
   }else{
     cart.push(item);
   }
   $('mQty').classList.add('hidden');
-  playBeep();
+  playBeep('add');
   renderCart();
-  toast(`${p.name} به سبد اضافه شد ✓`);
+  toast(`✓ ${p.name} به سبد اضافه شد`);
 });
 $('mQtyCancel').addEventListener('click',()=>$('mQty').classList.add('hidden'));
 $('mQtyClose').addEventListener('click',()=>$('mQty').classList.add('hidden'));
