@@ -595,11 +595,15 @@ select.inp{cursor:pointer}
       <div class="fg"><label class="fl-lbl">نام عطر</label><input type="text" id="fName" class="inp" placeholder="مثال: Oud Majestic"/></div>
       <div class="fg"><label class="fl-lbl">برند</label><input type="text" id="fBrand" class="inp" placeholder="مثال: Swiss Arabian"/></div>
       <div class="frow">
-        <div class="fg" id="buyPriceField"><label class="fl-lbl">قیمت خرید (درهم)</label><input type="number" id="fBuy" class="inp" placeholder="0" min="0" step="0.01"/><div class="toman" id="fBuyT"></div></div>
+        <div class="fg" id="buyPriceField">
+          <label class="fl-lbl">قیمت خرید (تومان)</label>
+          <input type="number" id="fBuyT" class="inp" placeholder="مثال: 1500000" min="0" step="1000"/>
+          <div class="hint" id="fBuyD" style="color:var(--t3);margin-top:3px"></div>
+        </div>
         <div class="fg">
-          <label class="fl-lbl">قیمت فروش (درهم)</label>
-          <input type="number" id="fSell" class="inp" placeholder="0" min="0" step="0.01"/>
-          <div class="toman" id="fSellT"></div>
+          <label class="fl-lbl">قیمت فروش (تومان)</label>
+          <input type="number" id="fSellT" class="inp" placeholder="مثال: 2000000" min="0" step="1000"/>
+          <div class="hint" id="fSellD" style="color:var(--or);margin-top:3px"></div>
         </div>
       </div>
       <div class="frow">
@@ -835,8 +839,25 @@ function renderCart(){
   const el=$('cartItems'),foot=$('cartFoot');
   if(!cart.length){el.innerHTML='<div class="empty"><svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" opacity=".3"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><p>سبد خالی است</p></div>';foot.style.display='none';return;}
   const total=cart.reduce((s,i)=>s+i.finalPrice,0);
-  el.innerHTML=cart.map((it,idx)=>`<div class="ci"><div class="ci-info"><div class="ci-name">${it.name}</div><div class="ci-det">${faNum(it.qty)} × ${fAED(it.sellPrice)}${it.discount>0?` − ${fAED(it.discount)} تخفیف`:''}</div></div><div class="ci-right"><div class="ci-price">${fAED(it.finalPrice)}</div>${Rate.fmt(it.finalPrice)?`<div class="toman" style="font-size:.72rem;color:var(--or);opacity:.8">${Rate.fmt(it.finalPrice)}</div>`:''}</div><button class="ci-rm" data-i="${idx}">×</button></div>`).join('');
-  $('cartTotal').textContent=fAED(total);$('cartTotalT').textContent=Rate.fmt(total)||'';
+  const rc=Rate.cur();
+  el.innerHTML=cart.map((it,idx)=>{
+    const tomanItem=rc&&it.finalPrice?Math.round(it.finalPrice*rc).toLocaleString('fa-IR')+' تومان':null;
+    const tomanUnit=rc&&it.sellPrice?Math.round(it.sellPrice*rc).toLocaleString('fa-IR')+' تومان':null;
+    return`<div class="ci">
+      <div class="ci-info">
+        <div class="ci-name">${it.name}</div>
+        <div class="ci-det">${faNum(it.qty)} × ${tomanUnit||fAED(it.sellPrice)}${it.discount>0?` − تخفیف`:''}</div>
+      </div>
+      <div class="ci-right">
+        <div class="ci-price" style="font-size:.95rem">${tomanItem||fAED(it.finalPrice)}</div>
+        ${tomanItem?`<div class="toman" style="font-size:.65rem;color:var(--t3)">${fAED(it.finalPrice)}</div>`:''}
+      </div>
+      <button class="ci-rm" data-i="${idx}">×</button>
+    </div>`;
+  }).join('');
+  const totalToman2=rc&&total?Math.round(total*rc).toLocaleString('fa-IR')+' تومان':null;
+  $('cartTotal').textContent=totalToman2||fAED(total);
+  $('cartTotalT').textContent=totalToman2?fAED(total):'';
   foot.style.display='block';
   el.querySelectorAll('.ci-rm').forEach(b=>b.addEventListener('click',()=>{cart.splice(+b.dataset.i,1);renderCart();}));
 }
@@ -851,15 +872,16 @@ function renderSaleList(){
   if(!list.length){el.innerHTML=`<div class="empty"><p>${q?'یافت نشد':'انبار خالی'}</p></div>`;return;}
   el.innerHTML=list.map(p=>{
     const sp=p.sell_price||p.sellPrice||0;const qty=p.qty||0;
-    const tm=Rate.fmt(sp);
+    const r=Rate.cur();
+    const toman=r&&sp?Math.round(sp*r).toLocaleString('fa-IR')+' تومان':null;
     return`<div class="prow${qty<1?' out-stock':''}" data-id="${p.id}">
       <div class="prow-i">
         <div class="prow-n">${p.name}</div>
         <div class="prow-b">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>
       </div>
       <div class="prow-right">
-        <div class="prow-p">${fAED(sp)}</div>
-        ${tm?`<div class="prow-t" style="color:var(--or);font-weight:600">${tm}</div>`:'<div class="prow-t">نرخ تنظیم نشده</div>'}
+        <div class="prow-p" style="font-size:1rem;font-weight:800;color:var(--or)">${toman||fAED(sp)}</div>
+        ${toman?`<div class="prow-t" style="color:var(--t3);font-size:.65rem">${fAED(sp)}</div>`:'<div class="prow-t" style="color:var(--err)">↻ نرخ تنظیم نشده</div>'}
         <div class="prow-s">موجودی: ${faNum(qty)}</div>
       </div>
     </div>`;
@@ -917,10 +939,11 @@ function updQty(){
   const sp=p.sell_price||p.sellPrice||0;
   const disc=parseFloat($('qDisc').value)||0;
   const tot=Math.max(0,qtyVal*sp-disc);
+  const r2=Rate.cur();
+  const totalToman=r2&&tot?Math.round(tot*r2):null;
   $('qVal').textContent=faNum(qtyVal);
-  $('qTotal').textContent=fAED(tot);
-  const toman=Rate.fmt(tot);
-  $('qTotalT').textContent=toman?toman:'نرخ درهم را تنظیم کنید';
+  $('qTotal').textContent=totalToman?(totalToman.toLocaleString('fa-IR')+' تومان'):fAED(tot);
+  $('qTotalT').textContent=totalToman?fAED(tot):'⚠️ نرخ درهم را تنظیم کنید';
 }
 $('qMinus').addEventListener('click',()=>{if(qtyVal>1){qtyVal--;updQty();}});
 $('qPlus').addEventListener('click',()=>{if(qtyVal<(qtyTarget?.qty||1)){qtyVal++;updQty();}else toast('بیش از موجودی');});
@@ -960,11 +983,13 @@ function renderInvList(){
     const sp=p.sell_price||p.sellPrice||0,bp=p.buy_price||p.buyPrice||0,qty=p.qty||0;
     const isLow=qty>0&&qty<=3,isEmpty=qty===0;
     const sb=isEmpty?'<span class="bdg b-low">ناموجود</span>':isLow?`<span class="bdg b-low">کم‌موجود: ${faNum(qty)}</span>`:`<span class="bdg b-s">موجودی: ${faNum(qty)}</span>`;
-    const tb=Rate.fmt(sp)?`<span class="bdg b-t">≈ ${Rate.fmt(sp)}</span>`:'';
-    const ttoman=Rate.fmt(sp)?`<span class="bdg" style="background:var(--orl2);color:var(--ord);font-size:.62rem">فروش تومان: ${Rate.fmt(sp)}</span>`:'';
-    const buyBadge=currentUser?.role==='admin'?`<span class="bdg b-p">خرید: ${fAED(bp)}${Rate.fmt(bp)?` | ${Rate.fmt(bp)}`:''}</span>`:'';
-    const sellBadge=`<span class="bdg" style="background:#dbeafe;color:#1e40af">فروش: ${fAED(sp)}</span>`;
-    return `<div class="inv-item"><div class="inv-main"><div class="inv-name">${p.name}</div><div class="inv-brand">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>${p.barcode?`<div class="inv-bc">${p.barcode}</div>`:''}<div class="inv-meta">${buyBadge}${sellBadge}${ttoman}${sb}</div></div><div class="inv-acts"><button class="ic-ed" data-id="${p.id}">✏️</button><button class="ic-dl" data-id="${p.id}">🗑</button></div></div>`;
+    const ri=Rate.cur();
+    const spToman=ri&&sp?Math.round(sp*ri).toLocaleString('fa-IR')+' تومان':null;
+    const bpToman=ri&&bp?Math.round(bp*ri).toLocaleString('fa-IR')+' تومان':null;
+    const buyBadge=currentUser?.role==='admin'?`<span class="bdg b-p">خرید: ${bpToman||fAED(bp)}</span>`:'';
+    const sellBadge=`<span class="bdg" style="background:#dbeafe;color:#1e40af;font-weight:700">فروش: ${spToman||fAED(sp)}</span>`;
+    const aedBadge=currentUser?.role==='admin'?`<span class="bdg" style="background:var(--inp);color:var(--t3);font-size:.6rem">${fAED(sp)}</span>`:'';
+    return `<div class="inv-item"><div class="inv-main"><div class="inv-name">${p.name}</div><div class="inv-brand">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>${p.barcode?`<div class="inv-bc">${p.barcode}</div>`:''}<div class="inv-meta">${buyBadge}${sellBadge}${aedBadge}${sb}</div></div><div class="inv-acts"><button class="ic-ed" data-id="${p.id}">✏️</button><button class="ic-dl" data-id="${p.id}">🗑</button></div></div>`;
   }).join('');
   el.querySelectorAll('.ic-ed').forEach(b=>b.addEventListener('click',()=>openProdModal(b.dataset.id)));
   el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',async()=>{
@@ -991,42 +1016,63 @@ function openProdModal(id=null){
   editProdId=id;
   const p=id?cachedProds.find(x=>x.id===id):null;
   $('mProdTitle').textContent=id?'ویرایش':'افزودن محصول';
-  $('fBarcode').value=p?.barcode||'';$('fName').value=p?.name||'';$('fBrand').value=p?.brand||'';
-  $('fBuy').value=p?.buy_price||p?.buyPrice||'';$('fSell').value=p?.sell_price||p?.sellPrice||'';
-  $('fQty').value=p?.qty||'';$('fVol').value=p?.volume||'';$('fDesc').value=p?.description||p?.desc||'';
+  $('fBarcode').value=p?.barcode||'';
+  $('fName').value=p?.name||'';
+  $('fBrand').value=p?.brand||'';
+  // قیمت‌ها را از درهم به تومان تبدیل کن برای نمایش
+  const r=Rate.cur();
+  const bp=p?.buy_price||p?.buyPrice||0;
+  const sp=p?.sell_price||p?.sellPrice||0;
+  const fBuyEl=$('fBuyT'),fSellEl=$('fSellT');
+  if(fBuyEl)fBuyEl.value=bp&&r?Math.round(bp*r):'';
+  if(fSellEl)fSellEl.value=sp&&r?Math.round(sp*r):'';
+  $('fQty').value=p?.qty||'';
+  $('fVol').value=p?.volume||'';
+  $('fDesc').value=p?.description||p?.desc||'';
   // قیمت خرید فقط برای admin
   const bf=$('buyPriceField');
   if(bf)bf.style.display=currentUser?.role==='admin'?'':'none';
   updSellT();updBuyT();
   $('mProd').classList.remove('hidden');
 }
-function fmtOrHint(aed){
-  if(!aed||aed<=0)return '';
-  const t=Rate.fmt(aed);
-  if(t)return t;
-  // نرخ هنوز لود نشده
+// تبدیل تومان به درهم
+function tomanToAed(toman){
   const r=Rate.cur();
-  if(!r)return '⚠️ نرخ درهم را تنظیم کنید';
-  return '';
+  if(!r||!toman)return null;
+  return toman/r;
+}
+function fmtAedHint(toman){
+  const r=Rate.cur();
+  if(!r)return '⚠️ نرخ درهم را تنظیم کنید ↻';
+  if(!toman||toman<=0)return '';
+  const aed=(toman/r).toFixed(2);
+  return `≈ ${aed} درهم`;
 }
 function updSellT(){
-  const v=parseFloat($('fSell').value)||0;
-  const el=$('fSellT');if(!el)return;
-  el.textContent=fmtOrHint(v);
+  const v=parseFloat($('fSellT')?.value)||0;
+  const el=$('fSellD');if(!el)return;
+  el.textContent=fmtAedHint(v);
   el.style.color=Rate.cur()?'var(--or)':'var(--err)';
 }
 function updBuyT(){
-  const v=parseFloat($('fBuy').value)||0;
-  const el=$('fBuyT');if(!el)return;
-  el.textContent=fmtOrHint(v);
+  const v=parseFloat($('fBuyT')?.value)||0;
+  const el=$('fBuyD');if(!el)return;
+  el.textContent=fmtAedHint(v);
   el.style.color=Rate.cur()?'var(--t3)':'var(--err)';
 }
-$('fSell').addEventListener('input',updSellT);
-$('fBuy').addEventListener('input',updBuyT);
+$('fSellT')?.addEventListener('input',updSellT);
+$('fBuyT')?.addEventListener('input',updBuyT);
 $('mProdSave').addEventListener('click',async()=>{
   const name=$('fName').value.trim();if(!name){toast('نام را وارد کنید');return;}
-  const sell=parseFloat($('fSell').value);if(!sell||sell<=0){toast('قیمت فروش را وارد کنید');return;}
-  const data={barcode:$('fBarcode').value.trim(),name,brand:$('fBrand').value.trim(),buyPrice:parseFloat($('fBuy').value)||0,sellPrice:sell,qty:parseInt($('fQty').value)||0,volume:parseInt($('fVol').value)||0,desc:$('fDesc').value.trim()};
+  const r=Rate.cur();
+  if(!r){toast('⚠️ ابتدا نرخ درهم را تنظیم کنید');return;}
+  const sellToman=parseFloat($('fSellT')?.value)||0;
+  if(!sellToman||sellToman<=0){toast('قیمت فروش را وارد کنید');return;}
+  const buyToman=parseFloat($('fBuyT')?.value)||0;
+  // تبدیل تومان به درهم
+  const sellPrice=parseFloat((sellToman/r).toFixed(2));
+  const buyPrice=parseFloat((buyToman/r).toFixed(2));
+  const data={barcode:$('fBarcode').value.trim(),name,brand:$('fBrand').value.trim(),buyPrice,sellPrice,qty:parseInt($('fQty').value)||0,volume:parseInt($('fVol').value)||0,desc:$('fDesc').value.trim()};
   const btn=$('mProdSave');loading(btn,true);
   try{
     let r;
