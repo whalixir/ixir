@@ -596,14 +596,14 @@ select.inp{cursor:pointer}
       <div class="fg"><label class="fl-lbl">برند</label><input type="text" id="fBrand" class="inp" placeholder="مثال: Swiss Arabian"/></div>
       <div class="frow">
         <div class="fg" id="buyPriceField">
-          <label class="fl-lbl">قیمت خرید (تومان)</label>
-          <input type="number" id="fBuyT" class="inp" placeholder="مثال: 1500000" min="0" step="1000"/>
-          <div class="hint" id="fBuyD" style="color:var(--t3);margin-top:3px"></div>
+          <label class="fl-lbl">قیمت خرید (درهم)</label>
+          <input type="number" id="fBuy" class="inp" placeholder="0.00" min="0" step="0.01"/>
+          <div class="hint" id="fBuyD" style="color:var(--t3);font-weight:600;margin-top:3px"></div>
         </div>
         <div class="fg">
-          <label class="fl-lbl">قیمت فروش (تومان)</label>
-          <input type="number" id="fSellT" class="inp" placeholder="مثال: 2000000" min="0" step="1000"/>
-          <div class="hint" id="fSellD" style="color:var(--or);margin-top:3px"></div>
+          <label class="fl-lbl">قیمت فروش (درهم)</label>
+          <input type="number" id="fSell" class="inp" placeholder="0.00" min="0" step="0.01"/>
+          <div class="hint" id="fSellD" style="color:var(--or);font-weight:600;margin-top:3px"></div>
         </div>
       </div>
       <div class="frow">
@@ -1019,13 +1019,9 @@ function openProdModal(id=null){
   $('fBarcode').value=p?.barcode||'';
   $('fName').value=p?.name||'';
   $('fBrand').value=p?.brand||'';
-  // قیمت‌ها را از درهم به تومان تبدیل کن برای نمایش
-  const r=Rate.cur();
-  const bp=p?.buy_price||p?.buyPrice||0;
-  const sp=p?.sell_price||p?.sellPrice||0;
-  const fBuyEl=$('fBuyT'),fSellEl=$('fSellT');
-  if(fBuyEl)fBuyEl.value=bp&&r?Math.round(bp*r):'';
-  if(fSellEl)fSellEl.value=sp&&r?Math.round(sp*r):'';
+  // قیمت‌ها به درهم در فیلد، تومان زیرش نشون داده میشه
+  $('fBuy').value=p?.buy_price||p?.buyPrice||'';
+  $('fSell').value=p?.sell_price||p?.sellPrice||'';
   $('fQty').value=p?.qty||'';
   $('fVol').value=p?.volume||'';
   $('fDesc').value=p?.description||p?.desc||'';
@@ -1035,43 +1031,32 @@ function openProdModal(id=null){
   updSellT();updBuyT();
   $('mProd').classList.remove('hidden');
 }
-// تبدیل تومان به درهم
-function tomanToAed(toman){
-  const r=Rate.cur();
-  if(!r||!toman)return null;
-  return toman/r;
-}
-function fmtAedHint(toman){
+// نمایش معادل تومان برای قیمت درهم وارد شده
+function aedToTomanFmt(aed){
   const r=Rate.cur();
   if(!r)return '⚠️ نرخ درهم را تنظیم کنید ↻';
-  if(!toman||toman<=0)return '';
-  const aed=(toman/r).toFixed(2);
-  return `≈ ${aed} درهم`;
+  if(!aed||aed<=0)return '';
+  return '≈ '+Math.round(aed*r).toLocaleString('fa-IR')+' تومان';
 }
 function updSellT(){
-  const v=parseFloat($('fSellT')?.value)||0;
+  const v=parseFloat($('fSell')?.value)||0;
   const el=$('fSellD');if(!el)return;
-  el.textContent=fmtAedHint(v);
+  el.textContent=aedToTomanFmt(v);
   el.style.color=Rate.cur()?'var(--or)':'var(--err)';
 }
 function updBuyT(){
-  const v=parseFloat($('fBuyT')?.value)||0;
+  const v=parseFloat($('fBuy')?.value)||0;
   const el=$('fBuyD');if(!el)return;
-  el.textContent=fmtAedHint(v);
+  el.textContent=aedToTomanFmt(v);
   el.style.color=Rate.cur()?'var(--t3)':'var(--err)';
 }
-$('fSellT')?.addEventListener('input',updSellT);
-$('fBuyT')?.addEventListener('input',updBuyT);
+$('fSell')?.addEventListener('input',updSellT);
+$('fBuy')?.addEventListener('input',updBuyT);
 $('mProdSave').addEventListener('click',async()=>{
   const name=$('fName').value.trim();if(!name){toast('نام را وارد کنید');return;}
-  const r=Rate.cur();
-  if(!r){toast('⚠️ ابتدا نرخ درهم را تنظیم کنید');return;}
-  const sellToman=parseFloat($('fSellT')?.value)||0;
-  if(!sellToman||sellToman<=0){toast('قیمت فروش را وارد کنید');return;}
-  const buyToman=parseFloat($('fBuyT')?.value)||0;
-  // تبدیل تومان به درهم
-  const sellPrice=parseFloat((sellToman/r).toFixed(2));
-  const buyPrice=parseFloat((buyToman/r).toFixed(2));
+  const sellPrice=parseFloat($('fSell').value)||0;
+  if(!sellPrice||sellPrice<=0){toast('قیمت فروش (درهم) را وارد کنید');return;}
+  const buyPrice=parseFloat($('fBuy').value)||0;
   const data={barcode:$('fBarcode').value.trim(),name,brand:$('fBrand').value.trim(),buyPrice,sellPrice,qty:parseInt($('fQty').value)||0,volume:parseInt($('fVol').value)||0,desc:$('fDesc').value.trim()};
   const btn=$('mProdSave');loading(btn,true);
   try{
