@@ -1,4 +1,4 @@
-const H={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'GET,OPTIONS','Access-Control-Allow-Headers':'Content-Type','Content-Type':'application/json'};
+const H={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'GET,POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type','Content-Type':'application/json'};
 const j=(d,s=200)=>new Response(JSON.stringify(d),{status:s,headers:H});
 
 export async function onRequest(ctx){
@@ -7,24 +7,42 @@ export async function onRequest(ctx){
   if(!env.DB)return j({ok:false,error:'DB not bound'},500);
   const db=env.DB;
   try{
-    const url=new URL(req.url);
-    const period=url.searchParams.get('period')||'month';
-    const now=Date.now();
-    let from=0;
-    if(period==='today'){const d=new Date();d.setHours(0,0,0,0);from=d.getTime();}
-    else if(period==='week')from=now-7*86400000;
-    else if(period==='month')from=now-30*86400000;
-    const sm=await db.prepare('SELECT COALESCE(SUM(total),0) income,COALESCE(SUM(cost),0) cost,COALESCE(SUM(profit),0) profit,COUNT(*) cnt FROM sales WHERE created_at>=?').bind(from).first();
-    const{results:tops}=await db.prepare('SELECT si.name,SUM(si.qty) total_qty,SUM(si.final_price) revenue FROM sale_items si JOIN sales s ON s.id=si.sale_id WHERE s.created_at>=? GROUP BY si.product_id,si.name ORDER BY total_qty DESC LIMIT 5').bind(from).all();
-    // weekly chart — 7 days
-    const days=[];
-    for(let i=6;i>=0;i--){
-      const d=new Date();d.setDate(d.getDate()-i);d.setHours(0,0,0,0);
-      const df=d.getTime(),dt=df+86400000;
-      const r=await db.prepare('SELECT COALESCE(SUM(total),0) income,COALESCE(SUM(profit),0) profit FROM sales WHERE created_at>=? AND created_at<?').bind(df,dt).first();
-      days.push({label:`${d.getMonth()+1}/${d.getDate()}`,income:r?.income||0,profit:r?.profit||0});
+    if(req.method==='GET'){
+      const url=new URL(req.url);
+      const period=url.searchParams.get('period')||'all';
+      const now=Date.now();
+      let from=0;
+      if(period==='today'){const d=new Date();d.setHours(0,0,0,0);from=d.getTime();}
+      else if(period==='week')from=now-7*86400000;
+      else if(period==='month')from=now-30*86400000;
+      const{results:sales}=await db.prepare('SELECT * FROM sales WHERE created_at>=? ORDER BY created_at DESC').bind(from).all();
+      for(const s of(sales||[])){
+        const{results:items}=await db.prepare('SELECT * FROM sale_items WHERE sale_id=?').bind(s.id).all();
+        s.items=(items||[]).map(i=>({productId:i.product_id,name:i.name,qty:i.qty,sellPrice:i.sell_price,buyPrice:i.buy_price,discount:i.discount||0,finalPrice:i.final_price||i.qty*i.sell_price}));
+      }
+      return j({ok:true,data:sales||[]});
     }
-    const inv=await db.prepare('SELECT COUNT(*) total,COALESCE(SUM(qty),0) total_qty,COUNT(CASE WHEN qty>0 AND qty<=3 THEN 1 END) low_stock FROM products').first();
-    return j({ok:true,data:{income:sm?.income||0,cost:sm?.cost||0,profit:sm?.profit||0,count:sm?.cnt||0,tops:tops||[],days,inv:inv||{total:0,total_qty:0,low_stock:0}}});
+    if(req.method==='POST'){
+      let b;try{b=await req.json();}catch{return j({ok:false,error:'bad json'},400);}
+      const items=b.items||[];
+      if(!items.length)return j({ok:false,error:'no items'},400);
+      // validate stock
+      for(const it of items){
+        const p=await db.prepare('SELECT qty FROM products WHERE id=?').bind(it.productId).first();
+        if(!p||p.qty<it.qty)return j({ok:false,error:`موجودی "${it.name}" کافی نیست`},409);
+      }
+      const total=items.reduce((s,i)=>s+(i.finalPrice||i.qty*i.sellPrice),0);
+      const cost=items.reduce((s,i)=>s+i.qty*(i.buyPrice||0),0);
+      const id=crypto.randomUUID(),now=Date.now();
+      await db.prepare('INSERT INTO sales(id,total,cost,profit,date_j,user_name,created_at)VALUES(?,?,?,?,?,?,?)')
+        .bind(id,total,cost,total-cost,b.dateJ||'',b.user||'',now).run();
+      for(const it of items){
+        await db.prepare('INSERT INTO sale_items(id,sale_id,product_id,name,qty,sell_price,buy_price,discount,final_price)VALUES(?,?,?,?,?,?,?,?,?)')
+          .bind(crypto.randomUUID(),id,it.productId,it.name,it.qty,it.sellPrice,it.buyPrice||0,it.discount||0,it.finalPrice||it.qty*it.sellPrice).run();
+        await db.prepare('UPDATE products SET qty=MAX(0,qty-?),updated_at=? WHERE id=?').bind(it.qty,now,it.productId).run();
+      }
+      return j({ok:true,id,total,profit:total-cost});
+    }
+    return j({ok:false,error:'method not allowed'},405);
   }catch(e){return j({ok:false,error:e.message},500);}
 }
