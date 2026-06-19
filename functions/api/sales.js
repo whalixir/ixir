@@ -1,4 +1,4 @@
-const H={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'GET,POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type','Content-Type':'application/json'};
+const H={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'GET,POST,DELETE,OPTIONS','Access-Control-Allow-Headers':'Content-Type','Content-Type':'application/json'};
 const j=(d,s=200)=>new Response(JSON.stringify(d),{status:s,headers:H});
 
 export async function onRequest(ctx){
@@ -42,6 +42,13 @@ export async function onRequest(ctx){
         await db.prepare('UPDATE products SET qty=MAX(0,qty-?),updated_at=? WHERE id=?').bind(it.qty,now,it.productId).run();
       }
       return j({ok:true,id,total,profit:total-cost});
+    }
+    if(req.method==='DELETE'){
+      let b;try{b=await req.json();}catch{return j({ok:false,error:'bad json'},400);}
+      if(!b.id)return j({ok:false,error:'id required'},400);
+      await db.prepare('DELETE FROM sale_items WHERE sale_id=?').bind(b.id).run();
+      await db.prepare('DELETE FROM sales WHERE id=?').bind(b.id).run();
+      return j({ok:true});
     }
     return j({ok:false,error:'method not allowed'},405);
   }catch(e){return j({ok:false,error:e.message},500);}
