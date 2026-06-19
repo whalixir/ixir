@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<meta name="theme-color" content="#059669"/>
+<meta name="theme-color" content="#1e6fff"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="والکسیر"/>
@@ -15,18 +15,22 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  /* Emerald & Slate — سبز زمردی + خاکستری شیک */
-  --or:#059669;--ord:#047857;--orl:#ecfdf5;--orl2:#d1fae5;
-  --bg:#f8fafc;--card:#ffffff;--inp:#f1f5f9;--brd:#e2e8f0;
-  --t1:#0f172a;--t2:#64748b;--t3:#94a3b8;--t4:#cbd5e1;
+  /* Light Mode — آبی روشن شیک مثل Nexora */
+  --or:#1e6fff;--ord:#1558e0;--orl:#eff6ff;--orl2:#dbeafe;
+  --bg:#e8f0fe;--card:#ffffff;--inp:#f0f4ff;--brd:#c7d7fd;
+  --t1:#0a1628;--t2:#4b6085;--t3:#8fa3c8;--t4:#c7d7fd;
   --nav:#ffffff;--ok:#059669;--err:#dc2626;--warn:#d97706;
-  --r:14px;--rs:9px;--sh:0 1px 4px rgba(0,0,0,.07);
-  --top:56px;--bot:68px;
+  --r:16px;--rs:12px;--sh:0 2px 12px rgba(30,111,255,.08);
+  --top:56px;--bot:72px;
+  --grad:linear-gradient(135deg,#1e3a8a 0%,#1e6fff 100%);
 }
 [data-theme=dark]{
-  --or:#10b981;--ord:#059669;--orl:rgba(16,185,129,.12);--orl2:rgba(16,185,129,.18);
-  --bg:#0a0f0d;--card:#0f1a14;--inp:#1a2e20;--brd:#1e3a28;
-  --t1:#f0fdf4;--t2:#86efac;--t3:#4ade80;--t4:#166534;--nav:#0f1a14;
+  /* Dark Mode — آبی نیوی تیره مثل تصویر دوم */
+  --or:#4d8bff;--ord:#3a76ff;--orl:rgba(77,139,255,.1);--orl2:rgba(77,139,255,.18);
+  --bg:#060d1f;--card:#0d1b35;--inp:#0f2040;--brd:#1a3060;
+  --t1:#e8f0fe;--t2:#7b9cc8;--t3:#3d5a8a;--t4:#1a3060;
+  --nav:#0d1b35;--ok:#10b981;--err:#f87171;--warn:#fbbf24;
+  --grad:linear-gradient(135deg,#060d1f 0%,#0d1b35 100%);
 }
 html,body{width:100%;height:100%;font-family:'Vazirmatn',sans-serif;font-size:15px;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;overflow:hidden}
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
@@ -36,7 +40,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 /* ══ PIN SCREEN ══ */
 #pinScreen{direction:ltr;
   position:fixed;inset:0;z-index:999;
-  background:linear-gradient(135deg,#0a0f0d 0%,#0f1a14 40%,#0a2818 100%);
+  background:var(--grad,linear-gradient(135deg,#060d1f 0%,#0d1b35 100%));
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
 }
 .pin-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:36px}
@@ -45,7 +49,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .pin-user-label{font-size:.8rem;color:#78716c;margin-bottom:16px;letter-spacing:.05em}
 .pin-dots{display:flex;gap:14px;margin-bottom:32px}
 .pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid #57534e;transition:all .2s}
-.pin-dot.filled{background:#10b981;border-color:#10b981;transform:scale(1.1)}
+.pin-dot.filled{background:#4d8bff;border-color:#4d8bff;transform:scale(1.1)}
 .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:260px}
 .pin-btn{
   height:70px;border-radius:var(--r);
@@ -54,7 +58,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   transition:background .15s,transform .1s;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
 }
-.pin-btn:active{background:rgba(16,185,129,.25);transform:scale(.95)}
+.pin-btn:active{background:rgba(77,139,255,.3);transform:scale(.95)}
 .pin-btn .sub{font-size:.5rem;letter-spacing:.1em;color:#78716c;font-weight:400;pointer-events:none}
 .pin-btn.zero{grid-column:2}
 .pin-btn.del{grid-column:3;background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.15)}
@@ -312,6 +316,73 @@ select.inp{cursor:pointer}
 .user-name{font-weight:600;font-size:.88rem}
 .user-role{font-size:.7rem;color:var(--t3)}
 .user-acts{display:flex;gap:5px}
+
+/* ── Extra UI polish ── */
+.topbar{background:var(--card);border-bottom:1px solid var(--brd)}
+[data-theme=dark] .topbar{background:var(--card);border-bottom:1px solid var(--brd)}
+
+/* کارت‌های آماری با gradient */
+.stat.ac{background:var(--grad);border:none;color:#fff}
+.stat.ac .sv,.stat.ac .sl,.stat.ac .st{color:#fff}
+[data-theme=dark] .stat.ac{background:linear-gradient(135deg,#0d1b35,#1a3060);border:1px solid var(--brd)}
+
+/* دکمه اصلی */
+.btn.pr{background:var(--grad);border:none;box-shadow:0 4px 14px rgba(30,111,255,.35)}
+.btn.pr:hover{opacity:.9}
+[data-theme=dark] .btn.pr{background:linear-gradient(135deg,#1a3060,#4d8bff);box-shadow:0 4px 14px rgba(77,139,255,.3)}
+
+/* کارت‌ها */
+.card{box-shadow:0 2px 16px rgba(30,111,255,.06);border-radius:18px}
+[data-theme=dark] .card{box-shadow:0 2px 16px rgba(0,0,0,.4);border-color:var(--brd)}
+
+/* inv items */
+.inv-item{border-radius:16px;box-shadow:0 2px 12px rgba(30,111,255,.06)}
+[data-theme=dark] .inv-item{box-shadow:0 2px 12px rgba(0,0,0,.4)}
+
+/* نوار rate */
+.ratebar{background:var(--grad)}
+[data-theme=dark] .ratebar{background:linear-gradient(90deg,#0d1b35,#1a3060)}
+
+/* bottom nav */
+.bottomnav{border-radius:24px 24px 0 0;box-shadow:0 -4px 20px rgba(30,111,255,.1)}
+[data-theme=dark] .bottomnav{box-shadow:0 -4px 20px rgba(0,0,0,.5)}
+.nb.active{color:var(--or)}
+
+/* sidebar */
+.sb-btn.active{background:var(--orl2);color:var(--or)}
+
+/* badge‌ها */
+.bdg.b-p{background:var(--orl2);color:var(--ord)}
+.bdg.b-t{background:#fef3c7;color:#92400e}
+[data-theme=dark] .bdg.b-t{background:#1c1403;color:#fbbf24}
+
+/* modal */
+.modal{border-radius:24px 24px 0 0}
+@media(min-width:768px){.modal{border-radius:20px}}
+
+/* PIN screen */
+#pinScreen{background:linear-gradient(160deg,#060d1f 0%,#0d1b35 50%,#0a1a40 100%)}
+.pin-btn{background:rgba(77,139,255,.08);border:1px solid rgba(77,139,255,.15)}
+.pin-btn:active{background:rgba(77,139,255,.25)}
+.pin-dot{border-color:#3d5a8a}
+.pin-user-chip{background:rgba(77,139,255,.08);border:1px solid rgba(77,139,255,.15);color:#7b9cc8}
+.pin-user-chip.active{background:rgba(77,139,255,.2);border-color:#4d8bff;color:#4d8bff}
+
+/* chart bars */
+.bar.income-bar{background:linear-gradient(to top,#1558e0,#4d8bff)}
+.bar.profit-bar{background:linear-gradient(to top,#059669,#10b981)}
+
+/* pnl cards */
+.pnl-c.pnl-nt{background:linear-gradient(135deg,var(--orl),var(--orl2));border-color:var(--or)}
+[data-theme=dark] .pnl-c.pnl-nt{background:linear-gradient(135deg,rgba(77,139,255,.08),rgba(77,139,255,.15))}
+
+/* product rows */
+.prow:hover{background:var(--orl2);border-color:var(--or)}
+[data-theme=dark] .prow:hover{background:rgba(77,139,255,.12);border-color:var(--or)}
+
+/* user items */
+.user-item{border-radius:14px}
+.user-avatar{background:var(--orl2);color:var(--or)}
 </style>
 </head>
 <body>
