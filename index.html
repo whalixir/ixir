@@ -26,7 +26,7 @@
   --t1:#0a1628;--t2:#4b6085;--t3:#8fa3c8;--t4:#c7d7fd;
   --nav:#ffffff;--ok:#059669;--err:#dc2626;--warn:#d97706;
   --r:16px;--rs:12px;--sh:0 2px 12px rgba(30,111,255,.08);
-  --top:56px;--bot:calc(72px + env(safe-area-inset-bottom, 0px));
+  --top:56px;--bot:calc(58px + env(safe-area-inset-bottom, 0px));
   --grad:linear-gradient(135deg,#1e3a8a 0%,#1e6fff 100%);
 }
 [data-theme=dark]{
@@ -121,17 +121,27 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .sb-footer{margin-top:auto;padding-top:14px;border-top:1px solid var(--brd);font-size:.65rem;color:var(--t3);text-align:center}
 
 /* CONTENT */
-.content{flex:1;min-width:0;overflow-y:auto;padding:12px 12px calc(var(--bot)+12px);height:100%}
+.content{flex:1;min-width:0;overflow-y:auto;padding:12px 12px calc(var(--bot) + 24px);height:100%}
 
 /* BOTTOM NAV */
-.bottomnav{position:fixed;bottom:0;left:0;right:0;height:var(--bot);background:rgba(8,20,50,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(96,165,250,.15);display:flex;align-items:flex-start;padding:4px 4px env(safe-area-inset-bottom,12px);z-index:10;box-shadow:0 -4px 24px rgba(0,0,10,.4)}
+.bottomnav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(8,20,50,.97);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid rgba(96,165,250,.15);
+  display:flex;align-items:stretch;
+  padding:0;
+  padding-bottom:max(env(safe-area-inset-bottom,0px),8px);
+  z-index:10;
+  box-shadow:0 -4px 24px rgba(0,0,10,.4);
+}
 [data-theme=light] .bottomnav{background:rgba(255,255,255,.96);border-top:1px solid rgba(30,58,138,.12);box-shadow:0 -2px 16px rgba(30,58,138,.08)}
 [data-theme=light] .nb{color:#64748b}
 [data-theme=light] .nb.active{color:#1d4ed8}
 [data-theme=light] .nb.active svg{filter:drop-shadow(0 0 5px #3b82f6)}
 [data-theme=light] .nb:hover{color:#2563eb}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 0 4px;color:#4a6fa5;font-size:.6rem;font-weight:500;border-radius:var(--rs);transition:all .2s;border:none;background:none;cursor:pointer;font-family:Vazirmatn;position:relative}
-.nb svg{margin-top:2px;transition:all .25s;filter:drop-shadow(0 0 0 transparent)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;padding:10px 0 2px;color:#4a6fa5;font-size:.58rem;font-weight:500;border-radius:0;transition:all .2s;border:none;background:none;cursor:pointer;font-family:Vazirmatn;position:relative}
+.nb svg{transition:all .25s;filter:drop-shadow(0 0 0 transparent)}
 .nb.active{color:#60a5fa}
 .nb.active svg{filter:drop-shadow(0 0 6px #60a5fa) drop-shadow(0 0 12px #3b82f6);transform:translateY(-1px)}
 .nb:hover{color:#93c5fd}
@@ -439,9 +449,17 @@ select.inp{cursor:pointer}
 .disc-type-btn.active{border-color:var(--or)!important;background:var(--orl2)!important;color:var(--or)!important;box-shadow:0 0 0 3px rgba(77,139,255,.15)}
 
 /* ── inv swipe ── */
-.inv-wrap{position:relative;overflow:hidden;border-radius:16px;margin-bottom:8px}
-.inv-action-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;gap:0;transform:translateX(100%);transition:transform .25s ease;z-index:1}
-.inv-act-edit,.inv-act-del{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:72px;height:100%;font-size:1.2rem;border:none;cursor:pointer;font-family:Vazirmatn}
+.inv-wrap{position:relative;overflow:hidden;border-radius:16px;margin-bottom:8px;touch-action:pan-y}
+.inv-action-bg{
+  position:absolute;right:0;top:0;bottom:0;width:144px;
+  display:flex;align-items:stretch;
+  transform:translateX(144px);
+  transition:transform .25s ease;z-index:1;
+}
+.inv-act-edit,.inv-act-del{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;width:72px;font-size:1.2rem;border:none;cursor:pointer;font-family:Vazirmatn;
+}
 .inv-act-edit span,.inv-act-del span{font-size:.6rem;font-weight:600}
 .inv-act-edit{background:#2563eb;color:#fff}
 .inv-act-del{background:#dc2626;color:#fff}
@@ -618,6 +636,7 @@ select.inp{cursor:pointer}
           <div class="stat wn"><div class="sv" id="dCount">۰</div><div class="sl">تعداد تراکنش</div></div>
         </div>
         <div class="card"><div class="card-lbl">پرفروش‌ترین محصولات</div><div id="topProds" class="toplist"></div></div>
+        <div class="card"><div class="card-lbl">فروش هر کاربر</div><div id="userSales" class="toplist"></div></div>
       </section>
 
       <!-- P&L -->
@@ -1492,21 +1511,30 @@ function renderInvList(){
       </div>
     </div>`;
   }).join('');
-  // swipe انبار
+  // swipe انبار - از راست به چپ برای نمایش دکمه‌ها
   el.querySelectorAll('.inv-wrap').forEach(wrap=>{
-    const slide=wrap.querySelector('.inv-slidable');
-    let sx=0,opened=false;
-    wrap.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{passive:true});
-    wrap.addEventListener('touchend',e=>{
-      const dx=e.changedTouches[0].clientX-sx;
-      if(dx<-50){wrap.classList.add('sw');opened=true;}
-      else if(dx>30){wrap.classList.remove('sw');opened=false;}
+    let sx=0,sy=0,opened=false,moving=false;
+    wrap.addEventListener('touchstart',e=>{
+      sx=e.touches[0].clientX;sy=e.touches[0].clientY;moving=false;
     },{passive:true});
-    // بستن با کلیک بیرون
-    document.addEventListener('touchstart',e=>{
-      if(opened&&!wrap.contains(e.target)){wrap.classList.remove('sw');opened=false;}
+    wrap.addEventListener('touchmove',e=>{
+      const dx=sx-e.touches[0].clientX;
+      const dy=Math.abs(e.touches[0].clientY-sy);
+      if(dy>dx)return; // اسکرول عمودی
+      moving=true;
+      if(dx>20)wrap.classList.add('sw');
+      else if(dx<-10)wrap.classList.remove('sw');
+    },{passive:true});
+    wrap.addEventListener('touchend',e=>{
+      if(!moving){wrap.classList.remove('sw');opened=false;}
+      else opened=wrap.classList.contains('sw');
     },{passive:true});
   });
+  // بستن با کلیک بیرون
+  el.addEventListener('touchstart',e=>{
+    if(!e.target.closest('.inv-wrap.sw'))
+      document.querySelectorAll('.inv-wrap.sw').forEach(w=>w.classList.remove('sw'));
+  },{passive:true});
   el.querySelectorAll('.inv-act-edit').forEach(b=>b.addEventListener('click',()=>{
     document.querySelectorAll('.inv-wrap').forEach(w=>w.classList.remove('sw'));
     openProdModal(b.dataset.id);
@@ -1602,10 +1630,21 @@ async function loadDash(){
       $('dMonth').textContent=faNum((d.income||0).toFixed(2));$('dMonthT').textContent=Rate.fmt(d.income)||'';
       $('dProfit').textContent=faNum((d.profit||0).toFixed(2));$('dProfitT').textContent=Rate.fmt(d.profit)||'';
       $('dCount').textContent=faNum(d.count||0);
-      const tops=d.tops||[];const el=$('topProds');
-      if(!tops.length){el.innerHTML='<div class="empty"><p>فروشی ثبت نشده</p></div>';return;}
-      el.innerHTML=tops.map((t,i)=>`<div class="top-i"><div class="top-r">${faNum(i+1)}</div><div style="flex:1"><div class="top-n">${t.name}</div><div class="top-q">${faNum(t.total_qty)} عدد</div></div><div class="top-v">${fAED(t.revenue)}</div></div>`).join('');
+      const tops=d.tops||[];const topEl=$('topProds');
+      if(!tops.length){topEl.innerHTML='<div class="empty"><p>فروشی ثبت نشده</p></div>';}
+      else topEl.innerHTML=tops.map((t,i)=>`<div class="top-i"><div class="top-r">${i+1}</div><div style="flex:1"><div class="top-n">${t.name}</div><div class="top-q">${t.total_qty} عدد</div></div><div class="top-v">${fAED(t.revenue)}</div></div>`).join('');
     }
+    // فروش هر کاربر
+    try{
+      const sr=await API.get('/sales?period=month');
+      const userEl=$('userSales');if(!userEl)return;
+      if(sr.ok&&sr.data.length){
+        const umap={};
+        sr.data.forEach(s=>{const u=s.user_name||'نامشخص';if(!umap[u])umap[u]={count:0,total:0};umap[u].count++;umap[u].total+=s.total||0;});
+        const users=Object.entries(umap).sort((a,b)=>b[1].count-a[1].count);
+        userEl.innerHTML=users.map(([name,data],i)=>`<div class="top-i"><div class="top-r" style="background:var(--ok)">${i+1}</div><div style="flex:1"><div class="top-n">${name}</div><div class="top-q">${data.count} فروش این ماه</div></div><div class="top-v">${fAED(data.total)}</div></div>`).join('');
+      }else userEl.innerHTML='<div class="empty"><p>فروشی ثبت نشده</p></div>';
+    }catch{}
   }catch(e){toast('خطا در بارگذاری داشبورد');}
 }
 
