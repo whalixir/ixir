@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<meta name="theme-color" content="#F97316"/>
+<meta name="theme-color" content="#059669"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="والکسیر"/>
@@ -15,17 +15,18 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --or:#f97316;--ord:#c2410c;--orl:#fff7ed;--orl2:#ffedd5;
-  --bg:#fafaf9;--card:#fff;--inp:#f5f5f4;--brd:#e7e5e4;
-  --t1:#1c1917;--t2:#78716c;--t3:#a8a29e;--t4:#d6d3d1;
-  --nav:#fff;--ok:#16a34a;--err:#dc2626;--warn:#d97706;
+  /* Emerald & Slate — سبز زمردی + خاکستری شیک */
+  --or:#059669;--ord:#047857;--orl:#ecfdf5;--orl2:#d1fae5;
+  --bg:#f8fafc;--card:#ffffff;--inp:#f1f5f9;--brd:#e2e8f0;
+  --t1:#0f172a;--t2:#64748b;--t3:#94a3b8;--t4:#cbd5e1;
+  --nav:#ffffff;--ok:#059669;--err:#dc2626;--warn:#d97706;
   --r:14px;--rs:9px;--sh:0 1px 4px rgba(0,0,0,.07);
   --top:56px;--bot:68px;
 }
 [data-theme=dark]{
-  --or:#ea580c;--orl:rgba(234,88,12,.12);--orl2:rgba(234,88,12,.2);
-  --bg:#0c0a09;--card:#1c1917;--inp:#292524;--brd:#44403c;
-  --t1:#fafaf9;--t2:#a8a29e;--t3:#57534e;--t4:#44403c;--nav:#1c1917;
+  --or:#10b981;--ord:#059669;--orl:rgba(16,185,129,.12);--orl2:rgba(16,185,129,.18);
+  --bg:#0a0f0d;--card:#0f1a14;--inp:#1a2e20;--brd:#1e3a28;
+  --t1:#f0fdf4;--t2:#86efac;--t3:#4ade80;--t4:#166534;--nav:#0f1a14;
 }
 html,body{width:100%;height:100%;font-family:'Vazirmatn',sans-serif;font-size:15px;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;overflow:hidden}
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
@@ -35,7 +36,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 /* ══ PIN SCREEN ══ */
 #pinScreen{direction:ltr;
   position:fixed;inset:0;z-index:999;
-  background:linear-gradient(135deg,#1c1917 0%,#292524 50%,#1c1917 100%);
+  background:linear-gradient(135deg,#0a0f0d 0%,#0f1a14 40%,#0a2818 100%);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
 }
 .pin-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:36px}
@@ -44,7 +45,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .pin-user-label{font-size:.8rem;color:#78716c;margin-bottom:16px;letter-spacing:.05em}
 .pin-dots{display:flex;gap:14px;margin-bottom:32px}
 .pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid #57534e;transition:all .2s}
-.pin-dot.filled{background:var(--or);border-color:var(--or);transform:scale(1.1)}
+.pin-dot.filled{background:#10b981;border-color:#10b981;transform:scale(1.1)}
 .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:260px}
 .pin-btn{
   height:70px;border-radius:var(--r);
@@ -53,7 +54,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   transition:background .15s,transform .1s;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
 }
-.pin-btn:active{background:rgba(249,115,22,.25);transform:scale(.95)}
+.pin-btn:active{background:rgba(16,185,129,.25);transform:scale(.95)}
 .pin-btn .sub{font-size:.5rem;letter-spacing:.1em;color:#78716c;font-weight:400;pointer-events:none}
 .pin-btn.zero{grid-column:2}
 .pin-btn.del{grid-column:3;background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.15)}
@@ -580,299 +581,119 @@ select.inp{cursor:pointer}
 <script>
 'use strict';
 
-// ══════════════════════════════════════════════════
-// STORAGE — localStorage با fallback
-// ══════════════════════════════════════════════════
-const Store = {
-  get(k,d=null){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
-  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
-  uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)},
+// ══ JALALI ══
+function toJalali(gy,gm,gd){const g=[0,31,29*((gy%4==0&&gy%100!=0)||(gy%400==0)?1:0),31,30,31,30,31,31,30,31,30,31],j=[0,31,31,31,31,31,31,30,30,30,30,30,29];let jy=0,jm=0,jd=0;gy-=1600;gm--;gd--;let gn=365*gy+Math.floor((gy+3)/4)-Math.floor((gy+99)/100)+Math.floor((gy+399)/400);for(let i=0;i<gm;++i)gn+=g[i+1];gn+=gd;let jn=gn-79;const np=Math.floor(jn/12053);jn%=12053;jy=979+33*np+4*Math.floor(jn/1461);jn%=1461;if(jn>=366){jy+=Math.floor((jn-1)/365);jn=(jn-1)%365;}for(let i=0;i<11&&jn>=j[i+1];++i){jn-=j[i+1];jm=i+1;}jm++;jd=jn+1;return[jy,jm,jd];}
+function jalaliFromTs(ts){const d=new Date(ts);const[jy,jm,jd]=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());const h=String(d.getHours()).padStart(2,'0'),mi=String(d.getMinutes()).padStart(2,'0');return `${jy}/${String(jm).padStart(2,'0')}/${String(jd).padStart(2,'0')} ${h}:${mi}`;}
+function jalaliNow(){return jalaliFromTs(Date.now());}
+function startOf(t){const d=new Date();d.setHours(0,0,0,0);if(t==='week')d.setDate(d.getDate()-d.getDay());if(t==='month')d.setDate(1);return d.getTime();}
+
+// ══ API ══
+const API={
+  base:'/api',
+  async req(method,path,body){
+    const r=await fetch(this.base+path,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+    return r.json();
+  },
+  get(p){return this.req('GET',p);},
+  post(p,b){return this.req('POST',p,b);},
+  put(p,b){return this.req('PUT',p,b);},
+  del(p,b){return this.req('DELETE',p,b);},
 };
 
-// ══════════════════════════════════════════════════
-// USERS
-// ══════════════════════════════════════════════════
-const Users = {
-  KEY:'wx_users',
-  load(){
-    let u=Store.get(this.KEY,[]);
-    if(!u.length){
-      u=[{id:'u1',name:'MOLLAEI',pin:'6283',role:'admin'}];
-      Store.set(this.KEY,u);
-    }
-    return u;
-  },
-  save(users){Store.set(this.KEY,users)},
-  add(name,pin){
-    const u=this.load();
-    u.push({id:Store.uid(),name:name.toUpperCase(),pin,role:'user'});
-    this.save(u);
-  },
-  changePin(id,pin){
-    const u=this.load();
-    const i=u.findIndex(x=>x.id===id);
-    if(i>=0){u[i].pin=pin;this.save(u);}
-  },
-  delete(id){
-    let u=this.load().filter(x=>x.id!==id);
-    this.save(u);
-  },
-  verify(name,pin){
-    return this.load().find(u=>u.name===name&&u.pin===pin)||null;
-  }
-};
-
-// ══════════════════════════════════════════════════
-// JALALI DATE
-// ══════════════════════════════════════════════════
-function toJalali(gy,gm,gd){
-  const g_d_no=[0,31,29*((gy%4==0&&gy%100!=0)||(gy%400==0)?1:0),31,30,31,30,31,31,30,31,30,31];
-  const j_d_no=[0,31,31,31,31,31,31,30,30,30,30,30,29];
-  let jy=0,jm=0,jd=0;
-  gy-=1600;gm--;gd--;
-  let g_day_no=365*gy+Math.floor((gy+3)/4)-Math.floor((gy+99)/100)+Math.floor((gy+399)/400);
-  for(let i=0;i<gm;++i)g_day_no+=g_d_no[i+1];
-  g_day_no+=gd;
-  let j_day_no=g_day_no-79;
-  const j_np=Math.floor(j_day_no/12053);j_day_no%=12053;
-  jy=979+33*j_np+4*Math.floor(j_day_no/1461);j_day_no%=1461;
-  if(j_day_no>=366){jy+=Math.floor((j_day_no-1)/365);j_day_no=(j_day_no-1)%365;}
-  for(let i=0;i<11&&j_day_no>=j_d_no[i+1];++i){j_day_no-=j_d_no[i+1];jm=i+1;}
-  jm++;jd=j_day_no+1;
-  return[jy,jm,jd];
-}
-function jalaliNow(){
-  const d=new Date();
-  const[jy,jm,jd]=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());
-  const h=String(d.getHours()).padStart(2,'0');
-  const mi=String(d.getMinutes()).padStart(2,'0');
-  return `${jy}/${String(jm).padStart(2,'0')}/${String(jd).padStart(2,'0')} ${h}:${mi}`;
-}
-function jalaliFromTs(ts){
-  const d=new Date(ts);
-  const[jy,jm,jd]=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());
-  const h=String(d.getHours()).padStart(2,'0');
-  const mi=String(d.getMinutes()).padStart(2,'0');
-  return `${jy}/${String(jm).padStart(2,'0')}/${String(jd).padStart(2,'0')} ${h}:${mi}`;
-}
-function startOfWeekTs(){
-  const d=new Date();d.setHours(0,0,0,0);
-  d.setDate(d.getDate()-d.getDay());
-  return d.getTime();
-}
-function startOfMonthTs(){
-  const d=new Date();d.setHours(0,0,0,0);d.setDate(1);return d.getTime();
-}
-function startOfDayTs(){
-  const d=new Date();d.setHours(0,0,0,0);return d.getTime();
-}
-
-// ══════════════════════════════════════════════════
-// DB — Products & Sales
-// ══════════════════════════════════════════════════
-const DB = {
-  PROD:'wx_products', SALE:'wx_sales',
-  getProds(){return Store.get(this.PROD,[])},
-  saveProd(p){
-    const ps=this.getProds();
-    if(p.id){const i=ps.findIndex(x=>x.id===p.id);if(i>=0)ps[i]={...ps[i],...p,updatedAt:Date.now()};else ps.unshift(p);}
-    else{p.id=Store.uid();p.createdAt=Date.now();p.updatedAt=Date.now();ps.unshift(p);}
-    Store.set(this.PROD,ps);return p.id;
-  },
-  delProd(id){Store.set(this.PROD,this.getProds().filter(p=>p.id!==id))},
-  getProd(id){return this.getProds().find(p=>p.id===id)||null},
-  getProdByBarcode(bc){return this.getProds().find(p=>p.barcode===bc)||null},
-  deductStock(id,qty){
-    const ps=this.getProds();
-    const i=ps.findIndex(p=>p.id===id);
-    if(i>=0){ps[i].qty=Math.max(0,(ps[i].qty||0)-qty);ps[i].updatedAt=Date.now();}
-    Store.set(this.PROD,ps);
-  },
-  getSales(){return Store.get(this.SALE,[])},
-  addSale(sale){
-    const ss=this.getSales();
-    sale.id=Store.uid();sale.createdAt=Date.now();sale.dateJ=jalaliNow();
-    ss.unshift(sale);Store.set(this.SALE,ss);
-    // deduct stock
-    (sale.items||[]).forEach(it=>this.deductStock(it.productId,it.qty));
-    return sale;
-  },
-  getSalesInRange(from,to=Date.now()){
-    return this.getSales().filter(s=>s.createdAt>=from&&s.createdAt<=to);
-  },
-  getStats(period){
-    let from=0;
-    if(period==='today')from=startOfDayTs();
-    else if(period==='week')from=startOfWeekTs();
-    else if(period==='month')from=startOfMonthTs();
-    const sales=this.getSalesInRange(from);
-    const income=sales.reduce((s,x)=>s+(x.total||0),0);
-    const cost=sales.reduce((s,x)=>s+(x.cost||0),0);
-    return{income,cost,profit:income-cost,count:sales.length,sales};
-  },
-  getWeeklyChart(){
-    // آمار 7 روز گذشته
-    const days=[];
-    for(let i=6;i>=0;i--){
-      const d=new Date();d.setDate(d.getDate()-i);d.setHours(0,0,0,0);
-      const from=d.getTime();const to=from+86400000;
-      const sales=this.getSalesInRange(from,to);
-      const[jy,jm,jd]=toJalali(d.getFullYear(),d.getMonth()+1,d.getDate());
-      days.push({
-        label:`${jm}/${jd}`,
-        income:sales.reduce((s,x)=>s+(x.total||0),0),
-        profit:sales.reduce((s,x)=>s+(x.profit||0),0),
-      });
-    }
-    return days;
-  },
-  getTopProds(n=5){
-    const map={};
-    this.getSales().forEach(s=>(s.items||[]).forEach(it=>{
-      if(!map[it.productId])map[it.productId]={name:it.name,qty:0,rev:0};
-      map[it.productId].qty+=it.qty;map[it.productId].rev+=it.qty*it.sellPrice;
-    }));
-    return Object.values(map).sort((a,b)=>b.qty-a.qty).slice(0,n);
-  }
-};
-
-// ══════════════════════════════════════════════════
-// RATE
-// ══════════════════════════════════════════════════
+// ══ RATE ══
 const Rate={
-  _rate:null,_at:0,TTL:5*60*1000,
+  _r:null,_t:0,TTL:5*60*1000,
   async fetch(){
-    try{
-      // server-side proxy via Cloudflare Function
-      const r=await fetch('/api/rate');
-      if(r.ok){const j=await r.json();if(j.rate>0){this._rate=j.rate;this._at=Date.now();Store.set('wx_rate',{rate:this._rate,at:this._at});return this._rate;}}
-    }catch{}
-    // fallback: cache
-    const c=Store.get('wx_rate');if(c?.rate){this._rate=c.rate;this._at=c.at;}
-    return this._rate;
+    try{const j=await API.get('/rate');if(j.rate>0){this._r=j.rate;this._t=Date.now();localStorage.setItem('wx_r',JSON.stringify({r:this._r,t:this._t}));return this._r;}}catch{}
+    try{const c=JSON.parse(localStorage.getItem('wx_r'));if(c?.r){this._r=c.r;this._t=c.t;}}catch{}
+    return this._r;
   },
-  async get(){if(this._rate&&Date.now()-this._at<this.TTL)return this._rate;return this.fetch()},
-  cur(){return this._rate},
-  fmt(aed){if(!this._rate||!aed)return null;return Math.round(aed*this._rate).toLocaleString('fa-IR')+' تومان'},
+  async get(){if(this._r&&Date.now()-this._t<this.TTL)return this._r;return this.fetch();},
+  cur(){return this._r;},
+  fmt(aed){if(!this._r||!aed)return null;return Math.round(aed*this._r).toLocaleString('fa-IR')+' تومان';},
 };
 
-// ══════════════════════════════════════════════════
-// SCANNER
-// ══════════════════════════════════════════════════
+// ══ SCANNER ══
 const Scanner={
-  _reader:null,_active:false,
-  async start(videoEl,cb){
-    if(typeof ZXing==='undefined'){toast('کتابخانه اسکنر لود نشد');return;}
-    if(!this._reader)this._reader=new ZXing.BrowserMultiFormatReader();
-    this._active=true;
+  _rd:null,_on:false,
+  async start(vid,cb){
+    if(typeof ZXing==='undefined'){toast('اسکنر لود نشد');return;}
+    if(!this._rd)this._rd=new ZXing.BrowserMultiFormatReader();
+    this._on=true;
     try{
       const devs=await ZXing.BrowserCodeReader.listVideoInputDevices();
-      const did=devs.find(d=>d.label.toLowerCase().includes('back')||d.label.toLowerCase().includes('rear'))?.deviceId||devs[0]?.deviceId;
-      await this._reader.decodeFromVideoDevice(did,videoEl,(res)=>{if(res&&this._active){const t=res.getText();this.stop();cb(t);}});
-    }catch(e){toast('دسترسی به دوربین رد شد');this.stop();}
+      const did=devs.find(d=>d.label.toLowerCase().includes('back'))?.deviceId||devs[0]?.deviceId;
+      await this._rd.decodeFromVideoDevice(did,vid,(res)=>{if(res&&this._on){this.stop();cb(res.getText());}});
+    }catch{toast('دسترسی به دوربین رد شد');this.stop();}
   },
-  stop(){this._active=false;try{this._reader?.reset();}catch{}}
+  stop(){this._on=false;try{this._rd?.reset();}catch{}},
 };
 
-// ══════════════════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════════════════
+// ══ UTILS ══
 const $=id=>document.getElementById(id);
 const faNum=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
 const fAED=n=>faNum(parseFloat(n||0).toFixed(2))+' درهم';
-let _toastT;
-function toast(msg,dur=2400){
-  const t=$('toast');t.textContent=msg;t.classList.remove('hidden');
-  clearTimeout(_toastT);_toastT=setTimeout(()=>t.classList.add('hidden'),dur);
-}
-function setBtn(el,on){if(!el)return;if(on){el.dataset.o=el.textContent;el.textContent='...';el.disabled=true;}else{el.textContent=el.dataset.o||el.textContent;el.disabled=false;}}
+let _tt;function toast(m,d=2400){const t=$('toast');t.textContent=m;t.classList.remove('hidden');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.add('hidden'),d);}
+function loading(el,on){if(!el)return;if(on){el.dataset.o=el.textContent;el.textContent='...';el.disabled=true;}else{el.textContent=el.dataset.o;el.disabled=false;}}
 
-// ══════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════
-let currentUser=null;
-let cart=[];
-let editProdId=null;
-let editUserId=null;
-let qtyTarget=null;
-let qtyVal=1;
-let pinInput='';
-let pinUser=null;
+// ══ STATE ══
+let currentUser=null,cart=[],editProdId=null,editUserId=null,qtyTarget=null,qtyVal=1,pinInput='',pinUser=null;
+let cachedProds=[];
 
-// ══════════════════════════════════════════════════
-// THEME
-// ══════════════════════════════════════════════════
-function initTheme(){
-  const dark=localStorage.getItem('wx_theme')==='dark'||(!localStorage.getItem('wx_theme')&&window.matchMedia('(prefers-color-scheme: dark)').matches);
-  applyTheme(dark);
-}
-function applyTheme(dark){
-  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
-  const s=$('iSun'),m=$('iMoon');
-  if(s)s.classList.toggle('hidden',dark);
-  if(m)m.classList.toggle('hidden',!dark);
-  localStorage.setItem('wx_theme',dark?'dark':'light');
-}
+// ══ THEME ══
+function initTheme(){const dark=localStorage.getItem('wx_theme')==='dark'||(!localStorage.getItem('wx_theme')&&window.matchMedia('(prefers-color-scheme: dark)').matches);applyTheme(dark);}
+function applyTheme(dark){document.documentElement.setAttribute('data-theme',dark?'dark':'light');const s=$('iSun'),m=$('iMoon');if(s)s.classList.toggle('hidden',dark);if(m)m.classList.toggle('hidden',!dark);localStorage.setItem('wx_theme',dark?'dark':'light');}
 $('darkBtn')?.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')!=='dark'));
 
-// ══════════════════════════════════════════════════
-// PIN SCREEN
-// ══════════════════════════════════════════════════
-function initPin(){
-  renderPinUsers();
+// ══ PIN ══
+async function initPin(){
+  await loadPinUsers();
   $('pinPad').addEventListener('click',e=>{
     const btn=e.target.closest('.pin-btn');if(!btn)return;
     const n=btn.dataset.n;
-    if(n==='del'){pinInput=pinInput.slice(0,-1);}
-    else if(pinInput.length<4){pinInput+=n;}
-    updatePinDots();
-    if(pinInput.length===4)checkPin();
+    if(n==='del')pinInput=pinInput.slice(0,-1);
+    else if(pinInput.length<4)pinInput+=n;
+    updateDots();
+    if(pinInput.length===4)setTimeout(checkPin,100);
   });
 }
 
-function renderPinUsers(){
-  const users=Users.load();
+async function loadPinUsers(){
+  let users=[];
+  try{const r=await API.get('/users');if(r.ok)users=r.data;}
+  catch{users=JSON.parse(localStorage.getItem('wx_users')||'[{"id":"u1","name":"MOLLAEI","role":"admin"}]');}
   const el=$('pinUsers');
-  el.innerHTML=users.map(u=>`<div class="pin-user-chip${pinUser?.id===u.id?' active':''}" data-id="${u.id}">${u.name}</div>`).join('');
+  el.innerHTML=users.map(u=>`<div class="pin-user-chip${pinUser?.id===u.id?' active':''}" data-id="${u.id}" data-name="${u.name}">${u.name}</div>`).join('');
   el.querySelectorAll('.pin-user-chip').forEach(c=>{
     c.addEventListener('click',()=>{
-      pinUser=Users.load().find(u=>u.id===c.dataset.id)||null;
-      pinInput='';
-      updatePinDots();
-      $('pinUserLabel').textContent=pinUser?`رمز ${pinUser.name} را وارد کنید`:'کاربر را انتخاب کنید';
+      pinUser={id:c.dataset.id,name:c.dataset.name};
+      pinInput='';updateDots();
+      $('pinUserLabel').textContent=`رمز ${pinUser.name} را وارد کنید`;
       $('pinError').textContent='';
-      renderPinUsers();
+      loadPinUsers();
     });
   });
-  if(!pinUser&&users.length===1){pinUser=users[0];$('pinUserLabel').textContent=`رمز ${pinUser.name} را وارد کنید`;renderPinUsers();}
+  if(!pinUser&&users.length===1){pinUser={id:users[0].id,name:users[0].name};$('pinUserLabel').textContent=`رمز ${pinUser.name} را وارد کنید`;loadPinUsers();}
 }
 
-function updatePinDots(){
-  for(let i=0;i<4;i++){
-    const d=$('d'+i);if(d)d.classList.toggle('filled',i<pinInput.length);
-  }
-}
+function updateDots(){for(let i=0;i<4;i++){const d=$('d'+i);if(d)d.classList.toggle('filled',i<pinInput.length);}}
 
-function checkPin(){
-  if(!pinUser){$('pinError').textContent='ابتدا کاربر را انتخاب کنید';pinInput='';updatePinDots();return;}
-  const enteredPin=pinInput;
-  const u=Users.verify(pinUser.name,enteredPin);
-  if(u){
-    setTimeout(()=>{
-      currentUser=u;
+async function checkPin(){
+  if(!pinUser){$('pinError').textContent='کاربر را انتخاب کنید';pinInput='';updateDots();return;}
+  try{
+    const r=await API.post('/users',{action:'login',name:pinUser.name,pin:pinInput});
+    if(r.ok&&r.user){
+      currentUser=r.user;
       $('pinScreen').style.display='none';
       $('app').classList.remove('hidden');
-      $('currentUserBadge').textContent=u.name;
+      $('currentUserBadge').textContent=currentUser.name;
       initApp();
-    },150);
-  }else{
-    $('pinError').textContent='رمز اشتباه است ❌';
-    pinInput='';
-    setTimeout(()=>{
-      updatePinDots();
-      $('pinError').textContent='';
-    },800);
-  }
+      return;
+    }
+  }catch{}
+  $('pinError').textContent='رمز اشتباه است ❌';
+  pinInput='';
+  setTimeout(()=>{updateDots();$('pinError').textContent='';},800);
 }
 
 $('logoutBtn')?.addEventListener('click',()=>{
@@ -880,88 +701,51 @@ $('logoutBtn')?.addEventListener('click',()=>{
   $('app').classList.add('hidden');
   $('pinScreen').style.display='flex';
   $('pinUserLabel').textContent='کاربر را انتخاب کنید';
-  updatePinDots();renderPinUsers();
+  updateDots();loadPinUsers();
 });
 
-// ══════════════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════════════
+// ══ NAV ══
 function nav(s){
   document.querySelectorAll('.sec').forEach(x=>x.classList.remove('active'));
   const el=$('sec-'+s);if(el)el.classList.add('active');
   document.querySelectorAll('.nb,.sb-btn').forEach(b=>b.classList.toggle('active',b.dataset.s===s));
-  if(s==='sale'){renderSaleList();renderRecentSales();}
-  if(s==='inv')renderInv();
-  if(s==='dash')renderDash();
-  if(s==='pnl')renderPnl();
-  if(s==='users')renderUsers();
+  if(s==='sale'){loadSaleProds();loadRecentSales();}
+  if(s==='inv')loadInv();
+  if(s==='dash')loadDash();
+  if(s==='pnl')loadPnl();
+  if(s==='users')loadUsers();
 }
 document.querySelectorAll('.nb,.sb-btn').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.s)));
 
-// ══════════════════════════════════════════════════
-// RATE BAR
-// ══════════════════════════════════════════════════
+// ══ RATE BAR ══
 async function initRate(){
-  $('rateVal').innerHTML='<span class="ratebar-spin">◌</span>';
+  $('rateVal').textContent='...';
   await Rate.fetch();
   updateRateBar();
 }
-function updateRateBar(){
-  const r=Rate.cur();
-  $('rateVal').textContent=r?`۱ درهم = ${Math.round(r).toLocaleString('fa-IR')} تومان`:'در دسترس نیست';
-}
-$('rateBtn')?.addEventListener('click',async()=>{
-  $('rateVal').innerHTML='<span class="ratebar-spin">◌</span>';
-  await Rate.fetch();updateRateBar();
-  renderSaleList();renderInv();toast('نرخ بروز شد ✓');
-});
+function updateRateBar(){$('rateVal').textContent=Rate.cur()?`۱ درهم = ${Math.round(Rate.cur()).toLocaleString('fa-IR')} تومان`:'در دسترس نیست';}
+$('rateBtn')?.addEventListener('click',async()=>{$('rateVal').textContent='...';await Rate.fetch();updateRateBar();renderSaleList();renderInvList();toast('نرخ بروز شد ✓');});
 
-// ══════════════════════════════════════════════════
-// SALE SECTION
-// ══════════════════════════════════════════════════
+// ══ SALE ══
 function renderCart(){
   const el=$('cartItems'),foot=$('cartFoot');
-  if(!cart.length){
-    el.innerHTML='<div class="empty"><svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" opacity=".3"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><p>سبد خالی است</p></div>';
-    foot.style.display='none';return;
-  }
+  if(!cart.length){el.innerHTML='<div class="empty"><svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" opacity=".3"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><p>سبد خالی است</p></div>';foot.style.display='none';return;}
   const total=cart.reduce((s,i)=>s+i.finalPrice,0);
-  el.innerHTML=cart.map((it,idx)=>`
-    <div class="ci">
-      <div class="ci-info">
-        <div class="ci-name">${it.name}</div>
-        <div class="ci-det">${faNum(it.qty)} عدد × ${fAED(it.sellPrice)}${it.discount>0?` − ${fAED(it.discount)} تخفیف`:''}</div>
-      </div>
-      <div class="ci-right">
-        <div class="ci-price">${fAED(it.finalPrice)}</div>
-        ${Rate.fmt(it.finalPrice)?`<div class="toman">${Rate.fmt(it.finalPrice)}</div>`:''}
-      </div>
-      <button class="ci-rm" data-i="${idx}">×</button>
-    </div>`).join('');
-  $('cartTotal').textContent=fAED(total);
-  $('cartTotalT').textContent=Rate.fmt(total)||'';
+  el.innerHTML=cart.map((it,idx)=>`<div class="ci"><div class="ci-info"><div class="ci-name">${it.name}</div><div class="ci-det">${faNum(it.qty)} × ${fAED(it.sellPrice)}${it.discount>0?` − ${fAED(it.discount)} تخفیف`:''}</div></div><div class="ci-right"><div class="ci-price">${fAED(it.finalPrice)}</div>${Rate.fmt(it.finalPrice)?`<div class="toman">${Rate.fmt(it.finalPrice)}</div>`:''}</div><button class="ci-rm" data-i="${idx}">×</button></div>`).join('');
+  $('cartTotal').textContent=fAED(total);$('cartTotalT').textContent=Rate.fmt(total)||'';
   foot.style.display='block';
   el.querySelectorAll('.ci-rm').forEach(b=>b.addEventListener('click',()=>{cart.splice(+b.dataset.i,1);renderCart();}));
 }
 
+async function loadSaleProds(){
+  if(!cachedProds.length){try{const r=await API.get('/products');if(r.ok)cachedProds=r.data;}catch{}}
+  renderSaleList();
+}
 function renderSaleList(){
-  const el=$('saleList');
-  const prods=DB.getProds();
-  const q=$('saleSearch').value.toLowerCase();
-  const filtered=q?prods.filter(p=>p.name?.toLowerCase().includes(q)||p.barcode?.includes(q)||p.brand?.toLowerCase().includes(q)):prods;
-  if(!filtered.length){el.innerHTML='<div class="empty"><p>'+(q?'محصولی یافت نشد':'انبار خالی است')+'</p></div>';return;}
-  el.innerHTML=filtered.map(p=>`
-    <div class="prow${(p.qty||0)<1?' out-stock':''}" data-id="${p.id}">
-      <div class="prow-i">
-        <div class="prow-n">${p.name}</div>
-        <div class="prow-b">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>
-      </div>
-      <div class="prow-right">
-        <div class="prow-p">${fAED(p.sellPrice)}</div>
-        ${Rate.fmt(p.sellPrice)?`<div class="prow-t">${Rate.fmt(p.sellPrice)}</div>`:''}
-        <div class="prow-s">موجودی: ${faNum(p.qty||0)}</div>
-      </div>
-    </div>`).join('');
+  const el=$('saleList');const q=$('saleSearch').value.toLowerCase();
+  const list=q?cachedProds.filter(p=>p.name?.toLowerCase().includes(q)||p.barcode?.includes(q)):cachedProds;
+  if(!list.length){el.innerHTML=`<div class="empty"><p>${q?'یافت نشد':'انبار خالی'}</p></div>`;return;}
+  el.innerHTML=list.map(p=>{const sp=p.sell_price||p.sellPrice||0;const qty=p.qty||0;return`<div class="prow${qty<1?' out-stock':''}" data-id="${p.id}"><div class="prow-i"><div class="prow-n">${p.name}</div><div class="prow-b">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div></div><div class="prow-right"><div class="prow-p">${fAED(sp)}</div>${Rate.fmt(sp)?`<div class="prow-t">${Rate.fmt(sp)}</div>`:''}<div class="prow-s">موجودی: ${faNum(qty)}</div></div></div>`;}).join('');
   el.querySelectorAll('.prow:not(.out-stock)').forEach(r=>r.addEventListener('click',()=>openQtyModal(r.dataset.id)));
 }
 
@@ -969,129 +753,111 @@ $('saleSearch').addEventListener('input',renderSaleList);
 $('newSaleBtn').addEventListener('click',()=>{cart=[];renderCart();});
 $('clearCart').addEventListener('click',()=>{cart=[];renderCart();});
 
-// Sale barcode scan
 $('saleScanBtn').addEventListener('click',()=>{
   $('saleScanCard').style.display='block';
   Scanner.start($('saleScanVideo'),code=>{
     $('saleScanCard').style.display='none';
-    const p=DB.getProdByBarcode(code);
-    if(p&&p.qty>0)openQtyModal(p.id);
-    else if(p)toast('موجودی این محصول صفر است');
-    else toast('محصول با این بارکد یافت نشد: '+code);
+    const p=cachedProds.find(x=>x.barcode===code);
+    if(p&&(p.qty||0)>0)openQtyModal(p.id);
+    else if(p)toast('موجودی صفر است');
+    else toast('بارکد یافت نشد: '+code);
   });
 });
 $('closeSaleScan').addEventListener('click',()=>{Scanner.stop();$('saleScanCard').style.display='none';});
 
-$('confirmSale').addEventListener('click',()=>{
+$('confirmSale').addEventListener('click',async()=>{
   if(!cart.length)return;
-  const total=cart.reduce((s,i)=>s+i.finalPrice,0);
-  const cost=cart.reduce((s,i)=>s+i.qty*(i.buyPrice||0),0);
-  DB.addSale({items:cart,total,cost,profit:total-cost,user:currentUser?.name});
-  toast('فروش ثبت شد ✓');cart=[];renderCart();renderSaleList();renderRecentSales();
+  const btn=$('confirmSale');loading(btn,true);
+  try{
+    const total=cart.reduce((s,i)=>s+i.finalPrice,0);
+    const cost=cart.reduce((s,i)=>s+i.qty*(i.buyPrice||i.buy_price||0),0);
+    const r=await API.post('/sales',{items:cart,total,cost,dateJ:jalaliNow(),user:currentUser?.name});
+    if(r.ok){toast('فروش ثبت شد ✓');cart=[];renderCart();cachedProds=[];await loadSaleProds();await loadRecentSales();}
+    else toast('خطا: '+r.error);
+  }catch(e){toast('خطا: '+e.message);}
+  loading(btn,false);
 });
 
-function renderRecentSales(){
-  const sales=DB.getSales().slice(0,8);
+async function loadRecentSales(){
   const el=$('recentSales');
-  if(!sales.length){el.innerHTML='<div class="empty"><p>فروشی ثبت نشده</p></div>';return;}
-  el.innerHTML=sales.map(s=>`
-    <div class="se">
-      <div class="se-ico">🧴</div>
-      <div class="se-i">
-        <div class="se-n">${(s.items||[]).map(i=>i.name).join('، ')||'فروش'}</div>
-        <div class="se-t">${s.dateJ||jalaliFromTs(s.createdAt)}</div>
-      </div>
-      <div class="se-r">
-        <div class="se-a">${fAED(s.total)}</div>
-        ${Rate.fmt(s.total)?`<div class="toman">${Rate.fmt(s.total)}</div>`:''}
-      </div>
-    </div>`).join('');
+  try{
+    const r=await API.get('/sales?period=month');
+    if(!r.ok||!r.data.length){el.innerHTML='<div class="empty"><p>فروشی ثبت نشده</p></div>';return;}
+    el.innerHTML=r.data.slice(0,8).map(s=>`<div class="se"><div class="se-ico">🧴</div><div class="se-i"><div class="se-n">${(s.items||[]).map(i=>i.name).join('، ')||'فروش'}</div><div class="se-t">${s.date_j||s.dateJ||jalaliFromTs(s.created_at)}</div></div><div class="se-r"><div class="se-a">${fAED(s.total)}</div>${Rate.fmt(s.total)?`<div class="toman">${Rate.fmt(s.total)}</div>`:''}</div></div>`).join('');
+  }catch{el.innerHTML='<div class="empty"><p>خطا در بارگذاری</p></div>';}
 }
 
 // ── QTY MODAL ──
 function openQtyModal(id){
-  const p=DB.getProd(id);if(!p)return;
+  const p=cachedProds.find(x=>x.id===id);if(!p)return;
   qtyTarget=p;qtyVal=1;
-  $('mQtyName').textContent=p.name;
-  $('qDisc').value='0';
-  updateQtyDisplay();
-  $('mQty').classList.remove('hidden');
+  $('mQtyName').textContent=p.name;$('qDisc').value='0';
+  updQty();$('mQty').classList.remove('hidden');
 }
-function updateQtyDisplay(){
+function updQty(){
   const p=qtyTarget;if(!p)return;
+  const sp=p.sell_price||p.sellPrice||0;
   const disc=parseFloat($('qDisc').value)||0;
-  const total=Math.max(0,qtyVal*p.sellPrice-disc);
-  $('qVal').textContent=faNum(qtyVal);
-  $('qTotal').textContent=fAED(total);
-  $('qTotalT').textContent=Rate.fmt(total)||'';
+  const tot=Math.max(0,qtyVal*sp-disc);
+  $('qVal').textContent=faNum(qtyVal);$('qTotal').textContent=fAED(tot);$('qTotalT').textContent=Rate.fmt(tot)||'';
 }
-$('qMinus').addEventListener('click',()=>{if(qtyVal>1){qtyVal--;updateQtyDisplay();}});
-$('qPlus').addEventListener('click',()=>{if(qtyVal<(qtyTarget?.qty||1)){qtyVal++;updateQtyDisplay();}else toast('بیش از موجودی نمی‌توان انتخاب کرد');});
-$('qDisc').addEventListener('input',updateQtyDisplay);
+$('qMinus').addEventListener('click',()=>{if(qtyVal>1){qtyVal--;updQty();}});
+$('qPlus').addEventListener('click',()=>{if(qtyVal<(qtyTarget?.qty||1)){qtyVal++;updQty();}else toast('بیش از موجودی');});
+$('qDisc').addEventListener('input',updQty);
 $('mQtyAdd').addEventListener('click',()=>{
   const p=qtyTarget;if(!p)return;
+  const sp=p.sell_price||p.sellPrice||0;const bp=p.buy_price||p.buyPrice||0;
   const disc=parseFloat($('qDisc').value)||0;
-  const finalPrice=Math.max(0,qtyVal*p.sellPrice-disc);
+  const finalPrice=Math.max(0,qtyVal*sp-disc);
   const ex=cart.find(i=>i.productId===p.id);
-  if(ex){ex.qty+=qtyVal;ex.discount=(ex.discount||0)+disc;ex.finalPrice=Math.max(0,ex.qty*p.sellPrice-ex.discount);}
-  else cart.push({productId:p.id,name:p.name,qty:qtyVal,sellPrice:p.sellPrice,buyPrice:p.buyPrice||0,discount:disc,finalPrice});
-  $('mQty').classList.add('hidden');
-  renderCart();toast(`${p.name} به سبد اضافه شد`);
+  if(ex){ex.qty+=qtyVal;ex.discount=(ex.discount||0)+disc;ex.finalPrice=Math.max(0,ex.qty*sp-ex.discount);}
+  else cart.push({productId:p.id,name:p.name,qty:qtyVal,sellPrice:sp,buyPrice:bp,buy_price:bp,discount:disc,finalPrice});
+  $('mQty').classList.add('hidden');renderCart();toast(`${p.name} اضافه شد`);
 });
 $('mQtyCancel').addEventListener('click',()=>$('mQty').classList.add('hidden'));
 $('mQtyClose').addEventListener('click',()=>$('mQty').classList.add('hidden'));
 $('mQty').addEventListener('click',e=>{if(e.target===$('mQty'))$('mQty').classList.add('hidden');});
 
-// ══════════════════════════════════════════════════
-// INVENTORY
-// ══════════════════════════════════════════════════
-function renderInv(){
-  const prods=DB.getProds();
-  const q=$('invSearch').value.toLowerCase();
-  const filtered=q?prods.filter(p=>p.name?.toLowerCase().includes(q)||p.barcode?.includes(q)||p.brand?.toLowerCase().includes(q)):prods;
-  const totalQty=prods.reduce((s,p)=>s+(p.qty||0),0);
-  const lowStock=prods.filter(p=>(p.qty||0)>0&&(p.qty||0)<=3).length;
-  $('stTotal').textContent=faNum(prods.length);
-  $('stQty').textContent=faNum(totalQty);
-  $('stLow').textContent=faNum(lowStock);
+// ══ INVENTORY ══
+async function loadInv(){
+  const el=$('invList');el.innerHTML='<div class="card"><div class="empty"><p>در حال بارگذاری...</p></div></div>';
+  try{
+    const r=await API.get('/products');
+    if(r.ok){cachedProds=r.data;renderInvList();}
+    else el.innerHTML='<div class="card"><div class="empty"><p>خطا در بارگذاری</p></div></div>';
+  }catch{el.innerHTML='<div class="card"><div class="empty"><p>خطا در اتصال</p></div></div>';}
+}
+function renderInvList(){
+  const prods=cachedProds;const q=$('invSearch').value.toLowerCase();
+  const list=q?prods.filter(p=>p.name?.toLowerCase().includes(q)||p.barcode?.includes(q)):prods;
+  const tQty=prods.reduce((s,p)=>s+(p.qty||0),0);
+  const low=prods.filter(p=>(p.qty||0)>0&&(p.qty||0)<=3).length;
+  $('stTotal').textContent=faNum(prods.length);$('stQty').textContent=faNum(tQty);$('stLow').textContent=faNum(low);
   const el=$('invList');
-  if(!filtered.length){el.innerHTML='<div class="card"><div class="empty"><p>'+(q?'یافت نشد':'انبار خالی است')+'</p></div></div>';return;}
-  el.innerHTML=filtered.map(p=>{
-    const isLow=(p.qty||0)>0&&(p.qty||0)<=3;
-    const isEmpty=(p.qty||0)===0;
-    const sb=isEmpty?'<span class="bdg b-low">ناموجود</span>':isLow?`<span class="bdg b-low">کم‌موجود: ${faNum(p.qty)}</span>`:`<span class="bdg b-s">موجودی: ${faNum(p.qty)}</span>`;
-    const tb=Rate.fmt(p.sellPrice)?`<span class="bdg b-t">≈ ${Rate.fmt(p.sellPrice)}</span>`:'';
-    return `<div class="inv-item">
-      <div class="inv-main">
-        <div class="inv-name">${p.name}</div>
-        <div class="inv-brand">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>
-        ${p.barcode?`<div class="inv-bc">${p.barcode}</div>`:''}
-        <div class="inv-meta">
-          <span class="bdg b-p">خرید: ${fAED(p.buyPrice)} | فروش: ${fAED(p.sellPrice)}</span>
-          ${tb}${sb}
-        </div>
-      </div>
-      <div class="inv-acts">
-        <button class="ic-ed" data-id="${p.id}"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="ic-dl" data-id="${p.id}"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
-      </div>
-    </div>`;
+  if(!list.length){el.innerHTML=`<div class="card"><div class="empty"><p>${q?'یافت نشد':'انبار خالی'}</p></div></div>`;return;}
+  el.innerHTML=list.map(p=>{
+    const sp=p.sell_price||p.sellPrice||0,bp=p.buy_price||p.buyPrice||0,qty=p.qty||0;
+    const isLow=qty>0&&qty<=3,isEmpty=qty===0;
+    const sb=isEmpty?'<span class="bdg b-low">ناموجود</span>':isLow?`<span class="bdg b-low">کم‌موجود: ${faNum(qty)}</span>`:`<span class="bdg b-s">موجودی: ${faNum(qty)}</span>`;
+    const tb=Rate.fmt(sp)?`<span class="bdg b-t">≈ ${Rate.fmt(sp)}</span>`:'';
+    return `<div class="inv-item"><div class="inv-main"><div class="inv-name">${p.name}</div><div class="inv-brand">${p.brand||''}${p.volume?` · ${p.volume}ml`:''}</div>${p.barcode?`<div class="inv-bc">${p.barcode}</div>`:''}<div class="inv-meta"><span class="bdg b-p">خرید: ${fAED(bp)} | فروش: ${fAED(sp)}</span>${tb}${sb}</div></div><div class="inv-acts"><button class="ic-ed" data-id="${p.id}">✏️</button><button class="ic-dl" data-id="${p.id}">🗑</button></div></div>`;
   }).join('');
   el.querySelectorAll('.ic-ed').forEach(b=>b.addEventListener('click',()=>openProdModal(b.dataset.id)));
-  el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',()=>{if(confirm('حذف شود؟')){DB.delProd(b.dataset.id);renderInv();toast('محصول حذف شد');}}));
+  el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',async()=>{
+    if(!confirm('حذف شود؟'))return;
+    try{await API.del('/products',{id:b.dataset.id});cachedProds=[];await loadInv();toast('حذف شد');}
+    catch(e){toast('خطا: '+e.message);}
+  }));
 }
-$('invSearch').addEventListener('input',renderInv);
+$('invSearch').addEventListener('input',renderInvList);
 $('addProdBtn').addEventListener('click',()=>openProdModal());
 
-// Inv barcode scan
 $('invScanBtn').addEventListener('click',()=>{
-  $('invScanCard').style.display='block';
-  $('mProd').classList.add('hidden');
+  $('invScanCard').style.display='block';$('mProd').classList.add('hidden');
   Scanner.start($('invScanVideo'),code=>{
     $('invScanCard').style.display='none';
-    const p=DB.getProdByBarcode(code);
-    if(p)openProdModal(p.id);
-    else{openProdModal();$('fBarcode').value=code;}
+    const p=cachedProds.find(x=>x.barcode===code);
+    if(p)openProdModal(p.id);else{openProdModal();$('fBarcode').value=code;}
     toast('بارکد: '+code);
   });
 });
@@ -1099,148 +865,129 @@ $('closeInvScan').addEventListener('click',()=>{Scanner.stop();$('invScanCard').
 
 function openProdModal(id=null){
   editProdId=id;
-  const p=id?DB.getProd(id):null;
-  $('mProdTitle').textContent=id?'ویرایش محصول':'افزودن محصول';
+  const p=id?cachedProds.find(x=>x.id===id):null;
+  $('mProdTitle').textContent=id?'ویرایش':'افزودن محصول';
   $('fBarcode').value=p?.barcode||'';$('fName').value=p?.name||'';$('fBrand').value=p?.brand||'';
-  $('fBuy').value=p?.buyPrice||'';$('fSell').value=p?.sellPrice||'';$('fQty').value=p?.qty||'';
-  $('fVol').value=p?.volume||'';$('fDesc').value=p?.desc||'';
-  updateSellT();
-  $('mProd').classList.remove('hidden');
+  $('fBuy').value=p?.buy_price||p?.buyPrice||'';$('fSell').value=p?.sell_price||p?.sellPrice||'';
+  $('fQty').value=p?.qty||'';$('fVol').value=p?.volume||'';$('fDesc').value=p?.description||p?.desc||'';
+  updSellT();$('mProd').classList.remove('hidden');
 }
-function updateSellT(){const v=parseFloat($('fSell').value);$('fSellT').textContent=v>0?(Rate.fmt(v)||''):''}
-$('fSell').addEventListener('input',updateSellT);
-$('mProdSave').addEventListener('click',()=>{
+function updSellT(){const v=parseFloat($('fSell').value);$('fSellT').textContent=v>0?(Rate.fmt(v)||''):''}
+$('fSell').addEventListener('input',updSellT);
+$('mProdSave').addEventListener('click',async()=>{
   const name=$('fName').value.trim();if(!name){toast('نام را وارد کنید');return;}
   const sell=parseFloat($('fSell').value);if(!sell||sell<=0){toast('قیمت فروش را وارد کنید');return;}
-  const data={id:editProdId||undefined,barcode:$('fBarcode').value.trim(),name,brand:$('fBrand').value.trim(),
-    buyPrice:parseFloat($('fBuy').value)||0,sellPrice:sell,qty:parseInt($('fQty').value)||0,
-    volume:parseInt($('fVol').value)||0,desc:$('fDesc').value.trim()};
-  if(!data.id)delete data.id;
-  DB.saveProd(data);
-  $('mProd').classList.add('hidden');
-  renderInv();renderSaleList();
-  toast(editProdId?'محصول ویرایش شد ✓':'محصول اضافه شد ✓');
+  const data={barcode:$('fBarcode').value.trim(),name,brand:$('fBrand').value.trim(),buyPrice:parseFloat($('fBuy').value)||0,sellPrice:sell,qty:parseInt($('fQty').value)||0,volume:parseInt($('fVol').value)||0,desc:$('fDesc').value.trim()};
+  const btn=$('mProdSave');loading(btn,true);
+  try{
+    let r;
+    if(editProdId)r=await API.put('/products',{...data,id:editProdId});
+    else r=await API.post('/products',data);
+    if(r.ok){$('mProd').classList.add('hidden');cachedProds=[];await loadInv();renderSaleList();toast(editProdId?'ویرایش شد ✓':'اضافه شد ✓');}
+    else toast('خطا: '+r.error);
+  }catch(e){toast('خطا: '+e.message);}
+  loading(btn,false);
 });
 $('mProdCancel').addEventListener('click',()=>$('mProd').classList.add('hidden'));
 $('mProdClose').addEventListener('click',()=>$('mProd').classList.add('hidden'));
 $('mProd').addEventListener('click',e=>{if(e.target===$('mProd'))$('mProd').classList.add('hidden');});
 
-// ══════════════════════════════════════════════════
-// DASHBOARD
-// ══════════════════════════════════════════════════
-function renderDash(){
-  const today=DB.getStats('today');
-  const month=DB.getStats('month');
-  $('dToday').textContent=faNum(today.income.toFixed(2));$('dTodayT').textContent=Rate.fmt(today.income)||'';
-  $('dMonth').textContent=faNum(month.income.toFixed(2));$('dMonthT').textContent=Rate.fmt(month.income)||'';
-  $('dProfit').textContent=faNum(month.profit.toFixed(2));$('dProfitT').textContent=Rate.fmt(month.profit)||'';
-  $('dCount').textContent=faNum(month.count);
-  const tops=DB.getTopProds();
-  const el=$('topProds');
-  if(!tops.length){el.innerHTML='<div class="empty"><p>فروشی ثبت نشده</p></div>';return;}
-  el.innerHTML=tops.map((t,i)=>`<div class="top-i"><div class="top-r">${faNum(i+1)}</div><div style="flex:1"><div class="top-n">${t.name}</div><div class="top-q">${faNum(t.qty)} عدد</div></div><div class="top-v">${fAED(t.rev)}</div></div>`).join('');
+// ══ DASHBOARD ══
+async function loadDash(){
+  try{
+    const r=await API.get('/stats?period=month');const rt=await API.get('/stats?period=today');
+    if(r.ok){
+      const d=r.data,td=rt.data;
+      $('dToday').textContent=faNum((td.income||0).toFixed(2));$('dTodayT').textContent=Rate.fmt(td.income)||'';
+      $('dMonth').textContent=faNum((d.income||0).toFixed(2));$('dMonthT').textContent=Rate.fmt(d.income)||'';
+      $('dProfit').textContent=faNum((d.profit||0).toFixed(2));$('dProfitT').textContent=Rate.fmt(d.profit)||'';
+      $('dCount').textContent=faNum(d.count||0);
+      const tops=d.tops||[];const el=$('topProds');
+      if(!tops.length){el.innerHTML='<div class="empty"><p>فروشی ثبت نشده</p></div>';return;}
+      el.innerHTML=tops.map((t,i)=>`<div class="top-i"><div class="top-r">${faNum(i+1)}</div><div style="flex:1"><div class="top-n">${t.name}</div><div class="top-q">${faNum(t.total_qty)} عدد</div></div><div class="top-v">${fAED(t.revenue)}</div></div>`).join('');
+    }
+  }catch(e){toast('خطا در بارگذاری داشبورد');}
 }
 
-// ══════════════════════════════════════════════════
-// P&L + CHART
-// ══════════════════════════════════════════════════
-function renderPnl(){
+// ══ P&L ══
+async function loadPnl(){
   const period=$('pnlPeriod').value;
-  const st=DB.getStats(period);
-  $('pIncome').textContent=faNum(st.income.toFixed(2));$('pIncomeT').textContent=Rate.fmt(st.income)||'';
-  $('pCost').textContent=faNum(st.cost.toFixed(2));
-  $('pNet').textContent=faNum(Math.abs(st.profit).toFixed(2));$('pNetT').textContent=Rate.fmt(Math.abs(st.profit))||'';
-  const nc=$('pnlNet');
-  if(st.profit>=0){nc.style.background='';nc.style.borderColor='';$('pNet').style.color='';}
-  else{nc.style.background='#fef2f2';nc.style.borderColor='#fca5a5';$('pNet').style.color='var(--err)';}
-  renderChart();
-  // TX list
-  const txEl=$('txList');
-  if(!st.sales.length){txEl.innerHTML='<div class="empty"><p>تراکنشی وجود ندارد</p></div>';return;}
-  txEl.innerHTML=st.sales.map(s=>`<div class="txr"><div class="txd s"></div><div class="tx-i"><div class="tx-n">${(s.items||[]).map(i=>i.name).join('، ')||'فروش'}</div><div class="tx-t">${s.dateJ||jalaliFromTs(s.createdAt)}</div></div><div><div class="tx-a pos">+${fAED(s.total)}</div><div style="font-size:.64rem;color:var(--t3)">سود: ${fAED(s.profit)}</div></div></div>`).join('');
+  try{
+    const r=await API.get(`/stats?period=${period}`);
+    if(r.ok){
+      const d=r.data;
+      $('pIncome').textContent=faNum((d.income||0).toFixed(2));$('pIncomeT').textContent=Rate.fmt(d.income)||'';
+      $('pCost').textContent=faNum((d.cost||0).toFixed(2));
+      $('pNet').textContent=faNum(Math.abs(d.profit||0).toFixed(2));$('pNetT').textContent=Rate.fmt(Math.abs(d.profit||0))||'';
+      const nc=$('pnlNet');
+      if((d.profit||0)>=0){nc.style.background='';nc.style.borderColor='';$('pNet').style.color='';}
+      else{nc.style.background='#fef2f2';nc.style.borderColor='#fca5a5';$('pNet').style.color='var(--err)';}
+      renderChart(d.days||[]);
+      const sr=await API.get(`/sales?period=${period}`);
+      const txEl=$('txList');
+      if(sr.ok&&sr.data.length)txEl.innerHTML=sr.data.map(s=>`<div class="txr"><div class="txd s"></div><div class="tx-i"><div class="tx-n">${(s.items||[]).map(i=>i.name).join('، ')||'فروش'}</div><div class="tx-t">${s.date_j||jalaliFromTs(s.created_at)}</div></div><div><div class="tx-a pos">+${fAED(s.total)}</div><div style="font-size:.64rem;color:var(--t3)">سود: ${fAED(s.profit)}</div></div></div>`).join('');
+      else txEl.innerHTML='<div class="empty"><p>تراکنشی وجود ندارد</p></div>';
+    }
+  }catch(e){toast('خطا در بارگذاری');}
 }
-$('pnlPeriod').addEventListener('change',renderPnl);
+$('pnlPeriod').addEventListener('change',loadPnl);
 
-function renderChart(){
-  const days=DB.getWeeklyChart();
-  const maxVal=Math.max(...days.map(d=>Math.max(d.income,d.profit)),1);
-  const el=$('chartBars');
-  el.innerHTML=days.map(d=>`
-    <div class="bar-col">
-      <div style="display:flex;gap:2px;align-items:flex-end;width:100%">
-        <div class="bar income-bar" style="height:${Math.round(d.income/maxVal*100)}px;flex:1" title="درآمد: ${fAED(d.income)}"></div>
-        <div class="bar profit-bar" style="height:${Math.round(Math.max(0,d.profit)/maxVal*100)}px;flex:1" title="سود: ${fAED(d.profit)}"></div>
-      </div>
-      <div class="bar-lbl">${d.label}</div>
-    </div>`).join('');
+function renderChart(days){
+  const maxV=Math.max(...days.map(d=>Math.max(d.income||0,d.profit||0)),1);
+  $('chartBars').innerHTML=days.map(d=>`<div class="bar-col"><div style="display:flex;gap:2px;align-items:flex-end;width:100%"><div class="bar income-bar" style="height:${Math.round((d.income||0)/maxV*100)}px;flex:1"></div><div class="bar profit-bar" style="height:${Math.round(Math.max(0,d.profit||0)/maxV*100)}px;flex:1"></div></div><div class="bar-lbl">${d.label}</div></div>`).join('');
 }
 
-// ══════════════════════════════════════════════════
-// USERS
-// ══════════════════════════════════════════════════
-function renderUsers(){
-  const users=Users.load();
+// ══ USERS ══
+async function loadUsers(){
   const el=$('userList');
-  el.innerHTML=users.map(u=>`
-    <div class="user-item">
-      <div class="user-avatar">${u.name.charAt(0)}</div>
-      <div class="user-info"><div class="user-name">${u.name}</div><div class="user-role">${u.role==='admin'?'مدیر':'کاربر'}</div></div>
-      <div class="user-acts">
-        <button class="ic-ed" data-id="${u.id}" title="تغییر رمز"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></button>
-        ${u.id!=='u1'?`<button class="ic-dl" data-id="${u.id}" title="حذف"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>`:''}
-      </div>
-    </div>`).join('');
-  el.querySelectorAll('.ic-ed').forEach(b=>b.addEventListener('click',()=>openUserModal(b.dataset.id)));
-  el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',()=>{if(confirm('حذف شود؟')){Users.delete(b.dataset.id);renderUsers();toast('کاربر حذف شد');}}));
+  try{
+    const r=await API.get('/users');
+    if(!r.ok||!r.data.length){el.innerHTML='<div class="card"><div class="empty"><p>خطا</p></div></div>';return;}
+    el.innerHTML=r.data.map(u=>`<div class="user-item"><div class="user-avatar">${u.name.charAt(0)}</div><div class="user-info"><div class="user-name">${u.name}</div><div class="user-role">${u.role==='admin'?'مدیر':'کاربر'}</div></div><div class="user-acts"><button class="ic-ed" data-id="${u.id}" data-name="${u.name}">🔑</button>${u.role!=='admin'?`<button class="ic-dl" data-id="${u.id}">🗑</button>`:''}</div></div>`).join('');
+    el.querySelectorAll('.ic-ed').forEach(b=>b.addEventListener('click',()=>openUserModal(b.dataset.id,b.dataset.name)));
+    el.querySelectorAll('.ic-dl').forEach(b=>b.addEventListener('click',async()=>{
+      if(!confirm('حذف شود؟'))return;
+      try{await API.del('/users',{id:b.dataset.id});await loadUsers();await loadPinUsers();toast('حذف شد');}
+      catch(e){toast('خطا: '+e.message);}
+    }));
+  }catch{el.innerHTML='<div class="card"><div class="empty"><p>خطا در اتصال</p></div></div>';}
 }
 
 $('addUserBtn').addEventListener('click',()=>openUserModal());
-function openUserModal(id=null){
+function openUserModal(id=null,name=null){
   editUserId=id;
-  const u=id?Users.load().find(x=>x.id===id):null;
-  $('mUserTitle').textContent=id?`تغییر رمز ${u?.name||''}`:'کاربر جدید';
-  $('uName').value=u?.name||'';$('uName').disabled=!!id;
+  $('mUserTitle').textContent=id?`تغییر رمز ${name||''}`:'کاربر جدید';
+  $('uName').value=name||'';$('uName').disabled=!!id;
   $('uPin').value='';$('uPin2').value='';
   $('mUser').classList.remove('hidden');
 }
-$('mUserSave').addEventListener('click',()=>{
-  const pin=$('uPin').value.trim();
-  const pin2=$('uPin2').value.trim();
+$('mUserSave').addEventListener('click',async()=>{
+  const pin=$('uPin').value.trim(),pin2=$('uPin2').value.trim();
   if(pin.length!==4||!/^\d{4}$/.test(pin)){toast('رمز باید ۴ رقم عددی باشد');return;}
   if(pin!==pin2){toast('رمزها یکسان نیستند');return;}
-  if(editUserId){Users.changePin(editUserId,pin);toast('رمز تغییر کرد ✓');}
-  else{
-    const name=$('uName').value.trim().toUpperCase();
-    if(!name){toast('نام کاربر را وارد کنید');return;}
-    Users.add(name,pin);toast('کاربر اضافه شد ✓');
-  }
-  $('mUser').classList.add('hidden');
-  renderUsers();renderPinUsers();
+  try{
+    let r;
+    if(editUserId)r=await API.put('/users',{id:editUserId,pin});
+    else{const name=$('uName').value.trim().toUpperCase();if(!name){toast('نام را وارد کنید');return;}r=await API.post('/users',{name,pin});}
+    if(r.ok){$('mUser').classList.add('hidden');await loadUsers();await loadPinUsers();toast('ذخیره شد ✓');}
+    else toast('خطا: '+r.error);
+  }catch(e){toast('خطا: '+e.message);}
 });
 $('mUserCancel').addEventListener('click',()=>$('mUser').classList.add('hidden'));
 $('mUserClose').addEventListener('click',()=>$('mUser').classList.add('hidden'));
 $('mUser').addEventListener('click',e=>{if(e.target===$('mUser'))$('mUser').classList.add('hidden');});
 
-// ══════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════
-function initApp(){
-  initRate();
+// ══ INIT ══
+async function initApp(){
+  await initRate();
   renderCart();
-  renderSaleList();
-  renderRecentSales();
+  await loadSaleProds();
+  await loadRecentSales();
 }
 
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded',async()=>{
   initTheme();
-  initPin();
-  // Auto select اگر فقط یک کاربر هست
-  const users=Users.load();
-  if(users.length===1&&!pinUser){
-    pinUser=users[0];
-    $('pinUserLabel').textContent=`رمز ${pinUser.name} را وارد کنید`;
-    renderPinUsers();
-  }
+  await initPin();
 });
 </script>
 <script>
