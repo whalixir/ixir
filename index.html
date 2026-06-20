@@ -908,10 +908,11 @@ const API={
 // ══ RATE از TGJU ══
 const Rate={
   _r:null,_t:0,_fresh:true,TTL:3*60*1000,
-  async fetch(){
+  async fetch(force){
     // اول از API خودمان بگیر (Cloudflare Function که CORS ندارد)
     try{
-      const r=await fetch('/api/rate',{cache:'no-store'});
+      const url=force?'/api/rate?refresh=1':'/api/rate';
+      const r=await fetch(url,{cache:'no-store'});
       if(r.ok){
         const j=await r.json();
         if(j.rate&&j.rate>1000){
@@ -1156,7 +1157,7 @@ function updateRateBar(){
 }
 $('rateBtn')?.addEventListener('click',async()=>{
   $('rateVal').textContent='...';
-  await Rate.fetch();
+  await Rate.fetch(true);
   updateRateBar();
   renderSaleList();
   renderInvList();
@@ -2056,8 +2057,8 @@ function startAutoRate(){
       }
     }catch{}
   }
-  // هر ۳۰ ثانیه
-  setInterval(doUpdate, 30*1000);
+  // هر ساعت یک‌بار چک کن (خود سرور نرخ را روزی یک‌بار از TGJU می‌گیرد)
+  setInterval(doUpdate, 60*60*1000);
   // بعد از ۳ ثانیه اول
   setTimeout(doUpdate, 3000);
 }
