@@ -499,9 +499,13 @@ select.inp{cursor:pointer}
   -webkit-backdrop-filter:blur(20px);
   border-top:1px solid var(--nav-brd);
   box-shadow:0 -2px 16px rgba(0,0,0,.1);
-  /* آیفون: دکمه‌ها 54px + home indicator */
+  /* آیفون: دکمه‌ها 54px + home indicator + 1cm فاصله اضافه */
   display:grid;
   grid-template-rows:54px env(safe-area-inset-bottom,0px);
+  transform:translateY(38px);
+}
+@media(min-width:768px){
+  .bottomnav{transform:none}
 }
 .nb-row{
   display:flex;
