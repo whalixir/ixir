@@ -680,6 +680,11 @@ select.inp{cursor:pointer}
                 <button class="pay-btn" data-pay="cash">💵 نقدی</button>
                 <button class="pay-btn" data-pay="pos">🖨 کارتخوان</button>
               </div>
+              <!-- چک‌باکس صدور فاکتور -->
+              <label style="display:flex;align-items:center;gap:8px;margin:10px 0;cursor:pointer;font-size:.82rem;color:var(--t2)">
+                <input type="checkbox" id="wantInvoice" style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+                <span>صدور و ارسال فاکتور</span>
+              </label>
               <!-- swipe برای تایید -->
               <div class="swipe-confirm" id="swipeConfirm">
                 <div class="swipe-track">
@@ -1386,7 +1391,10 @@ async function doConfirmSale(){
       cachedProds=[];
       await loadSaleProds();
       await loadRecentSales();
-      generateAndShareInvoice(invoiceData);
+      if($('wantInvoice')?.checked){
+        generateAndShareInvoice(invoiceData);
+        $('wantInvoice').checked=false;
+      }
     }else{
       toast('خطا: '+(r.error||'نامشخص'));
       resetSwipe();
@@ -1416,7 +1424,7 @@ async function generateAndShareInvoice(data){
       </tr>`).join('');
 
     const wrap=document.createElement('div');
-    wrap.style.cssText='position:fixed;top:-9999px;left:-9999px;width:380px;background:#fff;font-family:Vazirmatn,sans-serif;direction:rtl;color:#1c1917;padding:24px;box-sizing:border-box;';
+    wrap.style.cssText='position:fixed;top:-9999px;left:-9999px;width:380px;height:auto;background:#fff;font-family:Vazirmatn,sans-serif;direction:rtl;color:#1c1917;padding:24px;box-sizing:border-box;';
     wrap.innerHTML=`
       <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #1a56db;padding-bottom:14px;margin-bottom:16px">
         <div>
@@ -1446,14 +1454,21 @@ async function generateAndShareInvoice(data){
       <div style="text-align:center;margin-top:20px;font-size:10px;color:#a8a29e">با تشکر از خرید شما 🤍</div>
     `;
     document.body.appendChild(wrap);
+    // اطمینان از layout کامل قبل از عکس‌گیری
+    await new Promise(res=>requestAnimationFrame(()=>requestAnimationFrame(res)));
 
-    const canvas=await html2canvas(wrap,{scale:2,backgroundColor:'#ffffff'});
+    const scale=2;
+    const canvas=await html2canvas(wrap,{scale,backgroundColor:'#ffffff',useCORS:true,width:wrap.offsetWidth,height:wrap.scrollHeight});
     document.body.removeChild(wrap);
 
     const imgData=canvas.toDataURL('image/png');
     const {jsPDF}=window.jspdf;
-    const pdf=new jsPDF({unit:'px',format:[canvas.width/2,canvas.height/2]});
-    pdf.addImage(imgData,'PNG',0,0,canvas.width/2,canvas.height/2);
+    // تبدیل دقیق پیکسل به میلی‌متر بر اساس DPI استاندارد ۹۶
+    const pxToMm=px=>px*25.4/96;
+    const pdfWidthMm=pxToMm(canvas.width/scale);
+    const pdfHeightMm=pxToMm(canvas.height/scale);
+    const pdf=new jsPDF({unit:'mm',format:[pdfWidthMm,pdfHeightMm]});
+    pdf.addImage(imgData,'PNG',0,0,pdfWidthMm,pdfHeightMm);
     const pdfBlob=pdf.output('blob');
     const fileName=`فاکتور-${data.dateJ.replace(/\//g,'-')}.pdf`;
     const file=new File([pdfBlob],fileName,{type:'application/pdf'});
