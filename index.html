@@ -1954,35 +1954,12 @@ async function initApp(){
   initPullToRefresh();
   startAutoRate();
   setTimeout(initSwipeConfirm,500);
-  fixBottomSpacing();
-  setTimeout(fixBottomSpacing,300);
-  setTimeout(fixBottomSpacing,1000);
 }
 
 document.addEventListener('DOMContentLoaded',async()=>{
   initTheme();
   await initPin();
-  fixBottomSpacing();
-  window.addEventListener('resize',fixBottomSpacing);
-  window.addEventListener('orientationchange',fixBottomSpacing);
 });
-
-// اندازه‌گیری واقعی ارتفاع منوی پایین و تنظیم دقیق فاصله محتوا
-function fixBottomSpacing(){
-  const nav=document.querySelector('.bottomnav');
-  const content=document.querySelector('.content');
-  if(!nav||!content)return;
-  // کمی صبر کن تا layout نهایی بشه
-  requestAnimationFrame(()=>{
-    const navRect=nav.getBoundingClientRect();
-    const winH=window.innerHeight;
-    // فاصله واقعی از پایین صفحه تا بالای منو = چیزی که باید پشت محتوا خالی بمونه
-    const realBottomGap=winH-navRect.top;
-    const safeBuffer=20; // فاصله اضافه برای اطمینان
-    const finalBot=Math.max(realBottomGap+safeBuffer,80);
-    document.documentElement.style.setProperty('--bot',finalBot+'px');
-  });
-}
 
 // جلوگیری قطعی از زوم با دو-ضربه (double-tap zoom)
 let _lastTouchEnd=0;
