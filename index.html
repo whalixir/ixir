@@ -515,16 +515,15 @@ select.inp{cursor:pointer}
 .bottomnav{
   position:fixed;
   left:14px;right:14px;
-  bottom:0;
-  padding-bottom:max(0px,env(safe-area-inset-bottom,0px));
+  bottom:calc(6px + env(safe-area-inset-bottom,0px));
   z-index:9999;
   background:var(--nav-bg);
   backdrop-filter:blur(24px);
   -webkit-backdrop-filter:blur(24px);
   border:1px solid var(--nav-brd);
-  border-radius:24px 24px 0 0;
+  border-radius:24px;
   box-shadow:0 8px 28px rgba(0,0,0,.16),0 2px 8px rgba(0,0,0,.08);
-  height:calc(52px + env(safe-area-inset-bottom,0px));
+  height:52px;
   display:flex;
   align-items:center;
 }
