@@ -1,4 +1,4 @@
-const V='wx-v1';
+const V='wx-v2';
 self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',e=>{
   e.waitUntil(caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))));
@@ -6,5 +6,8 @@ self.addEventListener('activate',e=>{
 });
 self.addEventListener('fetch',e=>{
   if(e.request.method!=='GET')return;
-  e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
+  // برای index.html همیشه از شبکه بگیر (no-cache)
+  e.respondWith(
+    fetch(e.request, {cache:'no-store'}).catch(()=>caches.match(e.request))
+  );
 });
