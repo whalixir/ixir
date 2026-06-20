@@ -1420,18 +1420,19 @@ async function generateAndShareInvoice(data){
       <tr>
         <td style="padding:8px 6px;border-bottom:1px solid #e5e7eb;text-align:right">${it.name}</td>
         <td style="padding:8px 6px;border-bottom:1px solid #e5e7eb;text-align:center">${it.qty}</td>
-        <td style="padding:8px 6px;border-bottom:1px solid #e5e7eb;text-align:left">${(it.finalToman||0).toLocaleString('en-US')} تومان</td>
+        <td style="padding:8px 6px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:nowrap">${(it.finalToman||0).toLocaleString('en-US')} تومان</td>
       </tr>`).join('');
 
+    const WRAP_WIDTH=380;
     const wrap=document.createElement('div');
-    wrap.style.cssText='position:fixed;top:-9999px;left:-9999px;width:380px;height:auto;background:#fff;font-family:Vazirmatn,sans-serif;direction:rtl;color:#1c1917;padding:24px;box-sizing:border-box;';
+    wrap.style.cssText=`position:fixed;top:0;left:0;width:${WRAP_WIDTH}px;background:#fff;font-family:Vazirmatn,sans-serif;direction:rtl;color:#1c1917;padding:24px;box-sizing:border-box;z-index:-1;opacity:0;pointer-events:none;`;
     wrap.innerHTML=`
       <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #1a56db;padding-bottom:14px;margin-bottom:16px">
         <div>
           <div style="font-weight:800;font-size:18px;color:#1a56db;letter-spacing:.05em">WHALIXIR</div>
           <div style="font-size:11px;color:#78716c;margin-top:2px">والکسیر | فاکتور فروش</div>
         </div>
-        ${logoSrc?`<img src="${logoSrc}" style="width:48px;height:48px;object-fit:contain">`:''}
+        ${logoSrc?`<img src="${logoSrc}" style="width:48px;height:48px;object-fit:contain;display:block">`:''}
       </div>
       <div style="font-size:12px;color:#57534e;margin-bottom:14px;line-height:1.8">
         <div>تاریخ: ${data.dateJ}</div>
@@ -1449,26 +1450,45 @@ async function generateAndShareInvoice(data){
       </table>
       <div style="display:flex;justify-content:space-between;align-items:center;border-top:2px solid #1c1917;padding-top:12px;margin-top:6px">
         <span style="font-weight:700;font-size:14px">جمع کل</span>
-        <span style="font-weight:800;font-size:16px;color:#1a56db">${(data.totalToman||0).toLocaleString('en-US')} تومان</span>
+        <span style="font-weight:800;font-size:16px;color:#1a56db;white-space:nowrap">${(data.totalToman||0).toLocaleString('en-US')} تومان</span>
       </div>
       <div style="text-align:center;margin-top:20px;font-size:10px;color:#a8a29e">با تشکر از خرید شما 🤍</div>
     `;
     document.body.appendChild(wrap);
-    // اطمینان از layout کامل قبل از عکس‌گیری
+
+    // صبر برای لود کامل فونت‌ها و عکس لوگو قبل از اندازه‌گیری
+    if(document.fonts&&document.fonts.ready) await document.fonts.ready;
+    const logoImg=wrap.querySelector('img');
+    if(logoImg&&!logoImg.complete){
+      await new Promise(res=>{logoImg.onload=res;logoImg.onerror=res;});
+    }
     await new Promise(res=>requestAnimationFrame(()=>requestAnimationFrame(res)));
 
+    // اندازه واقعی محتوا بعد از لود کامل
+    const realHeight=wrap.scrollHeight;
     const scale=2;
-    const canvas=await html2canvas(wrap,{scale,backgroundColor:'#ffffff',useCORS:true,width:wrap.offsetWidth,height:wrap.scrollHeight});
+    const canvas=await html2canvas(wrap,{
+      scale,
+      backgroundColor:'#ffffff',
+      useCORS:true,
+      width:WRAP_WIDTH,
+      height:realHeight,
+      windowWidth:WRAP_WIDTH,
+      windowHeight:realHeight,
+    });
     document.body.removeChild(wrap);
+
+    if(canvas.width<10||canvas.height<10) throw new Error('عکس فاکتور خالی است');
 
     const imgData=canvas.toDataURL('image/png');
     const {jsPDF}=window.jspdf;
-    // تبدیل دقیق پیکسل به میلی‌متر بر اساس DPI استاندارد ۹۶
-    const pxToMm=px=>px*25.4/96;
-    const pdfWidthMm=pxToMm(canvas.width/scale);
-    const pdfHeightMm=pxToMm(canvas.height/scale);
-    const pdf=new jsPDF({unit:'mm',format:[pdfWidthMm,pdfHeightMm]});
-    pdf.addImage(imgData,'PNG',0,0,pdfWidthMm,pdfHeightMm);
+    // تبدیل دقیق پیکسل به میلی‌متر بر اساس DPI استاندارد ۹۶ (canvas با scale گرفته شده، پس روی scale تقسیم می‌کنیم)
+    const pxToMm=px=>(px/scale)*25.4/96;
+    const pdfWidthMm=pxToMm(canvas.width);
+    const pdfHeightMm=pxToMm(canvas.height);
+    const orientation=pdfWidthMm>pdfHeightMm?'l':'p';
+    const pdf=new jsPDF({orientation,unit:'mm',format:[pdfWidthMm,pdfHeightMm]});
+    pdf.addImage(imgData,'PNG',0,0,pdfWidthMm,pdfHeightMm,undefined,'FAST');
     const pdfBlob=pdf.output('blob');
     const fileName=`فاکتور-${data.dateJ.replace(/\//g,'-')}.pdf`;
     const file=new File([pdfBlob],fileName,{type:'application/pdf'});
