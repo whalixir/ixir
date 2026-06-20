@@ -48,6 +48,7 @@
   --r:18px;--rs:12px;
   --top:46px;
   --bot:calc(52px + env(safe-area-inset-bottom,0px) + 14px);
+  --bot-nav-h:calc(52px + env(safe-area-inset-bottom,0px));
   --page-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 40%,#e8f2ff 70%,#dde9ff 100%);
   --pin-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 50%,#e8f2ff 100%);
   --hero-bg:linear-gradient(135deg,#1a56db 0%,#3b82f6 50%,#1e40af 100%);
@@ -514,15 +515,16 @@ select.inp{cursor:pointer}
 .bottomnav{
   position:fixed;
   left:14px;right:14px;
-  bottom:env(safe-area-inset-bottom,0px);
+  bottom:0;
+  padding-bottom:max(0px,env(safe-area-inset-bottom,0px));
   z-index:9999;
   background:var(--nav-bg);
   backdrop-filter:blur(24px);
   -webkit-backdrop-filter:blur(24px);
   border:1px solid var(--nav-brd);
-  border-radius:24px;
+  border-radius:24px 24px 0 0;
   box-shadow:0 8px 28px rgba(0,0,0,.16),0 2px 8px rgba(0,0,0,.08);
-  height:52px;
+  height:calc(52px + env(safe-area-inset-bottom,0px));
   display:flex;
   align-items:center;
 }
