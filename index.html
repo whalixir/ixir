@@ -114,7 +114,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   justify-content:flex-start;
   direction:ltr;
   transition:background .4s;
-  padding-top:max(env(safe-area-inset-top,0px),8vh);
+  padding-top:max(env(safe-area-inset-top,0px),8dvh);
   padding-bottom:max(env(safe-area-inset-bottom,0px),16px);
   padding-left:20px;padding-right:20px;
   box-sizing:border-box;
@@ -126,10 +126,10 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   max-width:320px;
   display:flex;flex-direction:column;align-items:center;
 }
-.pin-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:5vh}
+.pin-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:5dvh}
 .pin-title{font-size:1.7rem;font-weight:800;color:#1a56db;letter-spacing:.1em;margin-top:12px}
 .pin-sub{font-size:.82rem;color:#4b6eaf;margin-top:3px}
-.pin-users-wrap{width:100%;max-width:280px;position:relative;margin-bottom:14px}
+.pin-users-wrap{width:100%;max-width:280px;position:relative;margin-bottom:14px;z-index:50}
 .pin-users-btn{
   width:100%;padding:12px 16px;
   background:rgba(255,255,255,0.7);
@@ -151,7 +151,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .pin-opt{padding:12px 16px;color:#0a1628;font-size:.88rem;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(0,0,0,.05);font-family:Vazirmatn}
 .pin-opt:last-child{border:none}
 .pin-opt:hover,.pin-opt.sel{background:rgba(26,86,219,.08);color:#1a56db}
-.pin-dots{display:flex;gap:14px;margin-bottom:4vh;direction:ltr}
+.pin-dots{display:flex;gap:14px;margin-bottom:4dvh;direction:ltr}
 .pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(26,86,219,0.3);transition:all .2s;background:transparent}
 .pin-dot.filled{background:#1a56db;border-color:#1a56db;transform:scale(1.1)}
 .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;width:100%;max-width:270px;direction:ltr}
