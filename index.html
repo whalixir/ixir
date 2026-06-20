@@ -907,7 +907,7 @@ const API={
 
 // ══ RATE از TGJU ══
 const Rate={
-  _r:null,_t:0,TTL:3*60*1000,
+  _r:null,_t:0,_fresh:true,TTL:3*60*1000,
   async fetch(){
     // اول از API خودمان بگیر (Cloudflare Function که CORS ندارد)
     try{
@@ -915,9 +915,9 @@ const Rate={
       if(r.ok){
         const j=await r.json();
         if(j.rate&&j.rate>1000){
-          this._r=j.rate;this._t=Date.now();
+          this._r=j.rate;this._t=Date.now();this._fresh=j.fresh!==false;
           localStorage.setItem('wx_r',JSON.stringify({r:this._r,t:this._t}));
-          console.log('Rate from TGJU:',this._r);
+          console.log('Rate from TGJU:',this._r,j.fresh?'(fresh)':'(cached on server)');
           return this._r;
         }
       }
@@ -925,13 +925,13 @@ const Rate={
     // cache
     try{
       const c=JSON.parse(localStorage.getItem('wx_r'));
-      if(c?.r>1000){this._r=c.r;this._t=c.t;return this._r;}
+      if(c?.r>1000){this._r=c.r;this._t=c.t;this._fresh=false;return this._r;}
     }catch{}
     return this._r;
   },
   async get(){if(this._r&&Date.now()-this._t<this.TTL)return this._r;return this.fetch();},
   cur(){return this._r;},
-  set(v){if(v>1000){this._r=v;this._t=Date.now();localStorage.setItem('wx_r',JSON.stringify({r:v,t:Date.now()}));}},
+  set(v){if(v>1000){this._r=v;this._t=Date.now();this._fresh=true;localStorage.setItem('wx_r',JSON.stringify({r:v,t:Date.now()}));}},
   fmt(aed){
     if(!this._r||!aed)return null;
     return Math.round(aed*this._r).toLocaleString('en-US')+' T';
@@ -1147,8 +1147,8 @@ function updateRateBar(){
   const r=Rate.cur();
   const el=$('rateVal');if(!el)return;
   if(r){
-    el.textContent=Math.round(r).toLocaleString('en-US');
-    el.style.color='#fff';
+    el.textContent=Math.round(r).toLocaleString('en-US')+(Rate._fresh===false?' ⏱':'');
+    el.style.color=Rate._fresh===false?'#fde68a':'#fff';
   }else{
     el.textContent='✏️ دستی';
     el.style.color='#fde68a';
@@ -2055,12 +2055,10 @@ function startAutoRate(){
       }
     }catch{}
   }
-  // هر ۲ دقیقه
-  setInterval(doUpdate, 2*60*1000);
+  // هر ۳۰ ثانیه
+  setInterval(doUpdate, 30*1000);
   // بعد از ۳ ثانیه اول
   setTimeout(doUpdate, 3000);
-  // بعد از ۱۵ ثانیه دوباره (برای اطمینان)
-  setTimeout(doUpdate, 15000);
 }
 
 // ══ INIT ══
