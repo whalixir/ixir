@@ -47,7 +47,7 @@
   --sh2:0 8px 32px rgba(26,86,219,0.15);
   --r:18px;--rs:12px;
   --top:60px;
-  --bot:calc(54px + env(safe-area-inset-bottom,0px));
+  --bot:90px;
   --page-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 40%,#e8f2ff 70%,#dde9ff 100%);
   --pin-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 50%,#e8f2ff 100%);
   --hero-bg:linear-gradient(135deg,#1a56db 0%,#3b82f6 50%,#1e40af 100%);
@@ -196,7 +196,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .sb-footer{margin-top:auto;padding-top:12px;border-top:1px solid var(--brd);font-size:.65rem;color:var(--t3);text-align:center}
 
 /* CONTENT */
-.content{flex:1;min-width:0;overflow-y:auto;padding:14px 14px calc(var(--bot)+20px);height:100%}
+.content{flex:1;min-width:0;overflow-y:auto;padding:14px 14px calc(var(--bot)+28px);height:100%;-webkit-overflow-scrolling:touch}
 
 /* ══ BOTTOM NAV — Nexora style ══ */
 
@@ -266,20 +266,21 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .ic-dl{width:32px;height:32px;border-radius:10px;background:rgba(240,82,82,.1);color:var(--err);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;font-size:.85rem}
 
 /* ══ INPUTS ══ */
-.inp{width:100%;padding:10px 12px;background:var(--inp);backdrop-filter:blur(8px);border:1.5px solid var(--brd);border-radius:var(--rs);color:var(--t1);outline:none;transition:all .15s}
+.inp{width:100%;padding:12px 13px;background:var(--inp);backdrop-filter:blur(8px);border:1.5px solid var(--brd);border-radius:var(--rs);color:var(--t1);outline:none;transition:all .15s;font-size:.92rem;min-height:44px}
 .inp:focus{border-color:var(--or);box-shadow:0 0 0 3px var(--orl);background:rgba(255,255,255,.8)}
 .inp::placeholder{color:var(--t3)}
 textarea.inp{resize:vertical}
 select.inp{cursor:pointer}
-.srch{display:flex;align-items:center;gap:8px;background:var(--inp);backdrop-filter:blur(8px);border:1.5px solid var(--brd);border-radius:var(--rs);padding:8px 12px;transition:all .15s}
+.srch{display:flex;align-items:center;gap:8px;background:var(--inp);backdrop-filter:blur(8px);border:1.5px solid var(--brd);border-radius:var(--rs);padding:10px 13px;transition:all .15s;min-height:44px}
 .srch:focus-within{border-color:var(--or);box-shadow:0 0 0 3px var(--orl)}
 .srch svg{color:var(--t3);flex-shrink:0}
 .srch input{flex:1;background:none;border:none;outline:none;color:var(--t1)}
 .srch input::placeholder{color:var(--t3)}
 .iwa{display:flex;gap:7px}.iwa .inp{flex:1}
-.fg{margin-bottom:11px}
+.fg{margin-bottom:13px}
 .fl-lbl{display:block;font-size:.74rem;font-weight:600;color:var(--t2);margin-bottom:5px}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:380px){.frow{grid-template-columns:1fr;gap:10px}}
 .toman{font-size:.67rem;color:var(--t3);margin-top:2px}
 .hint{font-size:.67rem;color:var(--t3);margin-top:2px}
 
@@ -434,6 +435,7 @@ select.inp{cursor:pointer}
 .modal-h{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 0;margin-bottom:13px}
 .modal-h h3{font-size:.97rem;font-weight:800;color:var(--t1)}
 .modal-b{padding:0 18px}
+@media(max-width:380px){.modal-b{padding:0 14px}}
 .modal-f{display:flex;gap:8px;justify-content:flex-end;padding:14px 18px 22px}
 .modal-f .btn.sc{flex:1;justify-content:center}
 .modal-f .btn.pr{flex:2;justify-content:center}
@@ -492,59 +494,63 @@ select.inp{cursor:pointer}
 /* ══ BOTTOM NAV ══ */
 .bottomnav{
   position:fixed;
-  left:0;right:0;bottom:0;
+  left:14px;right:14px;
+  bottom:calc(14px + env(safe-area-inset-bottom,0px));
   z-index:9999;
   background:var(--nav-bg);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border-top:1px solid var(--nav-brd);
-  box-shadow:0 -2px 16px rgba(0,0,0,.1);
-  /* آیفون: دکمه‌ها 54px + home indicator + 1cm فاصله اضافه */
-  display:grid;
-  grid-template-rows:54px env(safe-area-inset-bottom,0px);
-  transform:translateY(38px);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border:1px solid var(--nav-brd);
+  border-radius:26px;
+  box-shadow:0 8px 28px rgba(0,0,0,.16),0 2px 8px rgba(0,0,0,.08);
+  height:58px;
+  display:flex;
+  align-items:center;
 }
 @media(min-width:768px){
-  .bottomnav{transform:none}
+  .bottomnav{display:none!important}
 }
 .nb-row{
   display:flex;
   align-items:center;
   justify-content:space-around;
-  padding:0 4px;
+  width:100%;
+  padding:0 6px;
 }
-.nb-safe{
-  background:var(--nav-bg);
-}
+.nb-safe{display:none}
 .nb{
   flex:1;
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  gap:3px;
+  gap:2px;
+  height:54px;
   border:none;background:none;
   color:var(--t3);
-  font-size:.6rem;font-weight:600;
+  font-size:.58rem;font-weight:600;
   font-family:Vazirmatn;
   cursor:pointer;
   position:relative;
   transition:color .2s;
   -webkit-tap-highlight-color:transparent;
+  border-radius:18px;
 }
-.nb svg{width:22px;height:22px;transition:all .22s}
+.nb svg{width:20px;height:20px;transition:all .22s}
 .nb span{transition:color .2s}
 .nb.active{color:var(--or)}
 .nb.active svg{
   filter:drop-shadow(0 0 5px var(--or));
   transform:translateY(-2px) scale(1.08);
 }
+.nb.active{background:var(--orl2)}
 .nb.active::after{
   content:'';
   position:absolute;
-  bottom:-1px;
+  bottom:6px;
   left:50%;transform:translateX(-50%);
-  width:24px;height:3px;
-  border-radius:3px 3px 0 0;
+  width:16px;height:3px;
+  border-radius:3px;
   background:var(--or);
+  box-shadow:0 0 6px var(--or);
 }
 .nb:active svg{transform:scale(.88)}
 </style>
@@ -766,7 +772,6 @@ select.inp{cursor:pointer}
     <button class="nb" data-s="pnl"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span>سود/زیان</span></button>
     <button class="nb" data-s="dash"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>داشبورد</span></button>
     </div>
-    <div class="nb-safe"></div>
   </nav>
 </div>
 
