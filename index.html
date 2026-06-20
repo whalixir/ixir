@@ -46,8 +46,8 @@
   --sh:0 4px 24px rgba(26,86,219,0.1);
   --sh2:0 8px 32px rgba(26,86,219,0.15);
   --r:18px;--rs:12px;
-  --top:38px;
-  --bot:calc(54px + env(safe-area-inset-bottom,0px) + 12px);
+  --top:56px;
+  --bot:68px;
   --page-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 40%,#e8f2ff 70%,#dde9ff 100%);
   --pin-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 50%,#e8f2ff 100%);
   --hero-bg:linear-gradient(135deg,#1a56db 0%,#3b82f6 50%,#1e40af 100%);
@@ -182,12 +182,8 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 /* ══ TOPBAR ══ */
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
-  height:calc(var(--top) + env(safe-area-inset-top,0px));
-  padding:env(safe-area-inset-top,0px) 18px 0;
-  background:var(--topbar-bg);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--brd);
-  flex-shrink:0;z-index:10;
+  height:var(--top);padding:0 16px;flex-shrink:0;
+  background:var(--card);border-bottom:1px solid var(--brd);box-shadow:var(--sh);z-index:10;
 }
 .tb-brand{display:flex;align-items:center;gap:9px}
 .tb-title{font-weight:800;font-size:.92rem;color:var(--or);letter-spacing:.06em}
@@ -516,67 +512,40 @@ select.inp{cursor:pointer}
 
 /* bottomnav at bottom */
 
-/* ══ BOTTOM NAV ══ */
+/* ══ BOTTOM NAV — ساختار ساده اصلی، بدون شناور ══ */
 .bottomnav{
-  position:fixed;
-  left:0;right:0;bottom:0;
-  z-index:9999;
+  position:fixed;bottom:0;left:0;right:0;
+  height:var(--bot);
   background:var(--nav-bg);
-  backdrop-filter:blur(24px);
-  -webkit-backdrop-filter:blur(24px);
   border-top:1px solid var(--nav-brd);
-  border-radius:24px 24px 0 0;
-  box-shadow:0 -4px 20px rgba(0,0,0,.1);
-  padding-bottom:env(safe-area-inset-bottom,0px);
-  display:flex;
-  flex-direction:column;
+  display:flex;align-items:center;
+  padding:0 4px env(safe-area-inset-bottom,0);
+  z-index:10;
+  box-shadow:0 -2px 8px rgba(0,0,0,.06);
 }
 @media(min-width:768px){
   .bottomnav{display:none!important}
 }
-.nb-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-around;
-  width:100%;
-  height:54px;
-  padding:0 6px;
-}
+.nb-row{display:contents}
 .nb-safe{display:none}
 .nb{
   flex:1;
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  gap:2px;
-  height:52px;
+  gap:3px;
+  padding:6px 0;
   border:none;background:none;
   color:var(--t3);
-  font-size:.56rem;font-weight:600;
+  font-size:.65rem;font-weight:500;
   font-family:Vazirmatn;
   cursor:pointer;
   position:relative;
-  transition:color .2s;
-  -webkit-tap-highlight-color:transparent;
-  border-radius:16px;
+  transition:color .15s;
+  border-radius:12px;
 }
-.nb svg{width:20px;height:20px;transition:all .22s}
-.nb span{transition:color .2s}
-.nb.active{color:var(--or)}
-.nb.active svg{
-  filter:drop-shadow(0 0 5px var(--or));
-  transform:translateY(-2px) scale(1.08);
-}
-.nb.active{background:var(--orl2)}
-.nb.active::after{
-  content:'';
-  position:absolute;
-  bottom:6px;
-  left:50%;transform:translateX(-50%);
-  width:16px;height:3px;
-  border-radius:3px;
-  background:var(--or);
-  box-shadow:0 0 6px var(--or);
-}
+.nb svg{width:20px;height:20px;transition:all .2s}
+.nb span{transition:color .15s}
+.nb.active,.nb:hover{color:var(--or)}
 .nb:active svg{transform:scale(.88)}
 
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
