@@ -196,7 +196,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .sb-footer{margin-top:auto;padding-top:12px;border-top:1px solid var(--brd);font-size:.65rem;color:var(--t3);text-align:center}
 
 /* CONTENT */
-.content{flex:1;min-width:0;overflow-y:auto;padding:14px 14px calc(var(--bot)+28px);height:100%;-webkit-overflow-scrolling:touch}
+.content{flex:1;min-width:0;overflow-y:auto;padding:14px 14px calc(var(--bot)+10px);height:100%;-webkit-overflow-scrolling:touch}
 
 /* ══ BOTTOM NAV — Nexora style ══ */
 
@@ -553,6 +553,8 @@ select.inp{cursor:pointer}
   box-shadow:0 0 6px var(--or);
 }
 .nb:active svg{transform:scale(.88)}
+
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -1822,24 +1824,65 @@ let ptStart=0,ptEl=null;
 function initPullToRefresh(){
   const content=document.querySelector('.content');
   if(!content)return;
+  const MAX_PULL=90;
+  const THRESHOLD=64;
+  let pulling=false,dragging=false,startY=0,curPull=0,refreshing=false;
+
+  // نشانگر کشیدن
+  let indicator=document.getElementById('ptrIndicator2');
+  if(!indicator){
+    indicator=document.createElement('div');
+    indicator.id='ptrIndicator2';
+    indicator.style.cssText='position:absolute;top:-50px;left:0;right:0;display:flex;align-items:center;justify-content:center;height:50px;pointer-events:none;z-index:5;transition:none';
+    indicator.innerHTML='<div id="ptrSpinner" style="width:30px;height:30px;border-radius:50%;background:var(--hero-bg);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;box-shadow:0 4px 12px var(--orl2);transition:transform .15s">↓</div>';
+    content.style.position='relative';
+    content.insertBefore(indicator, content.firstChild);
+  }
+  const spinner=document.getElementById('ptrSpinner');
+
   content.addEventListener('touchstart',e=>{
-    if(content.scrollTop===0)ptStart=e.touches[0].clientY;
-  },{passive:true});
-  content.addEventListener('touchmove',e=>{
-    if(!ptStart)return;
-    const diff=e.touches[0].clientY-ptStart;
-    if(diff>60&&content.scrollTop===0){
-      if(!ptEl){
-        ptEl=document.createElement('div');
-        ptEl.style.cssText='position:fixed;top:120px;left:50%;transform:translateX(-50%);background:var(--or);color:#fff;padding:6px 18px;border-radius:20px;font-size:.8rem;z-index:999;font-family:Vazirmatn';
-        ptEl.textContent='↓ رها کنید برای بروزرسانی';
-        document.body.appendChild(ptEl);
-      }
+    if(content.scrollTop<=0&&!refreshing){
+      startY=e.touches[0].clientY;
+      pulling=true;dragging=false;curPull=0;
     }
   },{passive:true});
+
+  content.addEventListener('touchmove',e=>{
+    if(!pulling||refreshing)return;
+    const diff=e.touches[0].clientY-startY;
+    if(diff<=0){curPull=0;content.style.transform='';indicator.style.transform='';return;}
+    if(content.scrollTop>0)return;
+    dragging=true;
+    curPull=Math.min(MAX_PULL,diff*0.5); // مقاومت در کشش
+    content.style.transform=`translateY(${curPull}px)`;
+    content.style.transition='none';
+    indicator.style.transform=`translateY(${curPull}px)`;
+    if(spinner){
+      const rot=Math.min(180,(curPull/THRESHOLD)*180);
+      spinner.style.transform=`rotate(${rot}deg) scale(${0.7+Math.min(curPull/THRESHOLD,1)*0.3})`;
+      spinner.textContent=curPull>=THRESHOLD?'↑':'↓';
+    }
+  },{passive:true});
+
   content.addEventListener('touchend',async()=>{
-    if(ptEl){ptEl.remove();ptEl=null;await refreshAll();toast('بروزرسانی شد ✓');}
-    ptStart=0;
+    if(!pulling)return;
+    pulling=false;
+    content.style.transition='transform .25s ease';
+    if(dragging&&curPull>=THRESHOLD&&!refreshing){
+      refreshing=true;
+      content.style.transform='translateY(50px)';
+      if(spinner){spinner.textContent='⏳';spinner.style.transform='scale(1)';spinner.style.animation='spin .8s linear infinite';}
+      await refreshAll();
+      content.style.transform='';
+      if(spinner){spinner.style.animation='';spinner.textContent='↓';spinner.style.transform='';}
+      indicator.style.transform='';
+      toast('بروزرسانی شد ✓');
+      refreshing=false;
+    }else{
+      content.style.transform='';
+      indicator.style.transform='';
+    }
+    curPull=0;dragging=false;
   },{passive:true});
 }
 
