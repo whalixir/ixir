@@ -1,4 +1,4 @@
-// Cloudflare Pages Function — نرخ درهم از TGJU (نسخه پایدارشده)
+// Cloudflare Pages Function — نرخ درهم از TGJU (به‌روزرسانی فقط یک‌بار در روز)
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Content-Type': 'application/json',
@@ -6,12 +6,10 @@ const CORS = {
 
 const resp = (d) => new Response(JSON.stringify(d), {headers: CORS});
 
-// کش در حافظه سراسری Worker — بین درخواست‌های نزدیک به هم حفظ می‌شود
-// و فشار درخواست به TGJU را کم می‌کند (که خودش از علل بلاک شدن است)
-if (!globalThis.__rateCache) {
-  globalThis.__rateCache = {rate: null, ts: 0, source: null};
-}
-const CACHE_TTL_MS = 25 * 1000; // ۲۵ ثانیه — هماهنگ با ریلود خود TGJU
+// کش روزانه واقعی با Cloudflare Cache API — این کش بین instance های مختلف Worker
+// و حتی بعد از خاموش‌شدن Worker هم باقی می‌ماند (برخلاف globalThis که موقتی است)
+const DAY_MS = 24 * 60 * 60 * 1000;
+const CACHE_KEY = 'https://internal-cache.whalixir/rate-aed-daily';
 
 function extractRate(text) {
   const nums = [...text.matchAll(/[\d,،]+/g)]
@@ -20,7 +18,6 @@ function extractRate(text) {
   return nums[0] || null;
 }
 
-// چند ست هدر مختلف — اگر یکی بلاک شد، بعدی را امتحان می‌کنیم
 const HEADER_SETS = [
   {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -57,15 +54,7 @@ async function tryFetch(url, headers, label, debug) {
   return null;
 }
 
-export async function onRequest({request}) {
-  if (request.method === 'OPTIONS')
-    return new Response(null, {status: 204, headers: CORS});
-
-  const debug = [];
-  const cache = globalThis.__rateCache;
-  const now = Date.now();
-
-  // ── منابع را با چند ست هدر مختلف امتحان کن ──
+async function fetchFromTGJU(debug) {
   const sources = [
     {url: 'https://api.tgju.org/v1/market/indicator/summary-table-data/price_aed', label: 'api1', isJson: true},
     {url: 'https://www.tgju.org/profile/price_aed', label: 'profile', isJson: false},
@@ -85,23 +74,16 @@ export async function onRequest({request}) {
           for (const row of rows) {
             for (const k of ['p', 'price', 'close', 'last', 'high', 'low', 'open', 'value', 'today']) {
               const n = parseFloat(String(row[k] || '').replace(/[,،]/g, ''));
-              if (n >= 30000 && n <= 100000) {
-                globalThis.__rateCache = {rate: n, ts: now, source: `${src.label}-${k}`};
-                return resp({ok: true, rate: n, source: `${src.label}-${k}`, ts: now, fresh: true});
-              }
+              if (n >= 30000 && n <= 100000) return {rate: n, source: `${src.label}-${k}`};
             }
           }
         } catch (e) { debug.push(`${src.label}-parse-err: ${e.message}`); }
       }
 
-      // در هر صورت یک تلاش با regex عمومی هم بکن (برای HTML یا fallback JSON)
       const jsonMatch = txt.match(/price_aed['":\s]*\{([^}]+)\}/);
       if (jsonMatch) {
         const rate = extractRate(jsonMatch[1]);
-        if (rate) {
-          globalThis.__rateCache = {rate, ts: now, source: `${src.label}-json`};
-          return resp({ok: true, rate, source: `${src.label}-json`, ts: now, fresh: true});
-        }
+        if (rate) return {rate, source: `${src.label}-json`};
       }
       const patterns = [
         /price_aed[^<]{0,300}?([\d,]{5,7})/,
@@ -114,28 +96,70 @@ export async function onRequest({request}) {
         const m = txt.match(p);
         if (m) {
           const n = parseFloat(m[1].replace(/,/g, ''));
-          if (n >= 30000 && n <= 100000) {
-            globalThis.__rateCache = {rate: n, ts: now, source: `${src.label}-re`};
-            return resp({ok: true, rate: n, source: `${src.label}-re`, ts: now, fresh: true});
-          }
+          if (n >= 30000 && n <= 100000) return {rate: n, source: `${src.label}-re`};
         }
       }
     }
   }
+  return null;
+}
 
-  // ── همه تلاش‌ها ناموفق بود — اگر کش معتبر (کمتر از ۱۰ دقیقه) داریم، همان را برگردان ──
-  if (cache.rate && (now - cache.ts) < 10 * 60 * 1000) {
+export async function onRequest({request}) {
+  if (request.method === 'OPTIONS')
+    return new Response(null, {status: 204, headers: CORS});
+
+  const debug = [];
+  const now = Date.now();
+  const cache = caches.default;
+  const cacheReq = new Request(CACHE_KEY);
+
+  // ── اول کش روزانه را چک کن ──
+  let cached = null;
+  try {
+    const cachedResp = await cache.match(cacheReq);
+    if (cachedResp) cached = await cachedResp.json();
+  } catch (e) { debug.push('cache-read-err: ' + e.message); }
+
+  const forceRefresh = new URL(request.url).searchParams.get('refresh') === '1';
+
+  if (cached && cached.rate && !forceRefresh && (now - cached.ts) < DAY_MS) {
     return resp({
       ok: true,
-      rate: cache.rate,
-      source: cache.source + '-cached',
-      ts: cache.ts,
+      rate: cached.rate,
+      source: cached.source + '-daily-cache',
+      ts: cached.ts,
       fresh: false,
-      cacheAgeSec: Math.round((now - cache.ts) / 1000),
+      nextUpdateInHours: Math.round((DAY_MS - (now - cached.ts)) / 3600000 * 10) / 10,
+    });
+  }
+
+  // ── کش روزانه منقضی شده یا وجود ندارد — یک‌بار از TGJU بگیر ──
+  const result = await fetchFromTGJU(debug);
+
+  if (result) {
+    const payload = {rate: result.rate, ts: now, source: result.source};
+    try {
+      const cacheResp = new Response(JSON.stringify(payload), {
+        headers: {'Content-Type': 'application/json', 'Cache-Control': 'max-age=' + Math.floor(DAY_MS / 1000)},
+      });
+      await cache.put(cacheReq, cacheResp);
+    } catch (e) { debug.push('cache-write-err: ' + e.message); }
+
+    return resp({ok: true, rate: result.rate, source: result.source, ts: now, fresh: true});
+  }
+
+  // ── دریافت ناموفق — اگر کش قدیمی (حتی منقضی‌شده) داریم، آن را برگردان ──
+  if (cached && cached.rate) {
+    return resp({
+      ok: true,
+      rate: cached.rate,
+      source: cached.source + '-stale-cache',
+      ts: cached.ts,
+      fresh: false,
+      cacheAgeHours: Math.round((now - cached.ts) / 3600000 * 10) / 10,
       debug,
     });
   }
 
-  // ── هیچ داده‌ای، حتی کش قدیمی هم نداریم ──
   return resp({ok: false, rate: null, debug, ts: now});
 }
