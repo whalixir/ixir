@@ -47,7 +47,7 @@
   --sh2:0 8px 32px rgba(26,86,219,0.15);
   --r:18px;--rs:12px;
   --top:46px;
-  --bot:calc(52px + 6px + env(safe-area-inset-bottom,0px) + 14px);
+  --bot:calc(52px + env(safe-area-inset-bottom,0px) + 14px);
   --page-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 40%,#e8f2ff 70%,#dde9ff 100%);
   --pin-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 50%,#e8f2ff 100%);
   --hero-bg:linear-gradient(135deg,#1a56db 0%,#3b82f6 50%,#1e40af 100%);
@@ -101,7 +101,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .hidden{display:none!important}
 
 /* ══ BODY BACKGROUND ══ */
-#app{background:var(--page-bg);min-height:100vh;min-height:100dvh}
+#app{background:var(--page-bg);min-height:100dvh}
 
 /* ══ PIN SCREEN ══ */
 #pinScreen{
@@ -174,7 +174,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .pin-error{color:#f05252;font-size:.78rem;margin-top:12px;min-height:18px;text-align:center;font-weight:500}
 
 /* ══ APP ══ */
-#app{display:flex;flex-direction:column;width:100%;min-height:100dvh;height:100dvh;overflow:hidden;position:relative}
+#app{display:flex;flex-direction:column;width:100%;height:100dvh;min-height:100dvh;overflow:hidden;position:relative}
 
 /* ══ TOPBAR ══ */
 .topbar{
@@ -517,7 +517,7 @@ select.inp{cursor:pointer}
 .bottomnav{
   position:fixed;
   left:14px;right:14px;
-  bottom:calc(6px + env(safe-area-inset-bottom,0px));
+  bottom:env(safe-area-inset-bottom,0px);
   z-index:9999;
   background:var(--nav-bg);
   backdrop-filter:blur(24px);
