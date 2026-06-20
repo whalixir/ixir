@@ -1392,8 +1392,8 @@ async function doConfirmSale(){
       await loadSaleProds();
       await loadRecentSales();
       if($('wantInvoice')?.checked){
-        generateAndShareInvoice(invoiceData);
         $('wantInvoice').checked=false;
+        await generateAndShareInvoice(invoiceData);
       }
     }else{
       toast('خطا: '+(r.error||'نامشخص'));
@@ -1415,6 +1415,7 @@ function resetSwipe(){
 // ══ INVOICE PDF ══
 async function generateAndShareInvoice(data){
   try{
+    toast('در حال ساخت فاکتور...',1500);
     const logoSrc=document.querySelector('.tb-brand img')?.src||'';
     const itemsRows=data.items.map(it=>`
       <tr>
@@ -1466,7 +1467,7 @@ async function generateAndShareInvoice(data){
 
     // اندازه واقعی محتوا بعد از لود کامل
     const realHeight=wrap.scrollHeight;
-    const scale=2;
+    const scale=1.5;
     const canvas=await html2canvas(wrap,{
       scale,
       backgroundColor:'#ffffff',
@@ -1480,21 +1481,28 @@ async function generateAndShareInvoice(data){
 
     if(canvas.width<10||canvas.height<10) throw new Error('عکس فاکتور خالی است');
 
-    const imgData=canvas.toDataURL('image/png');
+    // JPEG با کیفیت مناسب — حجم بسیار کمتر از PNG برای این نوع محتوا
+    const imgData=canvas.toDataURL('image/jpeg',0.85);
     const {jsPDF}=window.jspdf;
     // تبدیل دقیق پیکسل به میلی‌متر بر اساس DPI استاندارد ۹۶ (canvas با scale گرفته شده، پس روی scale تقسیم می‌کنیم)
     const pxToMm=px=>(px/scale)*25.4/96;
     const pdfWidthMm=pxToMm(canvas.width);
     const pdfHeightMm=pxToMm(canvas.height);
     const orientation=pdfWidthMm>pdfHeightMm?'l':'p';
-    const pdf=new jsPDF({orientation,unit:'mm',format:[pdfWidthMm,pdfHeightMm]});
-    pdf.addImage(imgData,'PNG',0,0,pdfWidthMm,pdfHeightMm,undefined,'FAST');
+    const pdf=new jsPDF({orientation,unit:'mm',format:[pdfWidthMm,pdfHeightMm],compress:true});
+    pdf.addImage(imgData,'JPEG',0,0,pdfWidthMm,pdfHeightMm,undefined,'FAST');
     const pdfBlob=pdf.output('blob');
     const fileName=`فاکتور-${data.dateJ.replace(/\//g,'-')}.pdf`;
     const file=new File([pdfBlob],fileName,{type:'application/pdf'});
 
     if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-      await navigator.share({files:[file],title:'فاکتور فروش WHALIXIR'});
+      try{
+        await navigator.share({files:[file],title:'فاکتور فروش WHALIXIR'});
+      }catch(shareErr){
+        // کاربر پنجره اشتراک‌گذاری را لغو کرده — این خطای واقعی نیست
+        if(shareErr.name==='AbortError')return;
+        throw shareErr;
+      }
     }else{
       const url=URL.createObjectURL(pdfBlob);
       const a=document.createElement('a');
