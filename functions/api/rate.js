@@ -27,10 +27,11 @@ async function fetchFromGitHubArchive(debug) {
       if (r.ok) {
         const j = await r.json();
         const aedRial = j?.aed?.sell || j?.aed?.buy;
+        debug.push(`gh-${y}${m}${day}-aedRial: ${aedRial}`);
         if (aedRial && aedRial > 100) {
           // این آرشیو به ریال است؛ تبدیل به تومان (تقسیم بر ۱۰)
           const aedToman = Math.round(aedRial / 10);
-          if (aedToman >= 30000 && aedToman <= 100000) {
+          if (aedToman >= 10000 && aedToman <= 200000) {
             return {rate: aedToman, source: `github-archive-${y}${m}${day}`};
           }
         }
@@ -88,14 +89,23 @@ async function fetchFromTGJU(debug) {
       if (src.isJson) {
         try {
           const d = JSON.parse(txt);
-          const rows = d?.data?.data || [];
-          for (const row of rows) {
-            for (const k of ['p', 'price', 'close', 'last']) {
-              const n = parseFloat(String(row[k] || '').replace(/[,،]/g, ''));
-              if (n >= 30000 && n <= 100000) return {rate: n, source: `tgju-${src.label}-${k}`};
+          // ساختار واقعی: { data: [ ["426,200","426,200","429,030",...,"2026/06/18","1405/03/28"], ... ] }
+          // هر ردیف آرایه است نه آبجکت؛ ایندکس ۰ = قیمت فعلی (به ریال)
+          const rows = d?.data || [];
+          if (rows.length && Array.isArray(rows[0])) {
+            const firstRow = rows[0];
+            for (let idx = 0; idx < Math.min(4, firstRow.length); idx++) {
+              const raw = String(firstRow[idx] || '').replace(/<[^>]+>/g, '').replace(/[,،]/g, '');
+              const nRial = parseFloat(raw);
+              if (nRial > 0) {
+                const nToman = Math.round(nRial / 10);
+                if (nToman >= 10000 && nToman <= 200000) {
+                  return {rate: nToman, source: `tgju-${src.label}-idx${idx}`};
+                }
+              }
             }
           }
-        } catch {}
+        } catch (e) { debug.push(`tgju-parse-err: ${e.message}`); }
       }
       const m = txt.match(/price_aed[^<]{0,300}?([\d,]{5,7})/) || txt.match(/"p":"([\d,]{5,7})"/);
       if (m) {
