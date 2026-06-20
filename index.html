@@ -87,16 +87,18 @@ html,body{
   font-family:'Vazirmatn',system-ui,sans-serif;
   font-size:15px;
   -webkit-font-smoothing:antialiased;
-  background:var(--bg);
+  background:var(--page-bg);
   color:var(--t1);
   overflow:hidden;
+  position:fixed;
+  inset:0;
 }
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
 input,select,textarea{font-family:inherit;font-size:inherit}
 .hidden{display:none!important}
 
 /* ══ BODY BACKGROUND ══ */
-#app,body{background:var(--page-bg)}
+#app{background:var(--page-bg);min-height:100vh;min-height:100dvh}
 
 /* ══ PIN SCREEN ══ */
 #pinScreen{
@@ -152,7 +154,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .pin-error{color:#f05252;font-size:.78rem;margin-top:12px;min-height:18px;text-align:center;font-weight:500}
 
 /* ══ APP ══ */
-#app{display:flex;flex-direction:column;width:100%;height:100vh;overflow:hidden}
+#app{display:flex;flex-direction:column;width:100%;height:100vh;height:100dvh;overflow:hidden;position:relative}
 
 /* ══ TOPBAR ══ */
 .topbar{
