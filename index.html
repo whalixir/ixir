@@ -92,19 +92,28 @@
 }
 
 
-html,body{
-  height:100%;
+html,
+body{
   width:100%;
-  font-family:'Vazirmatn',system-ui,sans-serif;
-  font-size:15px;
-  -webkit-font-smoothing:antialiased;
-  background:var(--page-bg);
-  color:var(--t1);
+  height:100%;
+  min-height:100dvh;
+
+  margin:0;
+  padding:0;
+
   overflow:hidden;
   overscroll-behavior:none;
-  margin:0;padding:0;
-  touch-action:manipulation;
+
+  background:var(--page-bg);
+  color:var(--t1);
+
+  font-family:'Vazirmatn',system-ui,sans-serif;
+  font-size:15px;
+
+  -webkit-font-smoothing:antialiased;
   -webkit-touch-callout:none;
+
+  touch-action:manipulation;
 }
 *{touch-action:manipulation}
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
@@ -121,16 +130,28 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 /* ══ PIN SCREEN ══ */
 #pinScreen{
   position:fixed;
-  top:0;left:0;right:0;bottom:0;
+  inset:0;
+
+  width:100%;
+  height:100dvh;
+
   z-index:999;
   background:var(--pin-bg);
-  display:flex;flex-direction:column;align-items:center;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
   justify-content:flex-start;
+
   direction:ltr;
   transition:background .4s;
-  padding-top:max(env(safe-area-inset-top,0px),8vh);
-  padding-bottom:max(env(safe-area-inset-bottom,0px),16px);
-  padding-left:20px;padding-right:20px;
+
+  padding-top:max(env(safe-area-inset-top),24px);
+  padding-bottom:max(env(safe-area-inset-bottom),24px);
+
+  padding-left:20px;
+  padding-right:20px;
+
   box-sizing:border-box;
   overflow-y:auto;
 }
@@ -194,7 +215,20 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 
 
 /* ══ APP ══ */
-#app{display:flex;flex-direction:column;position:fixed;top:0;left:4px;right:4px;bottom:-110px;width:auto;height:calc(100% + 110px);overflow:hidden}
+#app{
+  position:fixed;
+  inset:0;
+
+  display:flex;
+  flex-direction:column;
+
+  width:100%;
+  height:100dvh;
+
+  background:var(--page-bg);
+
+  overflow:hidden;
+}
 
 /* ══ TOPBAR ══ */
 .topbar{
@@ -537,7 +571,7 @@ select.inp{cursor:pointer}
 .bottomnav{
   position:fixed;
   left:14px;right:14px;
-  bottom:max(6px, calc(env(safe-area-inset-bottom,0px) * 0.3));
+  bottom:calc(env(safe-area-inset-bottom) + 12px);
   z-index:9999;
   background:var(--nav-bg);
   backdrop-filter:blur(28px);
