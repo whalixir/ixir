@@ -92,60 +92,38 @@
 }
 
 
-html,
-body{
-  width:100%;
+html,body{
   height:100%;
-  min-height:100dvh;
-
-  margin:0;
-  padding:0;
-
-  overflow:hidden;
-  overscroll-behavior:none;
-
-  background:var(--page-bg);
-  color:var(--t1);
-
+  width:100%;
   font-family:'Vazirmatn',system-ui,sans-serif;
   font-size:15px;
-
   -webkit-font-smoothing:antialiased;
-  -webkit-touch-callout:none;
-
+  background:var(--page-bg);
+  color:var(--t1);
+  overflow:hidden;
+  overscroll-behavior:none;
+  margin:0;padding:0;
   touch-action:manipulation;
+  -webkit-touch-callout:none;
 }
 *{touch-action:manipulation}
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
 input,select,textarea{font-family:inherit;font-size:inherit}
 .hidden{display:none!important}
+
+/* ══ TYPE SCALE — اعداد و قیمت‌ها با فاصله‌گذاری یکنواخت ══ */
+.ratebar-val,.sv,.ci-price,.se-a,.pnl-v,.tx-a,.top-v,.qty-v,.qty-aed{font-variant-numeric:tabular-nums;letter-spacing:.01em}
+
+
+/* ══ BODY BACKGROUND ══ */
+#app{background:var(--page-bg)}
+
+/* ══ PIN SCREEN ══ */
 #pinScreen{
   position:fixed;
-  inset:0;
-
-  width:100%;
-  height:100dvh;
-
+  top:0;left:0;right:0;bottom:0;
   z-index:999;
   background:var(--pin-bg);
-
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
-
-  direction:ltr;
-  transition:background .4s;
-
-  padding-top:max(env(safe-area-inset-top),24px);
-  padding-bottom:max(env(safe-area-inset-bottom),24px);
-
-  padding-left:20px;
-  padding-right:20px;
-
-  box-sizing:border-box;
-  overflow-y:auto;
-}
   display:flex;flex-direction:column;align-items:center;
   justify-content:flex-start;
   direction:ltr;
@@ -207,22 +185,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
   backdrop-filter:blur(8px);
   box-shadow:0 2px 8px rgba(80,60,20,0.08);
-#app{
-  position:fixed;
-  inset:0;
-
-  display:flex;
-  flex-direction:column;
-
-  width:100%;
-  height:100dvh;
-
-  background:var(--page-bg);
-
-  overflow:hidden;
 }
-  bottom:-110px;
-height:calc(100% + 110px);
 .pin-btn:active{background:rgba(169,121,31,.18);border-color:rgba(169,121,31,.4);transform:scale(.94);box-shadow:none}
 .pin-btn .sub{font-size:.48rem;letter-spacing:.1em;color:#a89878;font-weight:400;pointer-events:none}
 .pin-btn.zero{grid-column:2}
@@ -242,7 +205,7 @@ height:calc(100% + 110px);
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid var(--brd);
   flex-shrink:0;z-index:10;
-
+}
 .tb-brand{display:flex;align-items:center;gap:9px}
 .tb-title{font-weight:800;font-size:.92rem;color:var(--or);letter-spacing:.06em}
 .tb-actions{display:flex;gap:4px;align-items:center}
@@ -537,7 +500,7 @@ select.inp{cursor:pointer}
 .disc-type-btn{flex:1;padding:9px;border-radius:11px;font-size:.78rem;font-weight:700;border:2px solid var(--brd);background:var(--inp);color:var(--t2);cursor:pointer;transition:all .2s;font-family:Vazirmatn}
 .disc-type-btn.active{border-color:var(--or)!important;background:var(--orl2)!important;color:var(--or)!important;box-shadow:0 0 0 3px var(--orl)}
 
-bottom:calc(env(safe-area-inset-bottom) + 12px);
+/* ══ SWIPE CONFIRM ══ */
 .swipe-confirm{margin:4px 0 0;user-select:none;-webkit-user-select:none}
 .swipe-track{position:relative;height:50px;background:var(--orl);border:2px solid var(--or);border-radius:30px;overflow:hidden;display:flex;align-items:center;backdrop-filter:blur(8px)}
 .swipe-thumb{position:absolute;right:4px;width:42px;height:42px;background:var(--hero-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;cursor:grab;touch-action:none;z-index:2;transition:background .15s;box-shadow:0 4px 12px var(--orl2)}
