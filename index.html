@@ -1611,10 +1611,12 @@ async function loadRecentSales(){
         if(sw){
           // نمایش دکمه حذف - کلیک روی حذف
           wrap.querySelector('.se-del-bg')?.addEventListener('click',async()=>{
-            if(!confirm('این فروش حذف شود؟'))return;
+            if(!confirm('این فروش حذف شود؟ موجودی محصولات آن به انبار برمی‌گردد.'))return;
             try{
               await API.del('/sales',{id:wrap.dataset.id});
-              wrap.remove();toast('فروش حذف شد');
+              wrap.remove();
+              cachedProds=[];await loadSaleProds(); // بروزرسانی فوری موجودی پس از بازگشت به انبار
+              toast('فروش حذف شد و موجودی برگشت');
             }catch(e){toast('خطا: '+e.message);}
           },{once:true});
         }
