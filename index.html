@@ -92,14 +92,9 @@
 }
 
 
-html{
-  background:var(--page-bg);
-}
 html,body{
-  position:fixed;
-  inset:0;
-  width:100%;
   height:100%;
+  width:100%;
   font-family:'Vazirmatn',system-ui,sans-serif;
   font-size:15px;
   -webkit-font-smoothing:antialiased;
@@ -2135,7 +2130,15 @@ document.addEventListener('gesturestart',function(e){e.preventDefault();});
 </script>
 <script>
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{
+    reg.update();
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      nw?.addEventListener('statechange',()=>{
+        if(nw.state==='activated')location.reload();
+      });
+    });
+  }).catch(()=>{}));
 }
 </script>
 </body>
