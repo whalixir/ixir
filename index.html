@@ -30,66 +30,67 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  /* Light — آبی گرادیان مثل Nexora */
-  --bg:#e8f0fe;
-  --bg2:#dce8fd;
-  --card:rgba(255,255,255,0.75);
-  --card2:rgba(255,255,255,0.55);
-  --inp:rgba(255,255,255,0.6);
-  --brd:rgba(255,255,255,0.5);
-  --t1:#0a1628;
-  --t2:#2d4a7a;
-  --t3:#6b8fc7;
-  --t4:#a8c2e8;
-  --or:#1a56db;
-  --ord:#1344c0;
-  --orl:rgba(26,86,219,0.1);
-  --orl2:rgba(26,86,219,0.15);
-  --ok:#0e9f6e;
-  --err:#f05252;
-  --warn:#ff5a1f;
-  --nav-bg:rgba(255,255,255,0.88);
-  --nav-brd:rgba(255,255,255,0.6);
-  --topbar-bg:rgba(255,255,255,0.7);
-  --sh:0 4px 24px rgba(26,86,219,0.1);
-  --sh2:0 8px 32px rgba(26,86,219,0.15);
-  --r:18px;--rs:12px;
+  /* Light — کرم و عاجی گرم، مثل جعبه‌های عطر لوکس */
+  --bg:#fbf7ef;
+  --bg2:#f3ecdd;
+  --card:rgba(255,253,248,0.82);
+  --card2:rgba(255,253,248,0.6);
+  --inp:rgba(255,253,248,0.65);
+  --brd:rgba(173,127,31,0.22);
+  --t1:#241d12;
+  --t2:#5c5141;
+  --t3:#8c7f68;
+  --t4:#c7b89a;
+  --or:#a9791f;
+  --ord:#8c631a;
+  --orl:rgba(169,121,31,0.10);
+  --orl2:rgba(169,121,31,0.17);
+  --ok:#1f7a5c;
+  --err:#b3434b;
+  --warn:#c2750c;
+  --nav-bg:rgba(255,253,248,0.86);
+  --nav-brd:rgba(173,127,31,0.26);
+  --topbar-bg:rgba(255,253,248,0.72);
+  --sh:0 4px 24px rgba(80,60,20,0.10);
+  --sh2:0 10px 34px rgba(80,60,20,0.16);
+  --r:20px;--rs:13px;
   --top:46px;
   --bot:calc(52px + env(safe-area-inset-bottom,0px) + 14px);
   --bot-nav-h:calc(52px + env(safe-area-inset-bottom,0px));
-  --page-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 40%,#e8f2ff 70%,#dde9ff 100%);
-  --pin-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 50%,#e8f2ff 100%);
-  --hero-bg:linear-gradient(135deg,#1a56db 0%,#3b82f6 50%,#1e40af 100%);
+  --page-bg:linear-gradient(160deg,#f7f1e4 0%,#f3ecdd 45%,#fbf6ec 75%,#f2e9d8 100%);
+  --pin-bg:linear-gradient(160deg,#f7f1e4 0%,#f1e7d2 50%,#fbf6ec 100%);
+  --hero-bg:linear-gradient(135deg,#c9971f 0%,#a9791f 50%,#8c631a 100%);
 }
 
 [data-theme=dark]{
-  /* Dark — خاکستری تیره شیک */
-  --bg:#111827;
-  --bg2:#1f2937;
-  --card:rgba(31,41,55,0.95);
-  --card2:rgba(55,65,81,0.8);
-  --inp:rgba(55,65,81,0.6);
-  --brd:rgba(75,85,99,0.5);
-  --t1:#f9fafb;
-  --t2:#d1d5db;
-  --t3:#9ca3af;
-  --t4:#6b7280;
-  --or:#60a5fa;
-  --ord:#3b82f6;
-  --orl:rgba(96,165,250,0.12);
-  --orl2:rgba(96,165,250,0.2);
+  /* Dark — مشکی-آبی عمیق مثل شیشه‌ی تیره‌ی عطر، با درخشش طلایی */
+  --bg:#0c0f14;
+  --bg2:#161b24;
+  --card:rgba(22,27,36,0.93);
+  --card2:rgba(35,42,54,0.78);
+  --inp:rgba(35,42,54,0.62);
+  --brd:rgba(212,170,80,0.16);
+  --t1:#f5f0e4;
+  --t2:#c9bfa8;
+  --t3:#9c9380;
+  --t4:#6b6456;
+  --or:#e0b85c;
+  --ord:#c99a3d;
+  --orl:rgba(224,184,92,0.14);
+  --orl2:rgba(224,184,92,0.22);
   --ok:#34d399;
-  --err:#f87171;
-  --warn:#fbbf24;
-  --nav-bg:rgba(17,24,39,0.97);
-  --nav-brd:rgba(75,85,99,0.4);
-  --topbar-bg:rgba(17,24,39,0.95);
-  --sh:0 4px 24px rgba(0,0,0,0.3);
-  --sh2:0 8px 32px rgba(0,0,0,0.4);
-  --page-bg:linear-gradient(160deg,#111827 0%,#1f2937 60%,#111827 100%);
-  --pin-bg:linear-gradient(160deg,#c7d9f8 0%,#dce8fd 50%,#e8f2ff 100%);
-  --hero-bg:linear-gradient(135deg,#1e3a8a 0%,#2563eb 50%,#1d4ed8 100%);
+  --err:#e8767d;
+  --warn:#f2b544;
+  --nav-bg:rgba(15,18,25,0.9);
+  --nav-brd:rgba(212,170,80,0.18);
+  --topbar-bg:rgba(12,15,20,0.92);
+  --sh:0 4px 24px rgba(0,0,0,0.35);
+  --sh2:0 10px 34px rgba(0,0,0,0.45);
+  --page-bg:linear-gradient(160deg,#0c0f14 0%,#161b24 55%,#0c0f14 100%);
+  --pin-bg:linear-gradient(160deg,#f7f1e4 0%,#f1e7d2 50%,#fbf6ec 100%);
+  --hero-bg:linear-gradient(135deg,#d4a53e 0%,#b8860b 50%,#8c631a 100%);
 }
+
 
 html{
   background:var(--page-bg);
@@ -114,6 +115,10 @@ html,body{
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
 input,select,textarea{font-family:inherit;font-size:inherit}
 .hidden{display:none!important}
+
+/* ══ TYPE SCALE — اعداد و قیمت‌ها با فاصله‌گذاری یکنواخت ══ */
+.ratebar-val,.sv,.ci-price,.se-a,.pnl-v,.tx-a,.top-v,.qty-v,.qty-aed{font-variant-numeric:tabular-nums;letter-spacing:.01em}
+
 
 /* ══ BODY BACKGROUND ══ */
 #app{background:var(--page-bg)}
@@ -141,49 +146,57 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   display:flex;flex-direction:column;align-items:center;
 }
 .pin-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:5vh}
-.pin-title{font-size:1.7rem;font-weight:800;color:#1a56db;letter-spacing:.1em;margin-top:12px}
-.pin-sub{font-size:.82rem;color:#4b6eaf;margin-top:3px}
+.pin-logo img{animation:logoGlow 3.6s ease-in-out infinite}
+@keyframes logoGlow{
+  0%,100%{filter:drop-shadow(0 0 0 rgba(169,121,31,0))}
+  50%{filter:drop-shadow(0 4px 22px rgba(169,121,31,.35))}
+}
+.pin-title{font-size:1.7rem;font-weight:800;color:#a9791f;letter-spacing:.12em;margin-top:12px}
+.pin-sub{font-size:.82rem;color:#8a7355;margin-top:3px}
 .pin-users-wrap{width:100%;max-width:280px;position:relative;margin-bottom:14px}
 .pin-users-btn{
   width:100%;padding:12px 16px;
-  background:rgba(255,255,255,0.7);
-  border:1.5px solid rgba(26,86,219,0.2);
-  border-radius:14px;color:#0a1628;font-size:.9rem;font-weight:600;
+  background:rgba(255,253,248,0.72);
+  border:1.5px solid rgba(169,121,31,0.22);
+  border-radius:16px;color:#241d12;font-size:.9rem;font-weight:600;
   display:flex;align-items:center;justify-content:space-between;
   cursor:pointer;font-family:Vazirmatn;backdrop-filter:blur(8px);
+  transition:border-color .15s,box-shadow .15s;
 }
+.pin-users-btn:active{box-shadow:0 0 0 3px rgba(169,121,31,.14)}
 .pin-drop{
   position:absolute;top:calc(100%+6px);left:0;right:0;
-  background:rgba(255,255,255,0.95);
-  border:1px solid rgba(26,86,219,0.15);
-  border-radius:14px;overflow:hidden;z-index:99;
+  background:rgba(255,253,248,0.97);
+  border:1px solid rgba(169,121,31,0.18);
+  border-radius:16px;overflow:hidden;z-index:99;
   max-height:0;transition:max-height .3s ease;
   backdrop-filter:blur(12px);
-  box-shadow:0 8px 24px rgba(0,0,0,0.12);
+  box-shadow:0 10px 28px rgba(80,60,20,0.16);
 }
 .pin-drop.open{max-height:260px}
-.pin-opt{padding:12px 16px;color:#0a1628;font-size:.88rem;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(0,0,0,.05);font-family:Vazirmatn}
+.pin-opt{padding:12px 16px;color:#241d12;font-size:.88rem;cursor:pointer;transition:background .15s;border-bottom:1px solid rgba(80,60,20,.06);font-family:Vazirmatn}
 .pin-opt:last-child{border:none}
-.pin-opt:hover,.pin-opt.sel{background:rgba(26,86,219,.08);color:#1a56db}
+.pin-opt:hover,.pin-opt.sel{background:rgba(169,121,31,.1);color:#a9791f}
 .pin-dots{display:flex;gap:14px;margin-bottom:4vh;direction:ltr}
-.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(26,86,219,0.3);transition:all .2s;background:transparent}
-.pin-dot.filled{background:#1a56db;border-color:#1a56db;transform:scale(1.1)}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(169,121,31,0.32);transition:all .25s cubic-bezier(.34,1.56,.64,1);background:transparent}
+.pin-dot.filled{background:#a9791f;border-color:#a9791f;transform:scale(1.15);box-shadow:0 0 10px rgba(169,121,31,.5)}
 .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;width:100%;max-width:270px;direction:ltr}
 .pin-btn{
   height:min(64px,15vh);border-radius:var(--r);
-  background:rgba(255,255,255,0.65);
-  border:1.5px solid rgba(255,255,255,0.8);
-  color:#0a1628;font-size:1.35rem;font-weight:700;
+  background:rgba(255,253,248,0.62);
+  border:1.5px solid rgba(255,253,248,0.85);
+  color:#241d12;font-size:1.35rem;font-weight:700;
   transition:all .15s;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
   backdrop-filter:blur(8px);
-  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  box-shadow:0 2px 8px rgba(80,60,20,0.08);
 }
-.pin-btn:active{background:rgba(26,86,219,.15);transform:scale(.94);box-shadow:none}
-.pin-btn .sub{font-size:.48rem;letter-spacing:.1em;color:#6b8fc7;font-weight:400;pointer-events:none}
+.pin-btn:active{background:rgba(169,121,31,.18);border-color:rgba(169,121,31,.4);transform:scale(.94);box-shadow:none}
+.pin-btn .sub{font-size:.48rem;letter-spacing:.1em;color:#a89878;font-weight:400;pointer-events:none}
 .pin-btn.zero{grid-column:2}
-.pin-btn.del{background:rgba(240,82,82,.08);border-color:rgba(240,82,82,.2);color:#f05252}
-.pin-error{color:#f05252;font-size:.78rem;margin-top:12px;min-height:18px;text-align:center;font-weight:500}
+.pin-btn.del{background:rgba(179,67,75,.08);border-color:rgba(179,67,75,.2);color:#b3434b}
+.pin-error{color:#b3434b;font-size:.78rem;margin-top:12px;min-height:18px;text-align:center;font-weight:500}
+
 
 /* ══ APP ══ */
 #app{display:flex;flex-direction:column;position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
@@ -238,8 +251,8 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 
 /* ══ SECTIONS ══ */
 .sec{display:none}
-.sec.active{display:block;animation:fup .22s ease}
-@keyframes fup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.sec.active{display:block;animation:fup .32s cubic-bezier(.22,1,.36,1)}
+@keyframes fup{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
 .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px}
 .sec-ttl{font-size:1.2rem;font-weight:800;flex:1;color:var(--t1)}
 
@@ -257,7 +270,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .hero-card{
   background:var(--hero-bg);
   border-radius:var(--r);padding:20px;margin-bottom:10px;
-  box-shadow:0 8px 32px rgba(26,86,219,.25);
+  box-shadow:0 8px 32px rgba(169,121,31,.28);
   color:#fff;position:relative;overflow:hidden;
 }
 .hero-card::before{
@@ -278,7 +291,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
   border:1px solid var(--brd);border-radius:var(--r);
   padding:14px 12px;text-align:center;box-shadow:var(--sh);
 }
-.stat.ac{background:var(--hero-bg);border:none;color:#fff;box-shadow:0 6px 20px rgba(26,86,219,.25)}
+.stat.ac{background:var(--hero-bg);border:none;color:#fff;box-shadow:0 6px 20px rgba(169,121,31,.28)}
 .stat.ac .sv,.stat.ac .sl,.stat.ac .st{color:#fff}
 .stat.ok{background:linear-gradient(135deg,rgba(14,159,110,.12),rgba(14,159,110,.06));border-color:rgba(14,159,110,.2)}
 .stat.wn{background:linear-gradient(135deg,rgba(255,90,31,.1),rgba(255,90,31,.05));border-color:rgba(255,90,31,.2)}
@@ -434,8 +447,8 @@ select.inp{cursor:pointer}
 .chart-bars{display:flex;align-items:flex-end;gap:7px;height:110px;padding:0 2px}
 .bar-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:30px}
 .bar{width:100%;border-radius:6px 6px 0 0;transition:height .4s ease;min-height:2px;cursor:pointer}
-.bar.income-bar{background:linear-gradient(to top,#1a56db,#60a5fa)}
-.bar.profit-bar{background:linear-gradient(to top,#0e9f6e,#34d399)}
+.bar.income-bar{background:linear-gradient(to top,#a9791f,#e0b85c)}
+.bar.profit-bar{background:linear-gradient(to top,#1f7a5c,#34d399)}
 .bar-lbl{font-size:.56rem;color:var(--t3);text-align:center}
 .chart-legend{display:flex;gap:14px;margin-top:8px;justify-content:center}
 .legend-item{display:flex;align-items:center;gap:4px;font-size:.68rem;color:var(--t2)}
@@ -502,7 +515,7 @@ select.inp{cursor:pointer}
 /* ══ TOAST ══ */
 .toast{position:fixed;bottom:calc(var(--bot)+12px);left:50%;transform:translateX(-50%);background:rgba(10,22,40,.95);color:#fff;padding:9px 20px;border-radius:30px;font-size:.8rem;font-weight:600;z-index:200;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(12px);animation:tin .22s ease;border:1px solid rgba(255,255,255,.1)}
 @keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-[data-theme=dark] .toast{background:rgba(26,86,219,.95);border-color:rgba(96,165,250,.3)}
+[data-theme=dark] .toast{background:rgba(201,154,61,.95);border-color:rgba(224,184,92,.3)}
 
 /* ══ EMPTY ══ */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:6px;color:var(--t3);text-align:center;font-size:.8rem}
@@ -525,31 +538,45 @@ select.inp{cursor:pointer}
 
 /* bottomnav at bottom */
 
-/* ══ BOTTOM NAV — شناور شیشه‌ای، گوشه‌های گرد دو طرف ══ */
+/* ══ BOTTOM NAV — شناور شیشه‌ای، با نشانگر طلایی لغزان ══ */
 .bottomnav{
   position:fixed;
   left:14px;right:14px;
   bottom:calc(6px + env(safe-area-inset-bottom,0px));
   z-index:9999;
   background:var(--nav-bg);
-  backdrop-filter:blur(24px);
-  -webkit-backdrop-filter:blur(24px);
+  backdrop-filter:blur(28px);
+  -webkit-backdrop-filter:blur(28px);
   border:1px solid var(--nav-brd);
-  border-radius:24px;
-  box-shadow:0 8px 28px rgba(0,0,0,.16),0 2px 8px rgba(0,0,0,.08);
-  height:52px;
+  border-radius:26px;
+  box-shadow:var(--sh2);
+  height:58px;
   display:flex;
   align-items:center;
+  overflow:hidden;
 }
 @media(min-width:768px){
   .bottomnav{display:none!important}
 }
 .nb-row{
+  position:relative;
   display:flex;
   align-items:center;
   justify-content:space-around;
   width:100%;
+  height:100%;
   padding:0 6px;
+}
+.nb-indicator{
+  position:absolute;
+  top:7px;bottom:7px;left:0;
+  width:0;
+  border-radius:16px;
+  background:var(--hero-bg);
+  opacity:.15;
+  transition:transform .34s cubic-bezier(.34,1.56,.64,1),width .34s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+  z-index:0;
 }
 .nb-safe{display:none}
 .nb{
@@ -557,13 +584,13 @@ select.inp{cursor:pointer}
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   gap:2px;
-  height:52px;
+  height:100%;
   border:none;background:none;
   color:var(--t3);
   font-size:.56rem;font-weight:600;
   font-family:Vazirmatn;
   cursor:pointer;
-  position:relative;
+  position:relative;z-index:1;
   transition:color .15s;
   border-radius:12px;
 }
@@ -571,19 +598,8 @@ select.inp{cursor:pointer}
 .nb span{transition:color .2s}
 .nb.active{color:var(--or)}
 .nb.active svg{
-  filter:drop-shadow(0 0 5px var(--or));
-  transform:translateY(-2px) scale(1.08);
-}
-.nb.active{background:var(--orl2)}
-.nb.active::after{
-  content:'';
-  position:absolute;
-  bottom:6px;
-  left:50%;transform:translateX(-50%);
-  width:16px;height:3px;
-  border-radius:3px;
-  background:var(--or);
-  box-shadow:0 0 6px var(--or);
+  filter:drop-shadow(0 0 6px var(--or));
+  transform:translateY(-2px) scale(1.1);
 }
 .nb:active svg{transform:scale(.88)}
 
@@ -630,7 +646,7 @@ select.inp{cursor:pointer}
   <div class="pin-error" id="pinError" dir="rtl"></div>
   </div>
   <div class="pin-spacer" style="display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px">
-    <span style="font-size:.68rem;color:#6b8fc7;letter-spacing:.05em">WHALIXIR BY SHAMSADDIN MOLLAEI</span>
+    <span style="font-size:.68rem;color:#a89878;letter-spacing:.05em">WHALIXIR BY SHAMSADDIN MOLLAEI</span>
   </div>
 </div>
 
@@ -801,8 +817,8 @@ select.inp{cursor:pointer}
         <div class="card" style="padding:14px">
           <div class="card-lbl">انتخاب تم</div>
           <div style="display:flex;gap:10px;margin-top:4px">
-            <button class="theme-btn" data-theme="light" style="flex:1;padding:16px 8px;border-radius:12px;border:2px solid #cbd5e1;background:#f1f5f9;color:#0f172a;font-family:Vazirmatn;font-weight:700;cursor:pointer;font-size:.9rem">☀️<br><span style="font-size:.72rem;font-weight:500">روشن</span></button>
-            <button class="theme-btn" data-theme="dark" style="flex:1;padding:16px 8px;border-radius:12px;border:2px solid #3f3f46;background:#18181b;color:#fafafa;font-family:Vazirmatn;font-weight:700;cursor:pointer;font-size:.9rem">🌙<br><span style="font-size:.72rem;font-weight:500">تاریک</span></button>
+            <button class="theme-btn" data-theme="light" style="flex:1;padding:16px 8px;border-radius:14px;border:2px solid #d8c6a0;background:#f7f1e4;color:#241d12;font-family:Vazirmatn;font-weight:700;cursor:pointer;font-size:.9rem">☀️<br><span style="font-size:.72rem;font-weight:500">روشن</span></button>
+            <button class="theme-btn" data-theme="dark" style="flex:1;padding:16px 8px;border-radius:14px;border:2px solid #d4aa50;background:#0c0f14;color:#f5f0e4;font-family:Vazirmatn;font-weight:700;cursor:pointer;font-size:.9rem">🌙<br><span style="font-size:.72rem;font-weight:500">تاریک</span></button>
           </div>
         </div>
         <div id="userList" class="user-list"></div>
@@ -812,7 +828,8 @@ select.inp{cursor:pointer}
   </div>
 
   <nav class="bottomnav">
-    <div class="nb-row">
+    <div class="nb-row" id="nbRow">
+    <div class="nb-indicator" id="nbIndicator"></div>
     <button class="nb active" data-s="sale"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>فروش</span></button>
     <button class="nb" data-s="inv"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L6 7h12l-2-4z"/><path d="M12 12v5"/><path d="M9.5 14.5h5"/></svg><span>انبار</span></button>
     <button class="nb" data-s="pnl"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><span>سود/زیان</span></button>
@@ -1141,12 +1158,22 @@ function nav(s){
   document.querySelectorAll('.sec').forEach(x=>x.classList.remove('active'));
   const el=$('sec-'+s);if(el)el.classList.add('active');
   document.querySelectorAll('.nb,.sb-btn').forEach(b=>b.classList.toggle('active',b.dataset.s===s));
+  moveNbIndicator();
   if(s==='sale'){loadSaleProds();loadRecentSales();}
   if(s==='inv')loadInv();
   if(s==='dash')loadDash();
   if(s==='pnl')loadPnl();
   if(s==='users')loadUsers();
 }
+function moveNbIndicator(){
+  const row=$('nbRow'),ind=$('nbIndicator');
+  if(!row||!ind)return;
+  const active=row.querySelector('.nb.active');
+  if(!active){ind.style.width='0';return;}
+  ind.style.width=active.offsetWidth+'px';
+  ind.style.transform=`translateX(${active.offsetLeft}px)`;
+}
+window.addEventListener('resize',moveNbIndicator);
 document.querySelectorAll('.nb,.sb-btn').forEach(b=>b.addEventListener('click',()=>{
   playClick();nav(b.dataset.s);
 }));
@@ -1446,9 +1473,9 @@ async function generateAndShareInvoice(data){
     const wrap=document.createElement('div');
     wrap.style.cssText=`position:absolute;top:0;left:-99999px;width:${WRAP_WIDTH}px;background:#fff;font-family:Vazirmatn,sans-serif;direction:rtl;color:#1c1917;padding:24px;box-sizing:border-box;`;
     wrap.innerHTML=`
-      <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #1a56db;padding-bottom:14px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #a9791f;padding-bottom:14px;margin-bottom:16px">
         <div>
-          <div style="font-weight:800;font-size:18px;color:#1a56db;letter-spacing:.05em">WHALIXIR</div>
+          <div style="font-weight:800;font-size:18px;color:#a9791f;letter-spacing:.05em">WHALIXIR</div>
           <div style="font-size:11px;color:#78716c;margin-top:2px">والکسیر | فاکتور فروش</div>
         </div>
         ${logoSrc?`<img src="${logoSrc}" style="width:48px;height:48px;object-fit:contain;display:block">`:''}
@@ -1469,7 +1496,7 @@ async function generateAndShareInvoice(data){
       </table>
       <div style="display:flex;justify-content:space-between;align-items:center;border-top:2px solid #1c1917;padding-top:12px;margin-top:6px">
         <span style="font-weight:700;font-size:14px">جمع کل</span>
-        <span style="font-weight:800;font-size:16px;color:#1a56db;white-space:nowrap">${(data.totalToman||0).toLocaleString('en-US')} تومان</span>
+        <span style="font-weight:800;font-size:16px;color:#a9791f;white-space:nowrap">${(data.totalToman||0).toLocaleString('en-US')} تومان</span>
       </div>
       <div style="text-align:center;margin-top:20px;font-size:10px;color:#a8a29e">با تشکر از خرید شما 🤍</div>
     `;
@@ -1734,7 +1761,7 @@ function renderInvList(){
     const spToman=ri&&sp?Math.round(sp*ri).toLocaleString('fa-IR')+' تومان':null;
     const bpToman=ri&&bp?Math.round(bp*ri).toLocaleString('fa-IR')+' تومان':null;
     const buyBadge=currentUser?.role==='admin'?`<span class="bdg b-p">خرید: ${bpToman||fAED(bp)}</span>`:'';
-    const sellBadge=`<span class="bdg" style="background:#dbeafe;color:#1e40af;font-weight:700">فروش: ${spToman||fAED(sp)}</span>`;
+    const sellBadge=`<span class="bdg" style="background:#f3e6c8;color:#8c631a;font-weight:700">فروش: ${spToman||fAED(sp)}</span>`;
     const aedBadge=currentUser?.role==='admin'?`<span class="bdg" style="background:var(--inp);color:var(--t3);font-size:.6rem">${fAED(sp)}</span>`:'';
     return `<div class="inv-wrap" data-id="${p.id}">
       <div class="inv-action-bg">
@@ -2088,6 +2115,7 @@ async function initApp(){
   initPullToRefresh();
   startAutoRate();
   setTimeout(initSwipeConfirm,500);
+  requestAnimationFrame(moveNbIndicator);
 }
 
 document.addEventListener('DOMContentLoaded',async()=>{
