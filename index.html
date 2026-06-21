@@ -2,6 +2,15 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8"/>
+<script>
+/* جلوگیری از فلش تم روشن قبل از اعمال تم تیره (FOUC) — باید قبل از CSS اجرا بشه */
+(function(){
+  try{
+    var t = localStorage.getItem('wx_theme') === 'dark' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+  }catch(e){}
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
 <meta name="theme-color" content="#0f172a"/>
@@ -83,8 +92,13 @@
   --hero-bg:linear-gradient(135deg,#1e3a8a 0%,#2563eb 50%,#1d4ed8 100%);
 }
 
+html{
+  background:var(--page-bg);
+  height:100%;
+}
 html,body{
   width:100%;
+  height:100vh;
   height:100dvh;
   font-family:'Vazirmatn',system-ui,sans-serif;
   font-size:15px;
@@ -92,6 +106,7 @@ html,body{
   background:var(--page-bg);
   color:var(--t1);
   overflow:hidden;
+  overscroll-behavior:none;
   margin:0;padding:0;
   touch-action:manipulation;
   -webkit-touch-callout:none;
@@ -172,7 +187,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .pin-error{color:#f05252;font-size:.78rem;margin-top:12px;min-height:18px;text-align:center;font-weight:500}
 
 /* ══ APP ══ */
-#app{display:flex;flex-direction:column;width:100%;height:100dvh;overflow:hidden;position:relative}
+#app{display:flex;flex-direction:column;width:100%;height:100vh;height:100dvh;overflow:hidden;position:relative}
 
 /* ══ TOPBAR ══ */
 .topbar{
@@ -216,7 +231,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 .sb-footer{margin-top:auto;padding-top:12px;border-top:1px solid var(--brd);font-size:.65rem;color:var(--t3);text-align:center}
 
 /* CONTENT */
-.content{flex:1;min-width:0;overflow-y:auto;padding:14px 14px calc(var(--bot)+10px);height:100%;-webkit-overflow-scrolling:touch}
+.content{flex:1;min-width:0;overflow-y:auto;overscroll-behavior-y:contain;padding:14px 14px calc(var(--bot)+10px);height:100%;-webkit-overflow-scrolling:touch}
 
 /* ══ BOTTOM NAV — Nexora style ══ */
 
