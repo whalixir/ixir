@@ -194,7 +194,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 
 
 /* ══ APP ══ */
-#app{display:flex;flex-direction:column;position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
+#app{display:flex;flex-direction:column;position:fixed;top:0;left:4px;right:4px;bottom:-38px;width:auto;height:calc(100% + 38px);overflow:hidden}
 
 /* ══ TOPBAR ══ */
 .topbar{
@@ -536,8 +536,8 @@ select.inp{cursor:pointer}
 /* ══ BOTTOM NAV — شناور شیشه‌ای، با نشانگر طلایی لغزان ══ */
 .bottomnav{
   position:fixed;
-  left:18px;right:18px;
-  bottom:max(0px, calc(6px + env(safe-area-inset-bottom,0px) - 38px));
+  left:14px;right:14px;
+  bottom:calc(6px + env(safe-area-inset-bottom,0px));
   z-index:9999;
   background:var(--nav-bg);
   backdrop-filter:blur(28px);
@@ -545,7 +545,7 @@ select.inp{cursor:pointer}
   border:1px solid var(--nav-brd);
   border-radius:26px;
   box-shadow:var(--sh2);
-  height:96px;
+  height:58px;
   display:flex;
   align-items:center;
   overflow:hidden;
