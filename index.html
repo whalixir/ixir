@@ -91,30 +91,19 @@
   --hero-bg:linear-gradient(135deg,#d4a53e 0%,#b8860b 50%,#8c631a 100%);
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
 
-html,
-body{
-  width:100%;
-  height:100%;
-  min-height:100dvh;
+  width: 100%;
+  height: 100%;
 
-  margin:0;
-  padding:0;
+  min-height: 100dvh;
 
-  overflow:hidden;
-  overscroll-behavior:none;
-
-  background:var(--page-bg);
-  color:var(--t1);
-
-  font-family:'Vazirmatn',system-ui,sans-serif;
-  font-size:15px;
-
-  -webkit-font-smoothing:antialiased;
-  -webkit-touch-callout:none;
-
-  touch-action:manipulation;
+  background: var(--page-bg);
+  overflow: hidden;
 }
+
 *{touch-action:manipulation}
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
 input,select,textarea{font-family:inherit;font-size:inherit}
