@@ -129,31 +129,24 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 
 /* ══ PIN SCREEN ══ */
 #pinScreen{
-  position:fixed;
-  inset:0;
+  position: fixed;
+  inset: 0;
 
-  width:100%;
-  height:100dvh;
+  width: 100%;
+  height: 100dvh;
 
-  z-index:999;
-  background:var(--pin-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
+  background: var(--pin-bg);
 
-  direction:ltr;
-  transition:background .4s;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 
-  padding-top:max(env(safe-area-inset-top),24px);
-  padding-bottom:max(env(safe-area-inset-bottom),24px);
-
-  padding-left:20px;
-  padding-right:20px;
-
-  box-sizing:border-box;
-  overflow-y:auto;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 .pin-spacer{flex:1;min-height:8px}
 .pin-content{
