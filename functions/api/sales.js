@@ -46,6 +46,12 @@ export async function onRequest(ctx){
     if(req.method==='DELETE'){
       let b;try{b=await req.json();}catch{return j({ok:false,error:'bad json'},400);}
       if(!b.id)return j({ok:false,error:'id required'},400);
+      const now=Date.now();
+      // برگرداندن موجودی محصولات این فروش به انبار قبل از حذف
+      const{results:items}=await db.prepare('SELECT product_id,qty FROM sale_items WHERE sale_id=?').bind(b.id).all();
+      for(const it of(items||[])){
+        await db.prepare('UPDATE products SET qty=qty+?,updated_at=? WHERE id=?').bind(it.qty,now,it.product_id).run();
+      }
       await db.prepare('DELETE FROM sale_items WHERE sale_id=?').bind(b.id).run();
       await db.prepare('DELETE FROM sales WHERE id=?').bind(b.id).run();
       return j({ok:true});
