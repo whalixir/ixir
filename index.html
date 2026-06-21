@@ -91,19 +91,22 @@
   --hero-bg:linear-gradient(135deg,#d4a53e 0%,#b8860b 50%,#8c631a 100%);
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
 
-  width: 100%;
-  height: 100%;
-
-  min-height: 100dvh;
-
-  background: var(--page-bg);
-  overflow: hidden;
+html,body{
+  height:100%;
+  min-height:100dvh;
+  width:100%;
+  font-family:'Vazirmatn',system-ui,sans-serif;
+  font-size:15px;
+  -webkit-font-smoothing:antialiased;
+  background:var(--page-bg);
+  color:var(--t1);
+  overflow:hidden;
+  overscroll-behavior:none;
+  margin:0;padding:0;
+  touch-action:manipulation;
+  -webkit-touch-callout:none;
 }
-
 *{touch-action:manipulation}
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
 input,select,textarea{font-family:inherit;font-size:inherit}
@@ -118,24 +121,33 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 
 /* ══ PIN SCREEN ══ */
 #pinScreen{
-  position: fixed;
-  inset: 0;
+  position:fixed;
+  inset:0;
 
-  width: 100%;
-  height: 100dvh;
+  width:100%;
+  height:100dvh;
 
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  background:var(--pin-bg);
 
-  background: var(--pin-bg);
+  display:flex;
+  flex-direction:column;
 
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
 
-  box-sizing: border-box;
-  overflow: hidden;
+  overflow:hidden;
+}
+  z-index:999;
+  background:var(--pin-bg);
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;
+  direction:ltr;
+  transition:background .4s;
+  padding-top:max(env(safe-area-inset-top,0px),8vh);
+  padding-bottom:max(env(safe-area-inset-bottom,0px),16px);
+  padding-left:20px;padding-right:20px;
+  box-sizing:border-box;
+  overflow-y:auto;
 }
 .pin-spacer{flex:1;min-height:8px}
 .pin-content{
@@ -200,15 +212,11 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 #app{
   position:fixed;
   inset:0;
-
   display:flex;
   flex-direction:column;
-
   width:100%;
   height:100dvh;
-
   background:var(--page-bg);
-
   overflow:hidden;
 }
 
@@ -384,7 +392,7 @@ select.inp{cursor:pointer}
 /* ══ INVENTORY ══ */
 .inv-list{display:flex;flex-direction:column;gap:8px}
 .inv-wrap{position:relative;overflow:hidden;border-radius:var(--r);touch-action:pan-y}
-.inv-action-bg{position:absolute;right:0;top:0;bottom:0;width:144px;display:flex;align-items:stretch;transform:translateX(144px);transition:transform .25s ease;z-index:1}
+.inv-action-bg{position:absolute;right:0;top:0;bottom:calc(env(safe-area-inset-bottom) + 12px);
 .inv-act-edit,.inv-act-del{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:72px;font-size:1.1rem;border:none;cursor:pointer;font-family:Vazirmatn}
 .inv-act-edit span,.inv-act-del span{font-size:.58rem;font-weight:700}
 .inv-act-edit{background:#2563eb;color:#fff}
@@ -553,7 +561,7 @@ select.inp{cursor:pointer}
 .bottomnav{
   position:fixed;
   left:14px;right:14px;
-  bottom:calc(env(safe-area-inset-bottom) + 12px);
+  bottom:max(6px, calc(env(safe-area-inset-bottom,0px) * 0.3));
   z-index:9999;
   background:var(--nav-bg);
   backdrop-filter:blur(28px);
