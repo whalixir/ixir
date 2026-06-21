@@ -536,8 +536,8 @@ select.inp{cursor:pointer}
 /* ══ BOTTOM NAV — شناور شیشه‌ای، با نشانگر طلایی لغزان ══ */
 .bottomnav{
   position:fixed;
-  left:14px;right:14px;
-  bottom:calc(6px + env(safe-area-inset-bottom,0px));
+  left:18px;right:18px;
+  bottom:max(0px, calc(6px + env(safe-area-inset-bottom,0px) - 38px));
   z-index:9999;
   background:var(--nav-bg);
   backdrop-filter:blur(28px);
@@ -545,7 +545,7 @@ select.inp{cursor:pointer}
   border:1px solid var(--nav-brd);
   border-radius:26px;
   box-shadow:var(--sh2);
-  height:58px;
+  height:96px;
   display:flex;
   align-items:center;
   overflow:hidden;
