@@ -2119,6 +2119,14 @@ async function initApp(){
   requestAnimationFrame(moveNbIndicator);
 }
 
+// تنظیم ارتفاع واقعی صفحه — برای iOS PWA که 100% ارتفاع کامل گوشی را نمیدهد
+(function fixScreenHeight(){
+  var h = window.screen.height;
+  document.documentElement.style.setProperty('--real-h', h + 'px');
+  var app = document.getElementById('app');
+  if(app) app.style.height = h + 'px';
+})();
+
 document.addEventListener('DOMContentLoaded',async()=>{
   initTheme();
   await initPin();
