@@ -781,7 +781,13 @@ select.inp{cursor:pointer}
 
       <!-- P&L -->
       <section id="sec-pnl" class="sec">
-        <div class="sec-hd"><h2 class="sec-ttl">سود و زیان</h2></div>
+        <div class="sec-hd">
+          <h2 class="sec-ttl">سود و زیان</h2>
+          <button class="btn pr" id="pdfReportBtn" style="padding:8px 14px;font-size:.82rem;border-radius:12px;display:flex;align-items:center;gap:6px">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            PDF ماهانه
+          </button>
+        </div>
         <div class="card" style="display:flex;gap:8px;align-items:center">
           <select id="pnlPeriod" class="inp" style="flex:1">
             <option value="week">این هفته</option>
@@ -1595,7 +1601,7 @@ async function loadRecentSales(){
           <div class="se-ico">🧴</div>
           <div class="se-i">
             <div class="se-n">${(s.items||[]).map(i=>i.name).join('، ')||'فروش'}</div>
-            <div class="se-t">${s.date_j||jalaliFromTs(s.created_at)}</div>
+            <div class="se-t">${s.date_j||jalaliFromTs(s.created_at)}${s.user_name?` · <span style="color:var(--or);font-weight:600">${s.user_name}</span>`:''}</div>
           </div>
           <div class="se-r">
             <div class="se-a">${toman||fAED(s.total)}</div>
@@ -1919,6 +1925,183 @@ async function loadDash(){
 }
 
 // ══ P&L ══
+
+// ── گزارش ماهانه PDF ──
+async function generateMonthlyPdfReport(){
+  try{
+    toast('در حال ساخت گزارش ماهانه...',2000);
+    const period=$('pnlPeriod').value;
+    const [statsR, salesR] = await Promise.all([
+      API.get(`/stats?period=${period}`),
+      API.get(`/sales?period=${period}`)
+    ]);
+    if(!statsR.ok||!salesR.ok){toast('خطا در دریافت داده');return;}
+    const d=statsR.data;
+    const sales=salesR.data||[];
+    const rc=Rate.cur();
+
+    // محاسبه آمار کاربران
+    const userMap={};
+    const prodMap={};
+    for(const s of sales){
+      const u=s.user_name||'ناشناس';
+      userMap[u]=(userMap[u]||0)+1;
+      for(const it of(s.items||[])){
+        if(!prodMap[it.name])prodMap[it.name]={qty:0,total:0};
+        prodMap[it.name].qty+=it.qty||1;
+        prodMap[it.name].total+=it.finalPrice||0;
+      }
+    }
+    // مرتب‌سازی پرفروش‌ها
+    const topProds=Object.entries(prodMap).sort((a,b)=>b[1].qty-a[1].qty).slice(0,10);
+    // مرتب‌سازی فروشندگان
+    const topUsers=Object.entries(userMap).sort((a,b)=>b[1]-a[1]);
+
+    // لیبل دوره
+    const periodLabel={week:'این هفته',month:'این ماه',all:'همه زمان‌ها'}[period]||period;
+
+    // سند HTML گزارش
+    const WRAP_WIDTH=420;
+    const logoSrc=document.querySelector('.tb-brand img')?.src||'';
+    const fmtAED=v=>(v||0).toFixed(2)+' درهم';
+    const fmtToman=v=>rc?Math.round((v||0)*rc).toLocaleString('fa-IR')+' تومان':'';
+
+    // نمودار روزانه
+    const days=d.days||[];
+    const maxV=Math.max(...days.map(x=>Math.max(x.income||0,x.profit||0)),1);
+    const barH=60;
+    const chartSVG=`<svg width="${WRAP_WIDTH-48}" height="${barH+30}" style="display:block;overflow:visible">
+      ${days.map((x,i)=>{
+        const w=(WRAP_WIDTH-48)/Math.max(days.length,1);
+        const h1=(x.income||0)/maxV*barH;
+        const h2=(x.profit||0)/maxV*barH;
+        const x0=i*w+2;
+        return `<rect x="${x0}" y="${barH-h1}" width="${w-4}" height="${h1}" rx="2" fill="#c9973a" opacity=".7"/>
+                <rect x="${x0+w/4}" y="${barH-h2}" width="${w/2}" height="${h2}" rx="2" fill="#16a34a"/>
+                <text x="${x0+w/2}" y="${barH+14}" text-anchor="middle" font-size="9" fill="#888">${x.label||''}</text>`;
+      }).join('')}
+    </svg>`;
+
+    const wrap=document.createElement('div');
+    wrap.style.cssText=`position:absolute;top:0;left:-99999px;width:${WRAP_WIDTH}px;background:#fff;font-family:Vazirmatn,sans-serif;direction:rtl;color:#1c1917;padding:24px;box-sizing:border-box;`;
+
+    const profitColor=(d.profit||0)>=0?'#16a34a':'#dc2626';
+
+    wrap.innerHTML=`
+      <!-- هدر -->
+      <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #a9791f;padding-bottom:14px;margin-bottom:18px">
+        <div>
+          <div style="font-weight:800;font-size:18px;color:#a9791f;letter-spacing:.05em">WHALIXIR</div>
+          <div style="font-size:11px;color:#78716c;margin-top:2px">گزارش مالی | ${periodLabel}</div>
+        </div>
+        ${logoSrc?`<img src="${logoSrc}" style="width:48px;height:48px;object-fit:contain">` :''}
+      </div>
+
+      <!-- خلاصه مالی -->
+      <div style="font-size:13px;font-weight:700;color:#57534e;margin-bottom:10px">خلاصه مالی</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:18px">
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:#16a34a;margin-bottom:4px">↑ درآمد</div>
+          <div style="font-weight:800;font-size:13px">${fmtAED(d.income)}</div>
+          <div style="font-size:9px;color:#888;margin-top:2px">${fmtToman(d.income)}</div>
+        </div>
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:#dc2626;margin-bottom:4px">↓ هزینه</div>
+          <div style="font-weight:800;font-size:13px">${fmtAED(d.cost)}</div>
+        </div>
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:${profitColor};margin-bottom:4px">◈ سود/زیان</div>
+          <div style="font-weight:800;font-size:13px;color:${profitColor}">${fmtAED(d.profit)}</div>
+          <div style="font-size:9px;color:#888;margin-top:2px">${fmtToman(d.profit)}</div>
+        </div>
+      </div>
+
+      <!-- نمودار -->
+      <div style="font-size:13px;font-weight:700;color:#57534e;margin-bottom:8px">نمودار فروش</div>
+      <div style="background:#f9fafb;border-radius:10px;padding:12px;margin-bottom:18px">
+        ${chartSVG}
+        <div style="display:flex;gap:14px;margin-top:6px;justify-content:center;font-size:10px">
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#c9973a;opacity:.7;border-radius:2px;display:inline-block"></span>درآمد</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#16a34a;border-radius:2px;display:inline-block"></span>سود</span>
+        </div>
+      </div>
+
+      <!-- پرفروش‌ترین کالاها -->
+      <div style="font-size:13px;font-weight:700;color:#57534e;margin-bottom:8px">پرفروش‌ترین کالاها</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:18px">
+        <thead><tr style="background:#f5f5f4">
+          <th style="padding:6px 8px;text-align:right;color:#78716c">#</th>
+          <th style="padding:6px 8px;text-align:right;color:#78716c">نام کالا</th>
+          <th style="padding:6px 8px;text-align:center;color:#78716c">تعداد</th>
+          <th style="padding:6px 8px;text-align:left;color:#78716c">جمع فروش</th>
+        </tr></thead>
+        <tbody>
+          ${topProds.map(([name,info],i)=>`
+            <tr style="border-bottom:1px solid #f0f0f0">
+              <td style="padding:6px 8px;color:#a9791f;font-weight:700">${i+1}</td>
+              <td style="padding:6px 8px">${name}</td>
+              <td style="padding:6px 8px;text-align:center">${info.qty}</td>
+              <td style="padding:6px 8px;text-align:left;white-space:nowrap">${fmtAED(info.total)}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+
+      <!-- آمار فروشندگان -->
+      <div style="font-size:13px;font-weight:700;color:#57534e;margin-bottom:8px">عملکرد فروشندگان</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:18px">
+        <thead><tr style="background:#f5f5f4">
+          <th style="padding:6px 8px;text-align:right;color:#78716c">فروشنده</th>
+          <th style="padding:6px 8px;text-align:center;color:#78716c">تعداد فروش</th>
+        </tr></thead>
+        <tbody>
+          ${topUsers.map(([user,cnt])=>`
+            <tr style="border-bottom:1px solid #f0f0f0">
+              <td style="padding:6px 8px;font-weight:600;color:#a9791f">${user}</td>
+              <td style="padding:6px 8px;text-align:center">${cnt} فروش</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+
+      <div style="text-align:center;font-size:10px;color:#a8a29e;border-top:1px solid #e5e7eb;padding-top:10px">WHALIXIR · والکسیر</div>
+    `;
+
+    document.body.appendChild(wrap);
+    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    const logoImg=wrap.querySelector('img');
+    if(logoImg&&!logoImg.complete)await new Promise(res=>{logoImg.onload=res;logoImg.onerror=res;});
+    await new Promise(res=>requestAnimationFrame(()=>requestAnimationFrame(res)));
+
+    const realH=wrap.scrollHeight;
+    const scale=1.5;
+    const canvas=await html2canvas(wrap,{scale,backgroundColor:'#ffffff',useCORS:true,allowTaint:true,width:WRAP_WIDTH,height:realH,windowWidth:WRAP_WIDTH,windowHeight:realH});
+    document.body.removeChild(wrap);
+    if(canvas.width<10||canvas.height<10){toast('خطا در ساخت PDF');return;}
+
+    const imgData=canvas.toDataURL('image/jpeg',0.85);
+    const {jsPDF}=window.jspdf;
+    const pxToMm=px=>(px/scale)*25.4/96;
+    const pw=pxToMm(canvas.width),ph=pxToMm(canvas.height);
+    const pdf=new jsPDF({orientation:'p',unit:'mm',format:[pw,ph],compress:true});
+    pdf.addImage(imgData,'JPEG',0,0,pw,ph,undefined,'FAST');
+    const blob=pdf.output('blob');
+    const now=new Date().toLocaleDateString('fa-IR').replace(/\//g,'-');
+    const fname=`گزارش-${periodLabel}-${now}.pdf`;
+    const file=new File([blob],fname,{type:'application/pdf'});
+
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file],title:`گزارش مالی WHALIXIR`});}
+      catch(e){if(e.name==='AbortError')return;throw e;}
+    }else{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;a.download=fname;
+      document.body.appendChild(a);a.click();
+      document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),5000);
+    }
+    toast('گزارش PDF آماده شد ✓');
+  }catch(e){toast('خطا: '+e.message);}
+}
 async function loadPnl(){
   const period=$('pnlPeriod').value;
   try{
@@ -1940,6 +2123,7 @@ async function loadPnl(){
   }catch(e){toast('خطا در بارگذاری');}
 }
 $('pnlPeriod')?.addEventListener('change',loadPnl);
+$('pdfReportBtn')?.addEventListener('click',generateMonthlyPdfReport);
 
 function renderChart(days){
   const maxV=Math.max(...days.map(d=>Math.max(d.income||0,d.profit||0)),1);
