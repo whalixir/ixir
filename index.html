@@ -50,6 +50,7 @@
   --warn:#c2750c;
   --nav-bg:rgba(255,253,248,0.86);
   --nav-brd:rgba(173,127,31,0.26);
+  --nav-solid:#fefbf5;
   --topbar-bg:rgba(255,253,248,0.72);
   --sh:0 4px 24px rgba(80,60,20,0.10);
   --sh2:0 10px 34px rgba(80,60,20,0.16);
@@ -83,6 +84,7 @@
   --warn:#f2b544;
   --nav-bg:rgba(15,18,25,0.9);
   --nav-brd:rgba(212,170,80,0.18);
+  --nav-solid:#0f1219;
   --topbar-bg:rgba(12,15,20,0.92);
   --sh:0 4px 24px rgba(0,0,0,0.35);
   --sh2:0 10px 34px rgba(0,0,0,0.45);
@@ -106,7 +108,7 @@ html,body{
   touch-action:manipulation;
   -webkit-touch-callout:none;
 }
-html{background:var(--bg)}
+html{background:var(--nav-solid)}
 *{touch-action:manipulation}
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
 input,select,textarea{font-family:inherit;font-size:inherit}
@@ -195,7 +197,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 
 
 /* ══ APP ══ */
-#app{display:flex;flex-direction:column;position:fixed;top:0;left:4px;right:4px;bottom:-110px;width:auto;height:calc(100% + 110px);overflow:hidden}
+#app{display:flex;flex-direction:column;position:fixed;top:0;left:4px;right:4px;bottom:0;width:auto;height:auto;overflow:hidden}
 
 /* ══ TOPBAR ══ */
 .topbar{
@@ -551,18 +553,7 @@ select.inp{cursor:pointer}
   align-items:center;
   overflow:hidden;
 }
-/* پر کردن safe-area زیر منو با رنگ منو — خارج از overflow:hidden مربوط به #app */
-body::after{
-  content:'';
-  position:fixed;
-  bottom:0;
-  left:0;right:0;
-  height:env(safe-area-inset-bottom,0px);
-  background:var(--nav-bg);
-  backdrop-filter:blur(28px);
-  -webkit-backdrop-filter:blur(28px);
-  z-index:9998;
-}
+
 @media(min-width:768px){
   .bottomnav{display:none!important}
 }
