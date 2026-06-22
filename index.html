@@ -540,17 +540,18 @@ select.inp{cursor:pointer}
 .bottomnav{
   position:fixed;
   left:14px;right:14px;
-  bottom:env(safe-area-inset-bottom,0px);
+  bottom:0;
+  padding-bottom:env(safe-area-inset-bottom,0px);
   z-index:9999;
   background:var(--nav-bg);
   backdrop-filter:blur(28px);
   -webkit-backdrop-filter:blur(28px);
   border:1px solid var(--nav-brd);
-  border-radius:26px;
+  border-radius:26px 26px 0 0;
   box-shadow:var(--sh2);
-  height:58px;
+  height:calc(58px + env(safe-area-inset-bottom,0px));
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   overflow:hidden;
 }
 
@@ -826,6 +827,7 @@ select.inp{cursor:pointer}
     </main>
   </div>
 
+</div>
   <nav class="bottomnav">
     <div class="nb-row" id="nbRow">
     <div class="nb-indicator" id="nbIndicator"></div>
@@ -835,7 +837,6 @@ select.inp{cursor:pointer}
     <button class="nb" data-s="dash"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>داشبورد</span></button>
     </div>
   </nav>
-</div>
 
 <!-- MODAL: Product -->
 <div id="mProd" class="modal-bg hidden">
