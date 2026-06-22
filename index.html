@@ -538,7 +538,7 @@ select.inp{cursor:pointer}
 .bottomnav{
   position:fixed;
   left:14px;right:14px;
-  bottom:env(safe-area-inset-bottom, 0px);
+  bottom:env(safe-area-inset-bottom,0px);
   z-index:9999;
   background:var(--nav-bg);
   backdrop-filter:blur(28px);
@@ -550,6 +550,18 @@ select.inp{cursor:pointer}
   display:flex;
   align-items:center;
   overflow:hidden;
+}
+/* پر کردن safe-area زیر منو با رنگ منو — خارج از overflow:hidden مربوط به #app */
+body::after{
+  content:'';
+  position:fixed;
+  bottom:0;
+  left:0;right:0;
+  height:env(safe-area-inset-bottom,0px);
+  background:var(--nav-bg);
+  backdrop-filter:blur(28px);
+  -webkit-backdrop-filter:blur(28px);
+  z-index:9998;
 }
 @media(min-width:768px){
   .bottomnav{display:none!important}
