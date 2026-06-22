@@ -97,7 +97,7 @@
 html,body{
   margin:0;
   padding:0;
-  height:100%;
+  height:calc(var(--vh,1vh)*100);
   overflow:hidden;
   overscroll-behavior:none;
 }
@@ -110,10 +110,6 @@ body{
   color:var(--t1);
   touch-action:manipulation;
   -webkit-touch-callout:none;
-  height:100dvh;
-}
-@supports (height:100dvh){
-  body{height:100dvh}
 }
 *{touch-action:manipulation}
 button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:inherit}
@@ -203,7 +199,7 @@ input,select,textarea{font-family:inherit;font-size:inherit}
 
 
 /* ══ APP ══ */
-#app{display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;bottom:0;width:100%;min-height:100dvh;overflow:hidden}
+#app{display:flex;flex-direction:column;position:relative;width:100%;height:calc(var(--vh,1vh)*100);overflow:hidden}
 
 /* ══ TOPBAR ══ */
 .topbar{
@@ -2123,6 +2119,21 @@ async function initApp(){
   startAutoRate();
   setTimeout(initSwipeConfirm,500);
   requestAnimationFrame(moveNbIndicator);
+}
+
+// ── تنظیم ارتفاع واقعی صفحه برای iOS PWA ──
+function setAppHeight(){
+  var vh=window.innerHeight*0.01;
+  document.documentElement.style.setProperty('--vh',vh+'px');
+}
+setAppHeight();
+window.addEventListener('load',setAppHeight);
+window.addEventListener('resize',setAppHeight);
+window.addEventListener('orientationchange',function(){
+  setTimeout(setAppHeight,200);
+});
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',setAppHeight);
 }
 
 document.addEventListener('DOMContentLoaded',async()=>{
