@@ -875,6 +875,29 @@ select.inp{cursor:pointer}
   </div>
 </div>
 
+
+<!-- MODAL: ویرایش سریع موجودی -->
+<div id="mStock" class="modal-bg hidden" style="align-items:center">
+  <div class="modal" style="max-width:310px;border-radius:20px;margin-bottom:10vh">
+    <div class="modal-h">
+      <h3 id="mStockName">موجودی</h3>
+      <button class="ic-btn" id="mStockClose"><svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-b" style="padding:16px 20px">
+      <div style="text-align:center;margin-bottom:16px;color:var(--t2);font-size:.82rem">موجودی فعلی: <span id="mStockCur" style="color:var(--or);font-weight:700"></span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:16px">
+        <button class="btn-qty" id="stMinus" style="font-size:1.4rem;width:48px;height:48px">−</button>
+        <input type="number" id="stQtyVal" class="inp" style="width:80px;text-align:center;font-size:1.2rem;font-weight:700" min="0" inputmode="numeric"/>
+        <button class="btn-qty" id="stPlus" style="font-size:1.4rem;width:48px;height:48px">+</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn sc" id="mStockCancel" style="flex:1">انصراف</button>
+        <button class="btn pr" id="mStockSave" style="flex:1">ذخیره ✓</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: Qty + Discount -->
 <div id="mQty" class="modal-bg hidden" style="align-items:center">
   <div class="modal" style="max-width:330px;border-radius:20px;margin-bottom:10vh">
@@ -1765,7 +1788,10 @@ function renderInvList(){
   el.innerHTML=list.map(p=>{
     const sp=p.sell_price||p.sellPrice||0,bp=p.buy_price||p.buyPrice||0,qty=p.qty||0;
     const isLow=qty>0&&qty<=3,isEmpty=qty===0;
-    const sb=isEmpty?'<span class="bdg b-low">ناموجود</span>':isLow?`<span class="bdg b-low">کم‌موجود: ${faNum(qty)}</span>`:`<span class="bdg b-s">موجودی: ${faNum(qty)}</span>`;
+    const isAdmin=currentUser?.role==='admin';
+    const sbStyle=isAdmin?'cursor:pointer;user-select:none' :'';
+    const sbTip=isAdmin?` data-id="${p.id}" data-qty="${qty}" data-name="${p.name}" title="لمس برای ویرایش موجودی"` :'';
+    const sb=isEmpty?`<span class="bdg b-low stock-badge"${sbTip} style="${sbStyle}">ناموجود</span>`:isLow?`<span class="bdg b-low stock-badge"${sbTip} style="${sbStyle}">کم‌موجود: ${faNum(qty)}</span>`:`<span class="bdg b-s stock-badge"${sbTip} style="${sbStyle}">موجودی: ${faNum(qty)}</span>`;
     const ri=Rate.cur();
     const spToman=ri&&sp?Math.round(sp*ri).toLocaleString('fa-IR')+' تومان':null;
     const bpToman=ri&&bp?Math.round(bp*ri).toLocaleString('fa-IR')+' تومان':null;
@@ -1811,6 +1837,16 @@ function renderInvList(){
     if(!e.target.closest('.inv-wrap.sw'))
       document.querySelectorAll('.inv-wrap.sw').forEach(w=>w.classList.remove('sw'));
   },{passive:true});
+  // لمس بج موجودی برای ویرایش سریع (ادمین)
+  if(currentUser?.role==='admin'){
+    el.querySelectorAll('.stock-badge[data-id]').forEach(b=>{
+      b.addEventListener('click',e=>{
+        e.stopPropagation();
+        document.querySelectorAll('.inv-wrap.sw').forEach(w=>w.classList.remove('sw'));
+        openStockModal(b.dataset.id,b.dataset.name,parseInt(b.dataset.qty)||0);
+      });
+    });
+  }
   el.querySelectorAll('.inv-act-edit').forEach(b=>b.addEventListener('click',()=>{
     document.querySelectorAll('.inv-wrap').forEach(w=>w.classList.remove('sw'));
     openProdModal(b.dataset.id);
@@ -1822,6 +1858,47 @@ function renderInvList(){
     catch(e){toast('خطا: '+e.message);}
   }));
 }
+
+// ── ویرایش سریع موجودی (ادمین) ──
+let stockEditId=null;
+function openStockModal(id,name,qty){
+  stockEditId=id;
+  $('mStockName').textContent=name;
+  $('mStockCur').textContent=faNum(qty);
+  $('stQtyVal').value=qty;
+  $('mStock').classList.remove('hidden');
+  setTimeout(()=>$('stQtyVal').focus(),100);
+}
+$('mStockClose')?.addEventListener('click',()=>$('mStock').classList.add('hidden'));
+$('mStockCancel')?.addEventListener('click',()=>$('mStock').classList.add('hidden'));
+$('mStock')?.addEventListener('click',e=>{if(e.target===$('mStock'))$('mStock').classList.add('hidden');});
+$('stMinus')?.addEventListener('click',()=>{const v=parseInt($('stQtyVal').value)||0;if(v>0)$('stQtyVal').value=v-1;});
+$('stPlus')?.addEventListener('click',()=>{const v=parseInt($('stQtyVal').value)||0;$('stQtyVal').value=v+1;});
+$('mStockSave')?.addEventListener('click',async()=>{
+  if(!stockEditId)return;
+  const newQty=parseInt($('stQtyVal').value);
+  if(isNaN(newQty)||newQty<0){toast('مقدار نامعتبر');return;}
+  const btn=$('mStockSave');loading(btn,true);
+  try{
+    // دریافت اطلاعات کامل محصول و فقط تغییر موجودی
+    const prods=cachedProds||[];
+    const prod=prods.find(p=>p.id===stockEditId);
+    if(!prod){toast('محصول یافت نشد');return;}
+    const r=await API.put('/products',{
+      id:stockEditId,
+      name:prod.name,brand:prod.brand||'',volume:prod.volume||0,
+      barcode:prod.barcode||'',sellPrice:prod.sell_price||0,
+      buyPrice:prod.buy_price||0,qty:newQty,description:prod.description||''
+    });
+    if(r.ok){
+      $('mStock').classList.add('hidden');
+      cachedProds=[];await loadInv();
+      toast(`موجودی «${prod.name}» به ${faNum(newQty)} تغییر کرد ✓`);
+    }else{toast(r.error||'خطا');}
+  }catch(e){toast('خطا: '+e.message);}
+  finally{loading(btn,false);}
+});
+// وایر کردن بج‌های موجودی — در renderInvList اجرا می‌شه
 $('invSearch')?.addEventListener('input',renderInvList);
 $('addProdBtn')?.addEventListener('click',()=>openProdModal());
 
