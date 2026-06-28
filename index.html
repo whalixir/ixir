@@ -673,9 +673,18 @@ select.inp{cursor:pointer}
 
   <div class="ratebar">
     <span style="opacity:.8;font-size:.68rem">۱ درهم =</span>
-    <span id="rateVal" class="ratebar-val">در حال دریافت...</span>
+    <span id="rateVal" class="ratebar-val" title="لمس برای ویرایش دستی" style="cursor:pointer">در حال دریافت...</span>
     <span style="opacity:.8;font-size:.68rem">تومان</span>
-    <button class="ratebar-btn" id="rateBtn" title="بروزرسانی نرخ">↻</button>
+    <button class="ratebar-btn" id="rateBtn" title="بروزرسانی خودکار نرخ">↻</button>
+    <button class="ratebar-btn" id="rateEditBtn" title="ویرایش دستی نرخ" style="padding:3px 8px">✏️</button>
+  </div>
+  <!-- ویرایش دستی نرخ -->
+  <div id="rateEditBar" style="display:none;background:rgba(0,0,0,.35);padding:6px 14px;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap">
+    <span style="font-size:.72rem;color:#fff;opacity:.8">نرخ دستی (تومان):</span>
+    <input id="rateManualInp" type="number" inputmode="numeric" style="width:110px;padding:5px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-family:Vazirmatn;font-size:.82rem;text-align:center" placeholder="مثال: 44000"/>
+    <button class="ratebar-btn" id="rateManualSave" style="background:var(--or);color:#fff">ذخیره</button>
+    <button class="ratebar-btn" id="rateManualCancel">انصراف</button>
+    <button class="ratebar-btn" id="rateManualAuto" style="font-size:.68rem">← خودکار</button>
   </div>
 
   <div class="body-wrap">
@@ -1221,10 +1230,11 @@ function updateRateBar(){
   const r=Rate.cur();
   const el=$('rateVal');if(!el)return;
   if(r){
-    el.textContent=Math.round(r).toLocaleString('en-US')+(Rate._fresh===false?' ⏱':'');
-    el.style.color=Rate._fresh===false?'#fde68a':'#fff';
+    const tag=Rate._manual?' ✏️':Rate._fresh===false?' ⏱':'';
+    el.textContent=Math.round(r).toLocaleString('en-US')+tag;
+    el.style.color=Rate._manual?'#86efac':Rate._fresh===false?'#fde68a':'#fff';
   }else{
-    el.textContent='✏️ دستی';
+    el.textContent='لمس برای ویرایش';
     el.style.color='#fde68a';
   }
 }
@@ -1234,10 +1244,52 @@ $('rateBtn')?.addEventListener('click',async()=>{
   updateRateBar();
   renderSaleList();
   renderInvList();
-  // اگر فرم باز بود آپدیت کن
   updSellT();updBuyT();
   toast('نرخ بروز شد ✓');
 });
+
+// ── ویرایش دستی نرخ ──
+function openRateEdit(){
+  const inp=$('rateManualInp');
+  if(inp&&Rate.cur())inp.value=Math.round(Rate.cur());
+  $('rateEditBar').style.display='flex';
+  inp?.focus();
+}
+function closeRateEdit(){$('rateEditBar').style.display='none';}
+$('rateEditBtn')?.addEventListener('click',openRateEdit);
+$('rateVal')?.addEventListener('click',openRateEdit);
+$('rateManualCancel')?.addEventListener('click',closeRateEdit);
+$('rateManualAuto')?.addEventListener('click',async()=>{
+  closeRateEdit();
+  $('rateVal').textContent='...';
+  await Rate.fetch(true);
+  updateRateBar();renderSaleList();renderInvList();updSellT();updBuyT();
+  toast('نرخ خودکار بارگذاری شد ✓');
+});
+$('rateManualSave')?.addEventListener('click',()=>{
+  const v=parseInt($('rateManualInp').value);
+  if(!v||v<10000){toast('نرخ معتبر وارد کنید (بالای ۱۰,۰۰۰ تومان)');return;}
+  Rate.set(v);
+  Rate._fresh=true;
+  Rate._manual=true;
+  updateRateBar();renderSaleList();renderInvList();updSellT();updBuyT();
+  closeRateEdit();
+  toast(`نرخ دستی ${v.toLocaleString('fa-IR')} تومان ذخیره شد ✓`);
+});
+$('rateManualInp')?.addEventListener('keydown',e=>{
+  if(e.key==='Enter')$('rateManualSave').click();
+  if(e.key==='Escape')closeRateEdit();
+});
+
+// بروزرسانی خودکار روزانه (هر ۶۰ دقیقه یک بار چک کن)
+setInterval(async()=>{
+  if(Rate._manual)return; // اگر کاربر دستی تنظیم کرده، دست نزن
+  const age=Date.now()-Rate._t;
+  if(age>60*60*1000){
+    await Rate.fetch(true);
+    updateRateBar();renderSaleList();renderInvList();
+  }
+},60*60*1000);
 
 
 // ══ SALE ══
